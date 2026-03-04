@@ -4,18 +4,19 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ExpenseDraftService } from '../../../core/services/expense-draft.service';
 import { PersonService } from '../../../core/services/person.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { EXPENSE_CATEGORIES, ExpenseCategory } from '../../../core/models/expense.model';
+import { ExpenseCategory } from '../../../core/models/expense.model';
 import { Person } from '../../../core/models/person.model';
 import { PersonSelectComponent } from '../../../shared/components/person-select/person-select.component';
+import { CategorySelectComponent } from '../../../shared/components/category-select/category-select.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-draft-form',
   standalone: true,
-  imports: [ReactiveFormsModule, PersonSelectComponent, LoadingSpinnerComponent],
+  imports: [ReactiveFormsModule, PersonSelectComponent, CategorySelectComponent, LoadingSpinnerComponent],
   template: `
     <div class="max-w-lg mx-auto">
-      <h1 class="text-2xl font-bold text-gray-900 mb-6">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
         {{ isEditMode() ? 'Edit Draft' : 'New Expense Draft' }}
       </h1>
 
@@ -24,16 +25,16 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
       } @else {
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
             <input
               formControlName="title"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
               placeholder="e.g., Electricity Bill"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
             <textarea
               formControlName="description"
               rows="2"
@@ -43,35 +44,31 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <select
-              formControlName="category"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
-            >
-              @for (cat of categories; track cat.value) {
-                <option [value]="cat.value">{{ cat.label }}</option>
-              }
-            </select>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+            <app-category-select
+              [selectedValue]="form.get('category')?.value"
+              (selected)="form.patchValue({ category: $event })"
+            />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Target Amount</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Amount</label>
             <input
               formControlName="targetAmount"
               type="number"
               min="0"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
               placeholder="0"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Number of Installments</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Number of Installments</label>
             <input
               formControlName="installmentCount"
               type="number"
               min="1"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
               placeholder="1"
             />
             <p class="text-xs text-gray-400 mt-1">Use 1 for a single payment</p>
@@ -91,7 +88,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 
           @if (form.get('isLoan')?.value) {
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Person</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Person</label>
               <app-person-select
                 [persons]="persons()"
                 [selectedId]="form.get('loanPersonId')?.value"
@@ -130,7 +127,6 @@ export class DraftFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   router = inject(Router);
 
-  categories = EXPENSE_CATEGORIES;
   persons = signal<Person[]>([]);
   isEditMode = signal(false);
   formLoading = signal(false);

@@ -31,7 +31,7 @@ import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
 
     <div class="flex items-center justify-between mb-6">
       <app-month-picker [currentMonth]="currentMonth()" (monthChanged)="onMonthChange($event)" />
-      <p class="text-sm text-gray-500">
+      <p class="text-sm text-gray-500 dark:text-gray-400">
         Total: <app-amount-display [amount]="totalAmount()" type="expense" />
       </p>
     </div>
@@ -49,11 +49,11 @@ import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
         @for (expense of expenses(); track expense.id) {
           <div
             (click)="router.navigate(['/expenses', expense.id])"
-            class="flex items-center justify-between bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md transition-shadow"
+            class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 cursor-pointer hover:shadow-md transition-shadow"
           >
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1">
-                <h3 class="text-sm font-medium text-gray-900 truncate">{{ expense.title }}</h3>
+                <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ expense.title }}</h3>
                 <app-category-badge [category]="expense.category" />
                 @if (expense.isLoan) {
                   <span class="text-xs bg-amber-100 text-amber-800 rounded-full px-2 py-0.5">Loan</span>

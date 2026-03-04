@@ -8,8 +8,8 @@ Chart.register(...registerables);
   selector: 'app-monthly-chart',
   standalone: true,
   template: `
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-      <h3 class="text-sm font-semibold text-gray-700 mb-4">Expenses - Last 6 Months</h3>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Expenses - Last 6 Months</h3>
       <div class="relative h-64">
         <canvas #chartCanvas></canvas>
       </div>

@@ -24,10 +24,10 @@ import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
       <app-loading-spinner size="lg" [fullPage]="true" />
     } @else if (expense()) {
       <div class="max-w-lg mx-auto">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors">
           <div class="flex items-start justify-between mb-4">
             <div>
-              <h1 class="text-xl font-bold text-gray-900">{{ expense()!.title }}</h1>
+              <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ expense()!.title }}</h1>
               <div class="flex items-center gap-2 mt-1">
                 <app-category-badge [category]="expense()!.category" />
                 @if (expense()!.isLoan) {
@@ -39,12 +39,12 @@ import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
           </div>
 
           @if (expense()!.description) {
-            <p class="text-sm text-gray-600 mb-4">{{ expense()!.description }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ expense()!.description }}</p>
           }
 
           <p class="text-xs text-gray-400">{{ expense()!.date | relativeDate }}</p>
 
-          <div class="flex gap-3 mt-6 pt-4 border-t border-gray-100">
+          <div class="flex gap-3 mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
             <button
               (click)="router.navigate(['/expenses', expense()!.id, 'edit'])"
               class="flex-1 rounded-lg px-4 py-2 text-sm font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 transition-colors"

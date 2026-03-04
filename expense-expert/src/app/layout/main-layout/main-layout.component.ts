@@ -9,7 +9,7 @@ import { ToastContainerComponent } from '../../shared/components/toast-container
   standalone: true,
   imports: [RouterOutlet, SidebarComponent, NavbarComponent, ToastContainerComponent],
   template: `
-    <div class="flex h-screen overflow-hidden bg-gray-50">
+    <div class="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors">
       <!-- Sidebar overlay for mobile -->
       @if (sidebarOpen()) {
         <div

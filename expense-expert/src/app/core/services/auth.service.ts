@@ -21,7 +21,14 @@ export class AuthService {
   isAuthenticated = computed(() => this.currentUser() !== null);
   isLoading = signal<boolean>(true);
 
+  /** Resolves once Firebase has restored (or failed to restore) the auth session. */
+  readonly authReady: Promise<void>;
+  private resolveAuthReady!: () => void;
+
   constructor() {
+    this.authReady = new Promise<void>((resolve) => {
+      this.resolveAuthReady = resolve;
+    });
     this.initAuthListener();
   }
 
@@ -29,6 +36,7 @@ export class AuthService {
     onAuthStateChanged(this.auth, async (user) => {
       this.currentUser.set(user);
       this.isLoading.set(false);
+      this.resolveAuthReady();
 
       if (user) {
         await this.ensureUserDocument(user);

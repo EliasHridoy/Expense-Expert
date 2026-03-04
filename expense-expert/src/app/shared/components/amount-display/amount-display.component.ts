@@ -22,8 +22,8 @@ export class AmountDisplayComponent {
   }
 
   get colorClass(): string {
-    if (this.type === 'expense') return 'text-red-600';
-    if (this.type === 'income') return 'text-green-600';
-    return 'text-gray-900';
+    if (this.type === 'expense') return 'text-red-600 dark:text-red-400';
+    if (this.type === 'income') return 'text-green-600 dark:text-green-400';
+    return 'text-gray-900 dark:text-gray-100';
   }
 }

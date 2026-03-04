@@ -7,16 +7,16 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
     <div class="flex items-center gap-2">
       <button
         (click)="navigate(-1)"
-        class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors"
+        class="rounded-lg p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
       >
         &larr;
       </button>
-      <span class="text-sm font-medium text-gray-700 min-w-[120px] text-center">
+      <span class="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[120px] text-center">
         {{ displayMonth }}
       </span>
       <button
         (click)="navigate(1)"
-        class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors"
+        class="rounded-lg p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
       >
         &rarr;
       </button>
