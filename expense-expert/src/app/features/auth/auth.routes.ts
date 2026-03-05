@@ -12,9 +12,9 @@ export const AUTH_ROUTES: Routes = [
           import('./login/login.component').then((m) => m.LoginComponent),
       },
       {
-        path: 'verify',
+        path: 'register',
         loadComponent: () =>
-          import('./verify/verify.component').then((m) => m.VerifyComponent),
+          import('./register/register.component').then((m) => m.RegisterComponent),
       },
       { path: '', redirectTo: 'login', pathMatch: 'full' },
     ],

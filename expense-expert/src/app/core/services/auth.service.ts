@@ -1,16 +1,17 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import {
   Auth,
-  sendSignInLinkToEmail,
-  signInWithEmailLink,
-  isSignInWithEmailLink,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+  updateProfile,
   signOut,
   onAuthStateChanged,
   User,
 } from '@angular/fire/auth';
 import { Firestore, doc, getDoc, setDoc, serverTimestamp } from '@angular/fire/firestore';
-
-const EMAIL_STORAGE_KEY = 'emailForSignIn';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -44,32 +45,27 @@ export class AuthService {
     });
   }
 
-  async sendSignInLink(email: string): Promise<void> {
-    const actionCodeSettings = {
-      url: `${window.location.origin}/auth/verify`,
-      handleCodeInApp: true,
-    };
-
-    await sendSignInLinkToEmail(this.auth, email, actionCodeSettings);
-    window.localStorage.setItem(EMAIL_STORAGE_KEY, email);
+  /** Register a new user with email and password */
+  async register(email: string, password: string, displayName: string): Promise<void> {
+    const credential = await createUserWithEmailAndPassword(this.auth, email, password);
+    await updateProfile(credential.user, { displayName });
   }
 
-  async completeSignIn(url: string): Promise<void> {
-    if (!isSignInWithEmailLink(this.auth, url)) {
-      throw new Error('Invalid sign-in link');
-    }
+  /** Sign in with email and password */
+  async login(email: string, password: string): Promise<void> {
+    await signInWithEmailAndPassword(this.auth, email, password);
+  }
 
-    let email = window.localStorage.getItem(EMAIL_STORAGE_KEY);
-    if (!email) {
-      email = window.prompt('Please provide your email for confirmation') || '';
-    }
+  /** Sign in with Google popup */
+  async signInWithGoogle(): Promise<void> {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(this.auth, provider);
+  }
 
-    if (!email) {
-      throw new Error('Email is required to complete sign-in');
-    }
-
-    await signInWithEmailLink(this.auth, email, url);
-    window.localStorage.removeItem(EMAIL_STORAGE_KEY);
+  /** Sign in with Facebook popup */
+  async signInWithFacebook(): Promise<void> {
+    const provider = new FacebookAuthProvider();
+    await signInWithPopup(this.auth, provider);
   }
 
   async signOut(): Promise<void> {

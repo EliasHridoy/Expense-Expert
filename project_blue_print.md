@@ -27,3 +27,6 @@ AI can decide the schema. But it should be normalized and efficient.
 
 # AI Prompt:
 you are an expert full stack senior software engineer. I want you to create a web application that can help users track their expenses and income. so create a project structure and start creating the application.
+
+# AI Guidelines:
+Read and Update MEMORY.MD file after every change.
