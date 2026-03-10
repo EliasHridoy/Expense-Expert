@@ -19,21 +19,21 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
     } @else if (summaries().length === 0) {
       <app-empty-state message="No savings history yet" />
     } @else {
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b border-gray-100">
-              <th class="text-left px-4 py-3 font-medium text-gray-500">Purpose</th>
-              <th class="text-right px-4 py-3 font-medium text-gray-500">Total Saved</th>
-              <th class="text-right px-4 py-3 font-medium text-gray-500">Months Active</th>
+            <tr class="border-b border-gray-200 dark:border-gray-700">
+              <th class="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Purpose</th>
+              <th class="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Total Saved</th>
+              <th class="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Months Active</th>
             </tr>
           </thead>
           <tbody>
             @for (row of summaries(); track row.purpose) {
-              <tr class="border-b border-gray-50">
-                <td class="px-4 py-3 font-medium text-gray-900 capitalize">{{ row.purpose }}</td>
+              <tr class="border-b border-gray-100 dark:border-gray-700">
+                <td class="px-4 py-3 font-medium text-gray-900 dark:text-gray-100 capitalize">{{ row.purpose }}</td>
                 <td class="px-4 py-3 text-right text-green-600 font-medium">{{ row.totalSaved | number:'1.0-0' }}</td>
-                <td class="px-4 py-3 text-right text-gray-500">{{ row.months }}</td>
+                <td class="px-4 py-3 text-right text-gray-500 dark:text-gray-400">{{ row.months }}</td>
               </tr>
             }
           </tbody>
@@ -43,7 +43,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 
     <button
       (click)="router.navigate(['/savings'])"
-      class="mt-6 text-sm text-gray-500 hover:text-gray-700"
+      class="mt-6 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
     >
       &larr; Back to Savings
     </button>

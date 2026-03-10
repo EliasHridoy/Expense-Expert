@@ -11,7 +11,7 @@ import { Person } from '../../../core/models/person.model';
       <select
         [ngModel]="selectedId"
         (ngModelChange)="selected.emit($event)"
-        class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
+        class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
       >
         <option value="" disabled>Select a person</option>
         @for (person of persons; track person.id) {
@@ -23,7 +23,7 @@ import { Person } from '../../../core/models/person.model';
         <button
           type="button"
           (click)="showAddForm.set(true)"
-          class="rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors whitespace-nowrap"
+          class="rounded-lg bg-gray-100 dark:bg-gray-700 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors whitespace-nowrap"
         >
           + Add
         </button>
@@ -32,7 +32,7 @@ import { Person } from '../../../core/models/person.model';
           <input
             [(ngModel)]="newPersonName"
             placeholder="Name"
-            class="w-28 rounded-lg border border-gray-300 px-2 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
+            class="w-28 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-2 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
             (keyup.enter)="addPerson()"
           />
           <button
@@ -45,7 +45,7 @@ import { Person } from '../../../core/models/person.model';
           <button
             type="button"
             (click)="showAddForm.set(false); newPersonName = ''"
-            class="rounded-lg bg-gray-100 px-2 py-2 text-sm text-gray-600 hover:bg-gray-200 transition-colors"
+            class="rounded-lg bg-gray-100 dark:bg-gray-700 px-2 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
             X
           </button>

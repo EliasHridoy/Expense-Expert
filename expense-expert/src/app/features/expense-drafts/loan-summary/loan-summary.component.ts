@@ -37,22 +37,22 @@ interface LoanSummaryRow {
     } @else if (summaryRows().length === 0) {
       <app-empty-state message="No loans tracked yet" />
     } @else {
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b border-gray-100">
-              <th class="text-left px-4 py-3 font-medium text-gray-500">Person</th>
-              <th class="text-right px-4 py-3 font-medium text-gray-500">Total Loaned</th>
-              <th class="text-right px-4 py-3 font-medium text-gray-500">Cleared</th>
-              <th class="text-right px-4 py-3 font-medium text-gray-500">Outstanding</th>
+            <tr class="border-b border-gray-200 dark:border-gray-700">
+              <th class="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Person</th>
+              <th class="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Total Loaned</th>
+              <th class="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Cleared</th>
+              <th class="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Outstanding</th>
               <th class="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody>
             @for (row of summaryRows(); track row.person.id) {
-              <tr class="border-b border-gray-50">
-                <td class="px-4 py-3 font-medium text-gray-900">{{ row.person.name }}</td>
-                <td class="px-4 py-3 text-right text-gray-600">{{ row.totalLoaned | number:'1.0-0' }}</td>
+              <tr class="border-b border-gray-100 dark:border-gray-700">
+                <td class="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{{ row.person.name }}</td>
+                <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-300">{{ row.totalLoaned | number:'1.0-0' }}</td>
                 <td class="px-4 py-3 text-right text-green-600">{{ row.totalCleared | number:'1.0-0' }}</td>
                 <td class="px-4 py-3 text-right font-medium" [class]="row.outstanding > 0 ? 'text-red-600' : 'text-gray-400'">
                   {{ row.outstanding | number:'1.0-0' }}
@@ -75,7 +75,7 @@ interface LoanSummaryRow {
 
       <button
         (click)="router.navigate(['/drafts'])"
-        class="mt-6 text-sm text-gray-500 hover:text-gray-700"
+        class="mt-6 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
       >
         &larr; Back to Drafts
       </button>

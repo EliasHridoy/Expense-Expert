@@ -8,7 +8,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   template: `
     <aside class="flex flex-col h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 w-64 transition-colors">
       <!-- Logo -->
-      <div class="flex items-center gap-3 px-6 py-5 border-b border-gray-100 dark:border-gray-700">
+      <div class="flex items-center gap-3 px-6 py-5 border-b border-gray-200 dark:border-gray-700">
         <div class="h-8 w-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-bold text-sm">
           EE
         </div>

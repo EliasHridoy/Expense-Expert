@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { where, orderBy } from '@angular/fire/firestore';
-import { Observable, map } from 'rxjs';
+import { Observable, firstValueFrom, map } from 'rxjs';
 import { FirestoreService } from './firestore.service';
 import { AuthService } from './auth.service';
 import {
@@ -53,25 +53,47 @@ export class SavingService {
   }
 
   // Saving Goals
-  getGoalsByMonth(month: string): Observable<SavingGoal[]> {
-    return this.firestoreService.getCollection<SavingGoal>(
-      this.firestoreService.userPath(this.uid, 'saving-goals'),
-      where('month', '==', month),
-      orderBy('purpose', 'asc')
-    );
+
+  /** Returns all goals and filters client-side for those active in the given month */
+  getGoalsActiveInMonth(month: string): Observable<SavingGoal[]> {
+    return this.firestoreService
+      .getCollection<SavingGoal>(
+        this.firestoreService.userPath(this.uid, 'saving-goals'),
+        orderBy('purpose', 'asc')
+      )
+      .pipe(
+        map((goals) =>
+          goals.filter((g) => g.startMonth <= month && g.endMonth >= month)
+        )
+      );
   }
 
   async addGoal(dto: CreateSavingGoalDto): Promise<string> {
+    const endMonth = this.computeEndMonth(dto.startMonth, dto.durationValue, dto.durationUnit);
     return this.firestoreService.addDocument(
       this.firestoreService.userPath(this.uid, 'saving-goals'),
-      { ...dto, savedAmount: 0 }
+      { ...dto, endMonth, savedAmount: 0 }
     );
   }
 
   async updateGoal(id: string, dto: UpdateSavingGoalDto): Promise<void> {
+    const update: UpdateSavingGoalDto & { endMonth?: string } = { ...dto };
+    // Recompute endMonth if duration or startMonth changed
+    if ((dto.startMonth || dto.durationValue || dto.durationUnit)) {
+      const goalPath = `${this.firestoreService.userPath(this.uid, 'saving-goals')}/${id}`;
+      const current = await firstValueFrom(
+        this.firestoreService.getDocument<SavingGoal>(goalPath)
+      );
+      if (current) {
+        const startMonth = dto.startMonth ?? current.startMonth;
+        const durationValue = dto.durationValue ?? current.durationValue;
+        const durationUnit = dto.durationUnit ?? current.durationUnit;
+        update.endMonth = this.computeEndMonth(startMonth, durationValue, durationUnit);
+      }
+    }
     return this.firestoreService.updateDocument(
       `${this.firestoreService.userPath(this.uid, 'saving-goals')}/${id}`,
-      dto
+      update
     );
   }
 
@@ -96,16 +118,17 @@ export class SavingService {
       { ...dto, month }
     );
 
-    // Update goal's savedAmount
+    // ✅ FIX: Use firstValueFrom() for a one-shot read — NOT subscribe() which is a live stream
+    // The old .subscribe() caused an infinite loop: update → Firestore event → update → ...
     const goalPath = `${this.firestoreService.userPath(this.uid, 'saving-goals')}/${dto.goalId}`;
-    const goalDoc = this.firestoreService.getDocument<SavingGoal>(goalPath);
-    goalDoc.subscribe((goal) => {
-      if (goal) {
-        this.firestoreService.updateDocument(goalPath, {
-          savedAmount: goal.savedAmount + dto.amount,
-        });
-      }
-    });
+    const goal = await firstValueFrom(
+      this.firestoreService.getDocument<SavingGoal>(goalPath)
+    );
+    if (goal) {
+      await this.firestoreService.updateDocument(goalPath, {
+        savedAmount: goal.savedAmount + dto.amount,
+      });
+    }
 
     return entryId;
   }
@@ -124,7 +147,7 @@ export class SavingService {
               months: new Set<string>(),
             };
             existing.totalSaved += goal.savedAmount;
-            existing.months.add(goal.month);
+            existing.months.add(goal.startMonth);
             purposeMap.set(goal.purpose, existing);
           }
           return Array.from(purposeMap.entries()).map(([purpose, data]) => ({
@@ -134,5 +157,16 @@ export class SavingService {
           }));
         })
       );
+  }
+
+  /** Compute end month string given a start month, duration value, and unit */
+  computeEndMonth(startMonth: string, durationValue: number, durationUnit: 'months' | 'years'): string {
+    const [year, month] = startMonth.split('-').map(Number);
+    const totalMonths = durationUnit === 'years' ? durationValue * 12 : durationValue;
+    // End month is the last month of the span (start + totalMonths - 1)
+    const endDate = new Date(year, month - 1 + totalMonths - 1, 1);
+    const endYear = endDate.getFullYear();
+    const endMonth = String(endDate.getMonth() + 1).padStart(2, '0');
+    return `${endYear}-${endMonth}`;
   }
 }

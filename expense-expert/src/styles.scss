@@ -13,3 +13,20 @@ body {
   @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
   transition: background-color 0.2s, color 0.2s;
 }
+
+/* Fix browser autofill overriding dark mode input backgrounds */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark textarea:-webkit-autofill,
+.dark select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px rgb(55 65 81) inset !important; /* gray-700 */
+  -webkit-text-fill-color: rgb(243 244 246) !important; /* gray-100 */
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Ensure select dropdown options are readable in dark mode */
+.dark select option {
+  background-color: rgb(31 41 55); /* gray-800 */
+  color: rgb(243 244 246); /* gray-100 */
+}

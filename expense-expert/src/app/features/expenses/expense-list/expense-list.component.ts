@@ -49,7 +49,7 @@ import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
         @for (expense of expenses(); track expense.id) {
           <div
             (click)="router.navigate(['/expenses', expense.id])"
-            class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 cursor-pointer hover:shadow-md transition-shadow"
+            class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 cursor-pointer hover:shadow-md transition-shadow"
           >
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1">

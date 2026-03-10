@@ -10,6 +10,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { CategoryBadgeComponent } from '../../../shared/components/category-badge/category-badge.component';
 import { InstallmentTrackerComponent } from '../installment-tracker/installment-tracker.component';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-draft-list',
@@ -22,6 +23,7 @@ import { InstallmentTrackerComponent } from '../installment-tracker/installment-
     LoadingSpinnerComponent,
     CategoryBadgeComponent,
     InstallmentTrackerComponent,
+    ConfirmDialogComponent,
   ],
   template: `
     <app-page-header
@@ -49,55 +51,72 @@ import { InstallmentTrackerComponent } from '../installment-tracker/installment-
         (actionClick)="router.navigate(['/drafts/new'])"
       />
     } @else {
-      <div class="space-y-3">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         @for (draft of drafts(); track draft.id) {
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-            <div class="flex items-start justify-between mb-2">
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex flex-col justify-between">
+            <div class="flex items-start justify-between mb-4">
               <div>
-                <div class="flex items-center gap-2">
-                  <h3 class="text-sm font-medium text-gray-900">{{ draft.title }}</h3>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ draft.title }}</h3>
                   <app-category-badge [category]="draft.category" />
                   @if (draft.isLoan) {
                     <span class="text-xs bg-amber-100 text-amber-800 rounded-full px-2 py-0.5">Loan</span>
                   }
                 </div>
-                <p class="text-xs text-gray-400 mt-0.5">
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
                   Target: {{ draft.targetAmount | number:'1.0-0' }} | {{ draft.installmentCount }} installment(s)
                 </p>
               </div>
-              <div class="flex items-center gap-2">
+              <div class="flex-shrink-0 ml-2">
                 <button
                   (click)="router.navigate(['/drafts', draft.id, 'edit'])"
-                  class="text-xs text-gray-500 hover:text-gray-700 px-2 py-1"
+                  class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 px-2 py-1"
                 >
                   Edit
+                </button>
+                <button
+                  (click)="draftToDelete = draft; showDraftDeleteConfirm.set(true)"
+                  class="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 px-2 py-1 ml-1"
+                >
+                  Delete
                 </button>
               </div>
             </div>
 
-            <!-- Show application status for this month -->
-            @if (getApplication(draft.id); as app) {
-              <app-installment-tracker [application]="app" />
-              @if (app.status !== 'completed') {
+            <div class="mt-auto">
+              <!-- Show application status for this month -->
+              @if (getApplication(draft.id); as app) {
+                <app-installment-tracker [application]="app" />
+                @if (app.status !== 'completed') {
+                  <button
+                    (click)="router.navigate(['/drafts', app.id])"
+                    class="mt-3 text-xs text-primary-600 hover:text-primary-700 font-medium"
+                  >
+                    Record Payment
+                  </button>
+                }
+              } @else {
                 <button
-                  (click)="router.navigate(['/drafts', app.id])"
+                  (click)="applyDraft(draft)"
                   class="mt-2 text-xs text-primary-600 hover:text-primary-700 font-medium"
                 >
-                  Record Payment
+                  Apply to {{ displayMonth }}
                 </button>
               }
-            } @else {
-              <button
-                (click)="applyDraft(draft)"
-                class="mt-2 text-xs text-primary-600 hover:text-primary-700 font-medium"
-              >
-                Apply to {{ displayMonth }}
-              </button>
-            }
+            </div>
           </div>
         }
       </div>
     }
+
+    <app-confirm-dialog
+      [isOpen]="showDraftDeleteConfirm()"
+      title="Delete Draft"
+      message="Are you sure you want to delete this draft?"
+      confirmLabel="Delete"
+      (confirmed)="deleteDraft()"
+      (cancelled)="showDraftDeleteConfirm.set(false)"
+    />
   `,
 })
 export class DraftListComponent implements OnInit {
@@ -109,6 +128,9 @@ export class DraftListComponent implements OnInit {
   drafts = signal<ExpenseDraft[]>([]);
   applications = signal<DraftApplication[]>([]);
   isLoading = signal(true);
+
+  showDraftDeleteConfirm = signal(false);
+  draftToDelete: ExpenseDraft | null = null;
 
   get displayMonth(): string {
     const [year, month] = this.currentMonth().split('-');
@@ -138,6 +160,20 @@ export class DraftListComponent implements OnInit {
     } catch {
       this.toastService.error('Failed to apply draft');
     }
+  }
+
+  async deleteDraft(): Promise<void> {
+    if (!this.draftToDelete) return;
+
+    try {
+      await this.draftService.deleteDraft(this.draftToDelete.id);
+      this.toastService.success('Draft deleted');
+      this.loadData();
+    } catch {
+      this.toastService.error('Failed to delete draft');
+    }
+    this.showDraftDeleteConfirm.set(false);
+    this.draftToDelete = null;
   }
 
   private loadData(): void {

@@ -24,7 +24,7 @@ import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
       <app-loading-spinner size="lg" [fullPage]="true" />
     } @else if (expense()) {
       <div class="max-w-lg mx-auto">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors">
           <div class="flex items-start justify-between mb-4">
             <div>
               <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ expense()!.title }}</h1>
@@ -44,7 +44,7 @@ import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
 
           <p class="text-xs text-gray-400">{{ expense()!.date | relativeDate }}</p>
 
-          <div class="flex gap-3 mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
+          <div class="flex gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
               (click)="router.navigate(['/expenses', expense()!.id, 'edit'])"
               class="flex-1 rounded-lg px-4 py-2 text-sm font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 transition-colors"
@@ -59,7 +59,7 @@ import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
             </button>
             <button
               (click)="router.navigate(['/expenses'])"
-              class="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+              class="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
             >
               Back
             </button>

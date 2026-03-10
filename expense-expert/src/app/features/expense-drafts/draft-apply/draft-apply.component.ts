@@ -17,14 +17,14 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
       <app-loading-spinner size="lg" [fullPage]="true" />
     } @else if (application() && draft()) {
       <div class="max-w-lg mx-auto">
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ draft()!.title }}</h1>
-        <p class="text-sm text-gray-500 mb-6">{{ application()!.month }}</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">{{ draft()!.title }}</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{ application()!.month }}</p>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
           <app-installment-tracker [application]="application()!" />
 
           <div class="mt-4 space-y-2 text-sm">
-            <div class="flex justify-between text-gray-500">
+            <div class="flex justify-between text-gray-500 dark:text-gray-400">
               <span>Target</span>
               <span>{{ application()!.targetAmount | number:'1.0-0' }}</span>
             </div>
@@ -32,7 +32,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
               <span>Paid</span>
               <span>{{ application()!.paidAmount | number:'1.0-0' }}</span>
             </div>
-            <div class="flex justify-between font-medium text-gray-900">
+            <div class="flex justify-between font-medium text-gray-900 dark:text-gray-100">
               <span>Remaining</span>
               <span>{{ application()!.targetAmount - application()!.paidAmount | number:'1.0-0' }}</span>
             </div>
@@ -40,15 +40,15 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
         </div>
 
         @if (application()!.status !== 'completed') {
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 class="text-sm font-semibold text-gray-700 mb-3">Record Payment</h3>
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Record Payment</h3>
             <div class="flex gap-3">
               <input
                 [(ngModel)]="paymentAmount"
                 type="number"
                 min="1"
                 [placeholder]="'Suggested: ' + suggestedAmount"
-                class="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
+                class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 px-4 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
               />
               <button
                 (click)="recordPayment()"
@@ -64,12 +64,12 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
         <!-- Payment History -->
         @if (application()!.payments.length > 0) {
           <div class="mt-6">
-            <h3 class="text-sm font-semibold text-gray-700 mb-3">Payment History</h3>
+            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Payment History</h3>
             <div class="space-y-2">
               @for (payment of application()!.payments; track $index) {
-                <div class="flex justify-between items-center bg-white rounded-lg border border-gray-100 px-4 py-3 text-sm">
-                  <span class="text-gray-500">Installment {{ $index + 1 }}</span>
-                  <span class="font-medium text-gray-900">{{ payment.amount | number:'1.0-0' }}</span>
+                <div class="flex justify-between items-center bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-3 text-sm">
+                  <span class="text-gray-500 dark:text-gray-400">Installment {{ $index + 1 }}</span>
+                  <span class="font-medium text-gray-900 dark:text-gray-100">{{ payment.amount | number:'1.0-0' }}</span>
                 </div>
               }
             </div>
@@ -78,7 +78,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 
         <button
           (click)="router.navigate(['/drafts'])"
-          class="mt-6 text-sm text-gray-500 hover:text-gray-700"
+          class="mt-6 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
         >
           &larr; Back to Drafts
         </button>

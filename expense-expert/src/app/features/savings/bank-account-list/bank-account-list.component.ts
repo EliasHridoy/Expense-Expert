@@ -7,10 +7,10 @@ import { BankAccount } from '../../../core/models/saving.model';
   template: `
     <div class="space-y-2">
       @for (account of accounts; track account.id) {
-        <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
+        <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-800 rounded-lg border border-transparent dark:border-gray-700 px-4 py-3">
           <div>
-            <p class="text-sm font-medium text-gray-900">{{ account.accountName }}</p>
-            <p class="text-xs text-gray-400">{{ account.bankName }} - ****{{ account.accountNumber }}</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ account.accountName }}</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500">{{ account.bankName }} - ****{{ account.accountNumber }}</p>
           </div>
           <div class="flex gap-2">
             <button
@@ -28,7 +28,7 @@ import { BankAccount } from '../../../core/models/saving.model';
           </div>
         </div>
       } @empty {
-        <p class="text-sm text-gray-400 text-center py-4">No bank accounts added yet.</p>
+        <p class="text-sm text-gray-400 dark:text-gray-500 text-center py-4">No bank accounts added yet.</p>
       }
     </div>
   `,
