@@ -31,8 +31,13 @@ import { TourOverlayComponent } from '../../shared/components/tour-overlay/tour-
       <!-- Main content -->
       <div class="flex-1 flex flex-col min-w-0">
         <app-navbar (menuToggle)="sidebarOpen.set(!sidebarOpen())" />
-        <main class="flex-1 overflow-y-auto p-6">
-          <router-outlet />
+        <main class="flex-1 overflow-y-auto p-6 flex flex-col">
+          <div class="flex-1">
+            <router-outlet />
+          </div>
+          <footer class="mt-auto pt-8 pb-2 text-center text-xs text-gray-500 dark:text-gray-400">
+            &copy; {{ currentYear }} All rights reserved by Lord Elias.
+          </footer>
         </main>
       </div>
     </div>
@@ -43,4 +48,5 @@ import { TourOverlayComponent } from '../../shared/components/tour-overlay/tour-
 })
 export class MainLayoutComponent {
   sidebarOpen = signal(false);
+  currentYear = new Date().getFullYear();
 }

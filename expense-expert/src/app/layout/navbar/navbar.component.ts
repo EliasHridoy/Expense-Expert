@@ -17,7 +17,7 @@ import { ToastService } from '../../core/services/toast.service';
         >
           &#9776;
         </button>
-        <h2 class="text-sm text-gray-500 dark:text-gray-400">Welcome back!</h2>
+        <!-- <h2 class="text-sm text-gray-500 dark:text-gray-400">Welcome back!</h2> -->
       </div>
 
       <div class="flex items-center gap-3">
@@ -52,12 +52,6 @@ import { ToastService } from '../../core/services/toast.service';
         </button>
 
         <span class="text-sm text-gray-700 dark:text-gray-300">{{ userEmail }}</span>
-        <button
-          (click)="logout()"
-          class="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-        >
-          Sign out
-        </button>
       </div>
     </header>
   `,
@@ -88,10 +82,5 @@ export class NavbarComponent {
     this.toastService.success('Tour restarted! Visit each page to see its guide.');
   }
 
-  async logout(): Promise<void> {
-    await this.authService.signOut();
-    this.toastService.success('Signed out successfully');
-    this.router.navigate(['/auth/login']);
-  }
-}
 
+}
