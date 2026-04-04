@@ -1,7 +1,8 @@
 export interface MonthSummary {
+  totalIncome: number;
   totalExpenses: number;
   totalSavings: number;
-  balance: number;
+  remaining: number;
   expenseCount: number;
 }
 

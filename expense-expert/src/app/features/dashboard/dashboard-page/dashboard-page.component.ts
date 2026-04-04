@@ -6,6 +6,7 @@ import { MonthlyChartComponent } from '../monthly-chart/monthly-chart.component'
 import { MonthPickerComponent } from '../../../shared/components/month-picker/month-picker.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { TourService } from '../../../core/services/tour.service';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -32,13 +33,16 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
       }
 
       @if (trend().length > 0) {
-        <app-monthly-chart [data]="trend()" />
+        <div id="monthly-chart">
+          <app-monthly-chart [data]="trend()" />
+        </div>
       }
     }
   `,
 })
 export class DashboardPageComponent implements OnInit {
   private dashboardService = inject(DashboardService);
+  private tourService = inject(TourService);
 
   currentMonth = signal(this.getCurrentMonth());
   summary = signal<MonthSummary | null>(null);
@@ -60,6 +64,11 @@ export class DashboardPageComponent implements OnInit {
     this.dashboardService.getCurrentMonthSummary(this.currentMonth()).subscribe((summary) => {
       this.summary.set(summary);
       this.isLoading.set(false);
+
+      // Start tour after data loads
+      this.tourService.loadTourState().then(() => {
+        this.tourService.tryStartPageTour('dashboard');
+      });
     });
 
     this.dashboardService.getMonthlyTrend(6).subscribe((trend) => {

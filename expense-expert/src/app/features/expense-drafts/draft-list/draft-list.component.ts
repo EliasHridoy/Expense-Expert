@@ -11,6 +11,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { CategoryBadgeComponent } from '../../../shared/components/category-badge/category-badge.component';
 import { InstallmentTrackerComponent } from '../installment-tracker/installment-tracker.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { TourService } from '../../../core/services/tour.service';
 
 @Component({
   selector: 'app-draft-list',
@@ -29,18 +30,9 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
     <app-page-header
       title="Expense Drafts"
       actionLabel="+ New Draft"
+      actionId="draft-add-btn"
       (actionClick)="router.navigate(['/drafts/new'])"
     />
-
-    <div class="flex items-center justify-between mb-6">
-      <app-month-picker [currentMonth]="currentMonth()" (monthChanged)="onMonthChange($event)" />
-      <a
-        (click)="router.navigate(['/drafts/loans'])"
-        class="text-sm text-primary-600 hover:text-primary-700 font-medium cursor-pointer"
-      >
-        View Loan Summary
-      </a>
-    </div>
 
     @if (isLoading()) {
       <app-loading-spinner size="lg" [fullPage]="true" />
@@ -51,7 +43,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
         (actionClick)="router.navigate(['/drafts/new'])"
       />
     } @else {
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div id="draft-list-area" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         @for (draft of drafts(); track draft.id) {
           <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex flex-col justify-between">
             <div class="flex items-start justify-between mb-4">
@@ -122,6 +114,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 export class DraftListComponent implements OnInit {
   private draftService = inject(ExpenseDraftService);
   private toastService = inject(ToastService);
+  private tourService = inject(TourService);
   router = inject(Router);
 
   currentMonth = signal(this.getCurrentMonth());
@@ -182,6 +175,10 @@ export class DraftListComponent implements OnInit {
     this.draftService.getDrafts().subscribe((drafts) => {
       this.drafts.set(drafts);
       this.isLoading.set(false);
+
+      this.tourService.loadTourState().then(() => {
+        this.tourService.tryStartPageTour('drafts');
+      });
     });
 
     this.draftService.getApplicationsForMonth(this.currentMonth()).subscribe((apps) => {

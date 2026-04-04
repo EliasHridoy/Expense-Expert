@@ -3,11 +3,12 @@ import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { ToastContainerComponent } from '../../shared/components/toast-container/toast-container.component';
+import { TourOverlayComponent } from '../../shared/components/tour-overlay/tour-overlay.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, NavbarComponent, ToastContainerComponent],
+  imports: [RouterOutlet, SidebarComponent, NavbarComponent, ToastContainerComponent, TourOverlayComponent],
   template: `
     <div class="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors">
       <!-- Sidebar overlay for mobile -->
@@ -37,6 +38,7 @@ import { ToastContainerComponent } from '../../shared/components/toast-container
     </div>
 
     <app-toast-container />
+    <app-tour-overlay />
   `,
 })
 export class MainLayoutComponent {

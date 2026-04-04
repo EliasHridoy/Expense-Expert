@@ -118,15 +118,15 @@ export class SavingService {
       { ...dto, month }
     );
 
-    // ✅ FIX: Use firstValueFrom() for a one-shot read — NOT subscribe() which is a live stream
-    // The old .subscribe() caused an infinite loop: update → Firestore event → update → ...
     const goalPath = `${this.firestoreService.userPath(this.uid, 'saving-goals')}/${dto.goalId}`;
     const goal = await firstValueFrom(
       this.firestoreService.getDocument<SavingGoal>(goalPath)
     );
     if (goal) {
+      const delta = dto.type === 'withdrawal' ? -dto.amount : dto.amount;
+      const newAmount = Math.max(0, goal.savedAmount + delta);
       await this.firestoreService.updateDocument(goalPath, {
-        savedAmount: goal.savedAmount + dto.amount,
+        savedAmount: newAmount,
       });
     }
 

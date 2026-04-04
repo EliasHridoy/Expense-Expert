@@ -3,6 +3,7 @@ export enum ExpenseCategory {
   Transport = 'transport',
   Entertainment = 'entertainment',
   Utilities = 'utilities',
+  Savings = 'savings',
   Other = 'other',
 }
 
@@ -17,6 +18,7 @@ export interface Expense {
   isLoan: boolean;
   loanPersonId: string | null;
   loanCleared: boolean;
+  loanRepaid: number; // amount repaid so far (partial repayment)
   draftId: string | null;
   installmentIndex: number | null;
   createdAt: Date;
@@ -51,5 +53,6 @@ export const EXPENSE_CATEGORIES = [
   { value: ExpenseCategory.Transport, label: 'Transport' },
   { value: ExpenseCategory.Entertainment, label: 'Entertainment' },
   { value: ExpenseCategory.Utilities, label: 'Utilities' },
+  { value: ExpenseCategory.Savings, label: 'Savings' },
   { value: ExpenseCategory.Other, label: 'Other' },
 ];

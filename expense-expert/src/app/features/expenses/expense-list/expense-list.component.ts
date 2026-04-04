@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ExpenseService } from '../../../core/services/expense.service';
+import { DashboardService } from '../../../core/services/dashboard.service';
 import { Expense } from '../../../core/models/expense.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { MonthPickerComponent } from '../../../shared/components/month-picker/month-picker.component';
@@ -9,6 +10,7 @@ import { AmountDisplayComponent } from '../../../shared/components/amount-displa
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
+import { TourService } from '../../../core/services/tour.service';
 
 @Component({
   selector: 'app-expense-list',
@@ -26,14 +28,24 @@ import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
     <app-page-header
       title="Expenses"
       actionLabel="+ Add Expense"
+      actionId="expense-add-btn"
       (actionClick)="router.navigate(['/expenses/new'])"
     />
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <app-month-picker [currentMonth]="currentMonth()" (monthChanged)="onMonthChange($event)" />
-      <p class="text-sm text-gray-500 dark:text-gray-400">
-        Total: <app-amount-display [amount]="totalAmount()" type="expense" />
-      </p>
+      <div class="flex flex-wrap items-center gap-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          Spent: <app-amount-display [amount]="totalAmount()" type="expense" />
+        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          Remaining:
+          <app-amount-display
+            [amount]="remainingAmount() < 0 ? -remainingAmount() : remainingAmount()"
+            [type]="remainingAmount() >= 0 ? 'income' : 'expense'"
+          />
+        </p>
+      </div>
     </div>
 
     @if (isLoading()) {
@@ -45,7 +57,7 @@ import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
         (actionClick)="router.navigate(['/expenses/new'])"
       />
     } @else {
-      <div class="space-y-3">
+      <div id="expense-list-area" class="space-y-3">
         @for (expense of expenses(); track expense.id) {
           <div
             (click)="router.navigate(['/expenses', expense.id])"
@@ -70,12 +82,15 @@ import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
 })
 export class ExpenseListComponent implements OnInit {
   private expenseService = inject(ExpenseService);
+  private dashboardService = inject(DashboardService);
+  private tourService = inject(TourService);
   router = inject(Router);
 
   currentMonth = signal(this.getCurrentMonth());
   expenses = signal<Expense[]>([]);
   isLoading = signal(true);
   totalAmount = signal(0);
+  remainingAmount = signal(0);
 
   ngOnInit(): void {
     this.loadExpenses();
@@ -92,6 +107,14 @@ export class ExpenseListComponent implements OnInit {
       this.expenses.set(expenses);
       this.totalAmount.set(expenses.reduce((sum, e) => sum + e.amount, 0));
       this.isLoading.set(false);
+
+      this.tourService.loadTourState().then(() => {
+        this.tourService.tryStartPageTour('expenses');
+      });
+    });
+
+    this.dashboardService.getCurrentMonthSummary(this.currentMonth()).subscribe((summary) => {
+      this.remainingAmount.set(summary.remaining);
     });
   }
 

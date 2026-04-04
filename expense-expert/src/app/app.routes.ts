@@ -37,6 +37,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/savings/savings.routes').then((m) => m.SAVINGS_ROUTES),
       },
+      {
+        path: 'profile',
+        loadChildren: () =>
+          import('./features/profile/profile.routes').then((m) => m.PROFILE_ROUTES),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },

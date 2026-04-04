@@ -32,6 +32,7 @@ export class ExpenseService {
       ...dto,
       month,
       loanCleared: false,
+      loanRepaid: 0,
       draftId: dto.draftId ?? null,
       installmentIndex: dto.installmentIndex ?? null,
     });
@@ -69,6 +70,23 @@ export class ExpenseService {
     return this.firestoreService.updateDocument(`${this.expensesPath}/${expenseId}`, {
       loanCleared: true,
     });
+  }
+
+  /** Record a partial repayment on a loan. Auto-clears if fully repaid. */
+  async recordLoanRepayment(expense: Expense, repaymentAmount: number): Promise<void> {
+    const newRepaid = (expense.loanRepaid ?? 0) + repaymentAmount;
+    const isFullyRepaid = newRepaid >= expense.amount;
+    return this.firestoreService.updateDocument(`${this.expensesPath}/${expense.id}`, {
+      loanRepaid: newRepaid,
+      loanCleared: isFullyRepaid,
+    });
+  }
+
+  getAllLoans(): Observable<Expense[]> {
+    return this.firestoreService.getCollection<Expense>(
+      this.expensesPath,
+      where('isLoan', '==', true)
+    );
   }
 
   private formatMonth(date: Date): string {

@@ -58,10 +58,13 @@ export interface UpdateSavingGoalDto {
   endMonth?: string;
 }
 
+export type SavingEntryType = 'deposit' | 'withdrawal';
+
 export interface SavingEntry {
   id: string;
   goalId: string;
   amount: number;
+  type: SavingEntryType;
   date: Date;
   month: string;
   note: string;
@@ -71,6 +74,7 @@ export interface SavingEntry {
 export interface CreateSavingEntryDto {
   goalId: string;
   amount: number;
+  type: SavingEntryType;
   date: Date;
   note: string;
 }

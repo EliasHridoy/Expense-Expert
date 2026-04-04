@@ -11,11 +11,7 @@ export const EXPENSE_DRAFTS_ROUTES: Routes = [
     loadComponent: () =>
       import('./draft-form/draft-form.component').then((m) => m.DraftFormComponent),
   },
-  {
-    path: 'loans',
-    loadComponent: () =>
-      import('./loan-summary/loan-summary.component').then((m) => m.LoanSummaryComponent),
-  },
+
   {
     path: ':id',
     loadComponent: () =>

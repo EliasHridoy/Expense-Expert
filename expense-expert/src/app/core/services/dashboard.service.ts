@@ -1,16 +1,19 @@
 import { Injectable, inject } from '@angular/core';
 import { where } from '@angular/fire/firestore';
-import { Observable, map, combineLatest, of } from 'rxjs';
+import { Observable, map, combineLatest, of, from } from 'rxjs';
 import { FirestoreService } from './firestore.service';
 import { AuthService } from './auth.service';
-import { Expense } from '../models/expense.model';
-import { SavingGoal } from '../models/saving.model';
+import { ProfileService } from './profile.service';
+import { Expense, ExpenseCategory } from '../models/expense.model';
+import { SavingEntry } from '../models/saving.model';
+import { IncomeEntry } from '../models/income.model';
 import { MonthSummary, MonthlyTrend, CategoryBreakdown } from '../models/dashboard.model';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
   private firestoreService = inject(FirestoreService);
   private authService = inject(AuthService);
+  private profileService = inject(ProfileService);
 
   private get uid(): string {
     return this.authService.currentUser()!.uid;
@@ -22,19 +25,37 @@ export class DashboardService {
       where('month', '==', month)
     );
 
-    const savings$ = this.firestoreService.getCollection<SavingGoal>(
-      this.firestoreService.userPath(this.uid, 'saving-goals'),
+    const savings$ = this.firestoreService.getCollection<SavingEntry>(
+      this.firestoreService.userPath(this.uid, 'saving-entries'),
       where('month', '==', month)
     );
 
-    return combineLatest([expenses$, savings$]).pipe(
-      map(([expenses, savings]) => {
+    const income$ = this.firestoreService.getCollection<IncomeEntry>(
+      this.firestoreService.userPath(this.uid, 'income-entries'),
+      where('month', '==', month)
+    );
+
+    const salary$ = from(this.profileService.getProfile());
+
+    return combineLatest([expenses$, savings$, income$, salary$]).pipe(
+      map(([expenses, savingEntries, incomeEntries, profile]) => {
         const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-        const totalSavings = savings.reduce((sum, s) => sum + s.savedAmount, 0);
+        const totalSavings = savingEntries.reduce(
+          (sum, e) => sum + (e.type === 'deposit' ? e.amount : -e.amount),
+          0
+        );
+        // Savings already recorded as expenses (category: savings) to avoid double-counting
+        const savingsInExpenses = expenses
+          .filter((e) => e.category === ExpenseCategory.Savings)
+          .reduce((sum, e) => sum + e.amount, 0);
+        const salary = profile?.monthlySalary ?? 0;
+        const additionalIncome = incomeEntries.reduce((sum, e) => sum + e.amount, 0);
+        const totalIncome = salary + additionalIncome;
         return {
+          totalIncome,
           totalExpenses,
           totalSavings,
-          balance: totalSavings - totalExpenses,
+          remaining: totalIncome - totalExpenses - (totalSavings - savingsInExpenses),
           expenseCount: expenses.length,
         };
       })
@@ -50,16 +71,19 @@ export class DashboardService {
         where('month', '==', month)
       );
 
-      const savings$ = this.firestoreService.getCollection<SavingGoal>(
-        this.firestoreService.userPath(this.uid, 'saving-goals'),
+      const savings$ = this.firestoreService.getCollection<SavingEntry>(
+        this.firestoreService.userPath(this.uid, 'saving-entries'),
         where('month', '==', month)
       );
 
       return combineLatest([expenses$, savings$, of(month)]).pipe(
-        map(([expenses, savings, m]) => ({
+        map(([expenses, savingEntries, m]) => ({
           month: m,
           totalExpenses: expenses.reduce((sum, e) => sum + e.amount, 0),
-          totalSavings: savings.reduce((sum, s) => sum + s.savedAmount, 0),
+          totalSavings: savingEntries.reduce(
+            (sum, e) => sum + (e.type === 'deposit' ? e.amount : -e.amount),
+            0
+          ),
         }))
       );
     });
