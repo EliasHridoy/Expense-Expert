@@ -101,3 +101,12 @@
    - Added 💡 restart-tour button in `NavbarComponent` — resets all page tours and starts the current page's guide.
    - Tour overlay integrated in `MainLayoutComponent`.
 
+9. **Mobile Bottom Navigation Bar**
+   - Created `BottomNavComponent` (`layout/bottom-nav/bottom-nav.component.ts`) — fixed bottom nav bar for mobile views (`< lg` breakpoint).
+     - 5 nav items: Dashboard, Expenses, Drafts, Savings, Profile with SVG icons + labels.
+     - Active state highlighted with primary color via `routerLinkActive`.
+     - Supports dark mode. Sign-out excluded (stays in sidebar for desktop).
+   - Updated `MainLayoutComponent`: sidebar hidden on mobile (`hidden lg:block`), bottom nav shown on mobile (`lg:hidden`), added bottom padding to `<main>` for mobile.
+   - Updated `NavbarComponent`: hamburger menu button hidden on mobile since bottom nav replaces it.
+   - The sidebar slide-out overlay on mobile is removed; sidebar is desktop-only.
+

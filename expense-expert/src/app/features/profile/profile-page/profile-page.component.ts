@@ -1,5 +1,6 @@
 import { Component, inject, signal, effect, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { MonthPickerComponent } from '../../../shared/components/month-picker/month-picker.component';
@@ -209,6 +210,19 @@ import { IncomeEntry } from '../../../core/models/income.model';
       }
     </div>
 
+    <!-- Sign Out (mobile only) -->
+    <div class="lg:hidden mt-8 mb-4">
+      <button
+        (click)="logout()"
+        class="flex items-center justify-center gap-2 w-full rounded-xl border border-red-200 dark:border-red-800/50 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        Sign out
+      </button>
+    </div>
+
     <app-confirm-dialog
       [isOpen]="deleteDialogOpen()"
       title="Delete Earning"
@@ -224,6 +238,7 @@ export class ProfilePageComponent implements OnInit {
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private tourService = inject(TourService);
+  private router = inject(Router);
 
   monthlySalary = signal(0);
   editingSalary = signal(false);
@@ -321,5 +336,11 @@ export class ProfilePageComponent implements OnInit {
   private getCurrentMonth(): string {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  async logout(): Promise<void> {
+    await this.authService.signOut();
+    this.toastService.success('Signed out successfully');
+    this.router.navigate(['/auth/login']);
   }
 }

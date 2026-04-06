@@ -11,13 +11,11 @@ import { ToastService } from '../../core/services/toast.service';
   template: `
     <header class="flex items-center justify-between h-16 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors">
       <div class="flex items-center gap-3">
-        <button
-          (click)="menuToggle.emit()"
-          class="lg:hidden rounded-lg p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-        >
-          &#9776;
-        </button>
-        <!-- <h2 class="text-sm text-gray-500 dark:text-gray-400">Welcome back!</h2> -->
+        <!-- Logo for mobile (visible only on mobile where sidebar is hidden) -->
+        <div class="flex items-center gap-2 lg:hidden">
+          <img src="icons8-taka-64.png" alt="Logo" class="h-8 w-8 object-contain" />
+          <span class="text-sm font-bold text-gray-900 dark:text-gray-100">Expense Expert</span>
+        </div>
       </div>
 
       <div class="flex items-center gap-3">
