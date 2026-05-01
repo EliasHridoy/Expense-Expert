@@ -22,7 +22,7 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
     CategoryCardPickerComponent
   ],
   template: `
-    <div class="max-w-lg mx-auto pb-20">
+    <div class="max-w-lg mx-auto pb-36">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
           @if (currentStep() > 1) {
@@ -215,7 +215,7 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
           }
 
           <!-- Fixed Bottom Action Bar -->
-          <div class="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-10 md:static md:bg-transparent md:p-0 md:border-t-0 md:backdrop-blur-none md:mt-8 md:pt-4">
+          <div class="fixed bottom-[72px] left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-10 md:static md:bg-transparent md:p-0 md:border-t-0 md:backdrop-blur-none md:mt-8 md:pt-4">
             <div class="max-w-lg mx-auto flex gap-3">
               @if (currentStep() < totalSteps) {
                 <button

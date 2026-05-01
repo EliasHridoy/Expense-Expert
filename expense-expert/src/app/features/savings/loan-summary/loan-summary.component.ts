@@ -41,97 +41,99 @@ interface LoanSummaryRow {
     } @else {
       <!-- Summary Table -->
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mb-6">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-gray-200 dark:border-gray-700">
-              <th class="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Person</th>
-              <th class="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Total Loaned</th>
-              <th class="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Repaid</th>
-              <th class="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Outstanding</th>
-              <th class="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of summaryRows(); track row.person.id) {
-              <tr class="border-b border-gray-100 dark:border-gray-700">
-                <td class="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{{ row.person.name }}</td>
-                <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-300">{{ row.totalLoaned | number:'1.0-0' }}</td>
-                <td class="px-4 py-3 text-right text-green-600">{{ row.totalRepaid | number:'1.0-0' }}</td>
-                <td class="px-4 py-3 text-right font-medium" [class]="row.outstanding > 0 ? 'text-red-600' : 'text-green-600'">
-                  {{ row.outstanding | number:'1.0-0' }}
-                </td>
-                <td class="px-4 py-3 text-right">
-                  @if (row.outstanding > 0) {
-                    <div class="flex items-center gap-2 justify-end">
-                      <button
-                        (click)="openRepayDialog(row)"
-                        class="text-xs text-primary-600 hover:text-primary-700 font-medium"
-                      >
-                        Record Payment
-                      </button>
-                      <button
-                        (click)="selectedRow = row; showClearConfirm.set(true)"
-                        class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                      >
-                        Clear All
-                      </button>
-                    </div>
-                  } @else {
-                    <span class="text-xs text-green-600">Fully Repaid</span>
-                  }
-                </td>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-200 dark:border-gray-700">
+                <th class="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Person</th>
+                <th class="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Total Loaned</th>
+                <th class="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Repaid</th>
+                <th class="text-right px-4 py-3 font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Outstanding</th>
+                <th class="px-4 py-3 whitespace-nowrap"></th>
               </tr>
-
-              <!-- Expanded loan details when repay dialog is open for this row -->
-              @if (repayRow === row && showRepayDialog()) {
-                <tr>
-                  <td colspan="5" class="px-4 py-3 bg-gray-50 dark:bg-gray-700/50">
-                    <div class="space-y-3">
-                      <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Outstanding loans for {{ row.person.name }}:
-                      </p>
-                      @for (loan of getOutstandingLoans(row); track loan.id) {
-                        <div class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg px-3 py-2 border border-gray-200 dark:border-gray-600">
-                          <div>
-                            <p class="text-sm text-gray-900 dark:text-gray-100">{{ loan.title }}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                              Loaned: {{ loan.amount | number:'1.0-0' }} |
-                              Repaid: {{ (loan.loanRepaid) | number:'1.0-0' }} |
-                              Left: {{ loan.amount - (loan.loanRepaid) | number:'1.0-0' }}
-                            </p>
-                          </div>
-                          <div class="flex items-center gap-2">
-                            <input
-                              type="number"
-                              [(ngModel)]="repayAmounts[loan.id]"
-                              [max]="loan.amount - (loan.loanRepaid)"
-                              min="0"
-                              placeholder="0"
-                              class="w-24 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1 text-sm text-right text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            />
-                            <button
-                              (click)="recordSingleRepayment(loan)"
-                              [disabled]="!repayAmounts[loan.id] || repayAmounts[loan.id] <= 0"
-                              class="rounded-lg bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              Pay
-                            </button>
-                          </div>
-                        </div>
-                      }
-                      <button
-                        (click)="showRepayDialog.set(false); repayRow = null"
-                        class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                      >
-                        Close
-                      </button>
-                    </div>
+            </thead>
+            <tbody>
+              @for (row of summaryRows(); track row.person.id) {
+                <tr class="border-b border-gray-100 dark:border-gray-700">
+                  <td class="px-4 py-3 font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">{{ row.person.name }}</td>
+                  <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-300 whitespace-nowrap">{{ row.totalLoaned | number:'1.0-0' }}</td>
+                  <td class="px-4 py-3 text-right text-green-600 whitespace-nowrap">{{ row.totalRepaid | number:'1.0-0' }}</td>
+                  <td class="px-4 py-3 text-right font-medium whitespace-nowrap" [class]="row.outstanding > 0 ? 'text-red-600' : 'text-green-600'">
+                    {{ row.outstanding | number:'1.0-0' }}
+                  </td>
+                  <td class="px-4 py-3 text-right whitespace-nowrap">
+                    @if (row.outstanding > 0) {
+                      <div class="flex items-center gap-2 justify-end">
+                        <button
+                          (click)="openRepayDialog(row)"
+                          class="text-xs text-primary-600 hover:text-primary-700 font-medium"
+                        >
+                          Record Payment
+                        </button>
+                        <button
+                          (click)="selectedRow = row; showClearConfirm.set(true)"
+                          class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                        >
+                          Clear All
+                        </button>
+                      </div>
+                    } @else {
+                      <span class="text-xs text-green-600">Fully Repaid</span>
+                    }
                   </td>
                 </tr>
+
+                <!-- Expanded loan details when repay dialog is open for this row -->
+                @if (repayRow === row && showRepayDialog()) {
+                  <tr>
+                    <td colspan="5" class="px-4 py-3 bg-gray-50 dark:bg-gray-700/50">
+                      <div class="space-y-3 min-w-[500px]">
+                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Outstanding loans for {{ row.person.name }}:
+                        </p>
+                        @for (loan of getOutstandingLoans(row); track loan.id) {
+                          <div class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg px-3 py-2 border border-gray-200 dark:border-gray-600">
+                            <div>
+                              <p class="text-sm text-gray-900 dark:text-gray-100">{{ loan.title }}</p>
+                              <p class="text-xs text-gray-500 dark:text-gray-400">
+                                Loaned: {{ loan.amount | number:'1.0-0' }} |
+                                Repaid: {{ (loan.loanRepaid) | number:'1.0-0' }} |
+                                Left: {{ loan.amount - (loan.loanRepaid) | number:'1.0-0' }}
+                              </p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                              <input
+                                type="number"
+                                [(ngModel)]="repayAmounts[loan.id]"
+                                [max]="loan.amount - (loan.loanRepaid)"
+                                min="0"
+                                placeholder="0"
+                                class="w-24 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1 text-sm text-right text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                              />
+                              <button
+                                (click)="recordSingleRepayment(loan)"
+                                [disabled]="!repayAmounts[loan.id] || repayAmounts[loan.id] <= 0"
+                                class="rounded-lg bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Pay
+                              </button>
+                            </div>
+                          </div>
+                        }
+                        <button
+                          (click)="showRepayDialog.set(false); repayRow = null"
+                          class="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
               }
-            }
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <button

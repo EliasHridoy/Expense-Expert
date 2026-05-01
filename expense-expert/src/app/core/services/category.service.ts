@@ -9,6 +9,7 @@ export interface CategoryItem {
   label: string;
   icon: string;
   isCustom: boolean;
+  id?: string;
 }
 
 interface CustomCategory {
@@ -64,6 +65,7 @@ export class CategoryService {
           label: c.name,
           icon: c.icon || '📁',
           isCustom: true,
+          id: c.id,
         }));
         this.allCategories.set([...builtIn, ...custom]);
       });
@@ -74,10 +76,8 @@ export class CategoryService {
     return id;
   }
 
-  async deleteCategory(name: string): Promise<void> {
-    const categories = this.allCategories().filter((c) => c.isCustom && c.label === name);
-    if (categories.length > 0) {
-      // We need the doc id - reload will handle cleanup
-    }
+  async deleteCategory(id: string): Promise<void> {
+    if (!id) return;
+    await this.firestoreService.deleteDocument(`${this.categoriesPath}/${id}`);
   }
 }

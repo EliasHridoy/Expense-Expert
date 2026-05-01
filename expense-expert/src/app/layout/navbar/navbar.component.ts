@@ -48,8 +48,6 @@ import { ToastService } from '../../core/services/toast.service';
             </svg>
           }
         </button>
-
-        <span class="text-sm text-gray-700 dark:text-gray-300">{{ userEmail }}</span>
       </div>
     </header>
   `,
