@@ -1,18 +1,19 @@
 import { Component, Input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { AmountDisplayComponent } from '../../../shared/components/amount-display/amount-display.component';
 import { MonthSummary } from '../../../core/models/dashboard.model';
 
 @Component({
   selector: 'app-summary-cards',
   standalone: true,
-  imports: [AmountDisplayComponent],
+  imports: [AmountDisplayComponent, RouterLink],
   template: `
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
       <!-- Total Income -->
-      <div id="summary-card-income" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 transition-colors">
+      <a routerLink="/profile" id="summary-card-income" class="block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
         <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Income</p>
         <app-amount-display [amount]="summary.totalIncome" type="income" />
-      </div>
+      </a>
 
       <!-- Total Expenses -->
       <div id="summary-card-expenses" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 transition-colors">
