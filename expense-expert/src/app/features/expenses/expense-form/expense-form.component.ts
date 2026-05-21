@@ -136,7 +136,7 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
                   <input
                     formControlName="date"
                     type="date"
-                    class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 px-4 py-3 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all"
+                    class="w-full appearance-none min-w-0 block box-border rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 px-4 py-3 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none transition-all"
                   />
                 </div>
               </div>
