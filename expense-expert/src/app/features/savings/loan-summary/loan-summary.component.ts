@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { combineLatest } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { ExpenseService } from '../../../core/services/expense.service';
@@ -173,16 +174,17 @@ export class LoanSummaryComponent implements OnInit {
   }
 
   private loadData(): void {
-    this.personService.getPersons().subscribe((persons) => {
+    combineLatest([
+      this.personService.getPersons(),
+      this.expenseService.getAllLoans(),
+    ]).subscribe(([persons, loans]) => {
       const personMap = new Map<string, Person>();
       for (const p of persons) {
         personMap.set(p.id, p);
       }
 
-      this.expenseService.getAllLoans().subscribe((loans) => {
-        this.buildSummary(loans, personMap);
-        this.isLoading.set(false);
-      });
+      this.buildSummary(loans, personMap);
+      this.isLoading.set(false);
     });
   }
 
