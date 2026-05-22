@@ -1,40 +1,26 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { ExpenseService } from '../../../core/services/expense.service';
-import { DashboardService } from '../../../core/services/dashboard.service';
-import { Expense } from '../../../core/models/expense.model';
-import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
-import { MonthPickerComponent } from '../../../shared/components/month-picker/month-picker.component';
-import { CategoryBadgeComponent } from '../../../shared/components/category-badge/category-badge.component';
-import { AmountDisplayComponent } from '../../../shared/components/amount-display/amount-display.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
-import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
-import { TourService } from '../../../core/services/tour.service';
-import { FormsModule } from '@angular/forms';
+import re
 
-@Component({
-  selector: 'app-expense-list',
-  standalone: true,
-  imports: [
-    FormsModule,
-    PageHeaderComponent,
-    MonthPickerComponent,
-    CategoryBadgeComponent,
-    AmountDisplayComponent,
-    EmptyStateComponent,
-    LoadingSpinnerComponent,
-    RelativeDatePipe,
-  ],
-  template: `
-    <app-page-header
-      title="Expenses"
-      actionLabel="+ Add Expense"
-      actionId="expense-add-btn"
-      (actionClick)="router.navigate(['/expenses/new'])"
-    />
+with open('expense-expert/src/app/features/expenses/expense-list/expense-list.component.ts', 'r') as f:
+    content = f.read()
 
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+
+search_toolbar = """    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <app-month-picker [currentMonth]="currentMonth()" (monthChanged)="onMonthChange($event)" />
+      <div class="flex flex-wrap items-center gap-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          Spent: <app-amount-display [amount]="totalAmount()" type="expense" />
+        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          Remaining:
+          <app-amount-display
+            [amount]="remainingAmount() < 0 ? -remainingAmount() : remainingAmount()"
+            [type]="remainingAmount() >= 0 ? 'income' : 'expense'"
+          />
+        </p>
+      </div>
+    </div>"""
+
+replace_toolbar = """    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
       <app-month-picker [currentMonth]="currentMonth()" (monthChanged)="onMonthChange($event)" />
       <div class="flex flex-wrap items-center gap-4">
         <p class="text-sm text-gray-500 dark:text-gray-400">
@@ -94,18 +80,32 @@ import { FormsModule } from '@angular/forms';
           </button>
         </div>
       </div>
-    }
+    }"""
 
-    @if (isLoading()) {
-      <app-loading-spinner size="lg" [fullPage]="true" />
-    } @else if (expenses().length === 0) {
-      <app-empty-state
-        message="No expenses for this month"
-        actionLabel="Add your first expense"
-        (actionClick)="router.navigate(['/expenses/new'])"
-      />
-    } @else {
-      <div id="expense-list-area" class="space-y-6">
+
+search_list = """      <div id="expense-list-area" class="space-y-3">
+        @for (expense of expenses(); track expense.id) {
+          <div
+            (click)="router.navigate(['/expenses', expense.id])"
+            class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 cursor-pointer hover:shadow-md transition-shadow"
+          >
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ expense.title }}</h3>
+                <app-category-badge [category]="expense.category" />
+                @if (expense.isLoan) {
+                  <span class="text-xs bg-amber-100 text-amber-800 rounded-full px-2 py-0.5">Loan</span>
+                }
+              </div>
+              <p class="text-xs text-gray-400">{{ expense.date | relativeDate }}</p>
+            </div>
+            <app-amount-display [amount]="expense.amount" type="expense" />
+          </div>
+        }
+      </div>"""
+
+
+replace_list = """      <div id="expense-list-area" class="space-y-6">
         @for (group of processedExpenses(); track group.name) {
           <div>
             @if (groupBy() === 'category') {
@@ -145,85 +145,10 @@ import { FormsModule } from '@angular/forms';
             </div>
           </div>
         }
-      </div>
-    }
-  `,
-})
-export class ExpenseListComponent implements OnInit {
-  private expenseService = inject(ExpenseService);
-  private dashboardService = inject(DashboardService);
-  private tourService = inject(TourService);
-  router = inject(Router);
+      </div>"""
 
-  currentMonth = signal(this.getCurrentMonth());
-  expenses = signal<Expense[]>([]);
-  isLoading = signal(true);
-  totalAmount = signal(0);
-  remainingAmount = signal(0);
+content = content.replace(search_toolbar, replace_toolbar)
+content = content.replace(search_list, replace_list)
 
-  viewMode = signal<'list' | 'grid'>('list');
-  groupBy = signal<'none' | 'category'>('none');
-  sortBy = signal<'date' | 'amount' | 'alpha'>('date');
-
-  processedExpenses = computed(() => {
-    let sorted = [...this.expenses()];
-
-    // Sorting
-    const sort = this.sortBy();
-    if (sort === 'date') {
-      sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    } else if (sort === 'amount') {
-      sorted.sort((a, b) => b.amount - a.amount);
-    } else if (sort === 'alpha') {
-      sorted.sort((a, b) => a.title.localeCompare(b.title));
-    }
-
-    // Grouping
-    const group = this.groupBy();
-    if (group === 'category') {
-      const groupsMap = new Map<string, { name: string; total: number; items: Expense[] }>();
-      for (const expense of sorted) {
-        if (!groupsMap.has(expense.category)) {
-          groupsMap.set(expense.category, { name: expense.category, total: 0, items: [] });
-        }
-        const g = groupsMap.get(expense.category)!;
-        g.items.push(expense);
-        g.total += expense.amount;
-      }
-      return Array.from(groupsMap.values()).sort((a, b) => a.name.localeCompare(b.name));
-    } else {
-      return [{ name: 'All Expenses', total: this.totalAmount(), items: sorted }];
-    }
-  });
-
-  ngOnInit(): void {
-    this.loadExpenses();
-  }
-
-  onMonthChange(month: string): void {
-    this.currentMonth.set(month);
-    this.loadExpenses();
-  }
-
-  private loadExpenses(): void {
-    this.isLoading.set(true);
-    this.expenseService.getExpensesByMonth(this.currentMonth()).subscribe((expenses) => {
-      this.expenses.set(expenses);
-      this.totalAmount.set(expenses.reduce((sum, e) => sum + e.amount, 0));
-      this.isLoading.set(false);
-
-      this.tourService.loadTourState().then(() => {
-        this.tourService.tryStartPageTour('expenses');
-      });
-    });
-
-    this.dashboardService.getCurrentMonthSummary(this.currentMonth()).subscribe((summary) => {
-      this.remainingAmount.set(summary.remaining);
-    });
-  }
-
-  private getCurrentMonth(): string {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  }
-}
+with open('expense-expert/src/app/features/expenses/expense-list/expense-list.component.ts', 'w') as f:
+    f.write(content)

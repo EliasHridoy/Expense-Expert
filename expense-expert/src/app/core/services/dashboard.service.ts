@@ -100,13 +100,14 @@ export class DashboardService {
       .pipe(
         map((expenses) => {
           const categoryMap = new Map<string, { total: number; count: number }>();
-          const grandTotal = expenses.reduce((sum, e) => sum + e.amount, 0);
+          let grandTotal = 0;
 
           for (const expense of expenses) {
             const existing = categoryMap.get(expense.category) || { total: 0, count: 0 };
             existing.total += expense.amount;
             existing.count += 1;
             categoryMap.set(expense.category, existing);
+            grandTotal += expense.amount;
           }
 
           return Array.from(categoryMap.entries()).map(([category, data]) => ({
