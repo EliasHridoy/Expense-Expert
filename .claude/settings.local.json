@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --version)",
+      "Bash(npm --version)",
+      "Bash(ng version)",
+      "Bash(ng new expense-expert --standalone --routing --style=scss --skip-tests --skip-git)",
+      "Bash(npm install @angular/fire firebase)",
+      "Bash(npm view @angular/fire versions --json)",
+      "Bash(npm view @angular/fire@18 version)",
+      "Bash(npm view @angular/fire@17 version)",
+      "Bash(npm install @angular/fire@18.0.1 firebase)",
+      "Bash(npm install -D tailwindcss postcss autoprefixer)",
+      "Bash(npx tailwindcss init)",
+      "Bash(npm install chart.js ng2-charts)",
+      "Bash(npm view ng2-charts versions --json)",
+      "Bash(npm view ng2-charts@6.0.1 peerDependencies)",
+      "Bash(npm install chart.js ng2-charts@6.0.1 @angular/cdk)",
+      "Bash(npm install chart.js ng2-charts@6.0.1 @angular/cdk@18)",
+      "Bash(npx ng build)",
+      "Bash(timeout 15 npx ng serve --port 4200)",
+      "Bash(timeout 20 npx ng serve --port 4200)"
+    ]
+  }
+}
