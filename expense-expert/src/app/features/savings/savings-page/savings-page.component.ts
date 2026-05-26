@@ -1,3 +1,4 @@
+import { combineLatest } from "rxjs";
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -12,7 +13,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { MonthPickerComponent } from '../../../shared/components/month-picker/month-picker.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { BankAccountListComponent } from '../bank-account-list/bank-account-list.component';
+import { BankAccountListComponent, BankAccountWithTotal } from '../bank-account-list/bank-account-list.component';
 import { SavingGoalListComponent } from '../saving-goal-list/saving-goal-list.component';
 
 @Component({
@@ -220,7 +221,7 @@ export class SavingsPageComponent implements OnInit {
   router = inject(Router);
 
   currentMonth = signal(this.getCurrentMonth());
-  bankAccounts = signal<BankAccount[]>([]);
+  bankAccounts = signal<BankAccountWithTotal[]>([]);
   goals = signal<SavingGoal[]>([]);
   totalPendingLoan = signal<number>(0);
   isLoading = signal(true);
@@ -357,8 +358,16 @@ export class SavingsPageComponent implements OnInit {
 
   private loadData(): void {
     this.isLoading.set(true);
-    this.savingService.getBankAccounts().subscribe((accounts) => {
-      this.bankAccounts.set(accounts);
+    combineLatest([
+      this.savingService.getBankAccounts(),
+      this.savingService.getAllGoals()
+    ]).subscribe(([accounts, goals]) => {
+      const accountsWithTotals: BankAccountWithTotal[] = accounts.map((acc: BankAccount) => {
+        const accountGoals = goals.filter((g: SavingGoal) => g.bankAccountId === acc.id);
+        const totalSaved = accountGoals.reduce((sum: number, g: SavingGoal) => sum + (g.savedAmount || 0), 0);
+        return { ...acc, totalSaved };
+      });
+      this.bankAccounts.set(accountsWithTotals);
       this.isLoading.set(false);
 
       this.tourService.loadTourState().then(() => {
