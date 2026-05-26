@@ -54,6 +54,13 @@ export class SavingService {
 
   // Saving Goals
 
+  getAllGoals(): Observable<SavingGoal[]> {
+    return this.firestoreService.getCollection<SavingGoal>(
+      this.firestoreService.userPath(this.uid, 'saving-goals'),
+      orderBy('purpose', 'asc')
+    );
+  }
+
   /** Returns all goals and filters client-side for those active in the given month */
   getGoalsActiveInMonth(month: string): Observable<SavingGoal[]> {
     return this.firestoreService
