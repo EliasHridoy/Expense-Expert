@@ -1,0 +1,63 @@
+name: expense_expert
+description: "Expense Expert — Track expenses, savings, and income. Flutter port of the Angular web app."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ── Firebase ────────────────────────────────────────────────────────────────
+  firebase_core: ^3.13.1
+  firebase_auth: ^5.5.2
+  cloud_firestore: ^5.6.7
+  google_sign_in: ^6.2.2
+
+  # ── State Management ────────────────────────────────────────────────────────
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # ── Navigation ──────────────────────────────────────────────────────────────
+  go_router: ^14.8.1
+
+  # ── Charts ──────────────────────────────────────────────────────────────────
+  fl_chart: ^0.69.0
+
+  # ── Formatting ──────────────────────────────────────────────────────────────
+  intl: ^0.19.0
+
+  # ── Icons & SVG ─────────────────────────────────────────────────────────────
+  flutter_svg: ^2.0.17
+  cupertino_icons: ^1.0.8
+
+  # ── Local Storage ───────────────────────────────────────────────────────────
+  shared_preferences: ^2.5.3
+
+  # ── Env Config ──────────────────────────────────────────────────────────────
+  flutter_dotenv: ^5.2.1
+
+  # ── Loading States ──────────────────────────────────────────────────────────
+  shimmer: ^3.0.0
+
+  # ── Onboarding Tour ─────────────────────────────────────────────────────────
+  tutorial_coach_mark: ^1.2.11
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  riverpod_generator: ^2.6.5
+  build_runner: ^2.4.15
+  fake_cloud_firestore: ^3.1.0
+  mocktail: ^1.0.5
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/icons/
+    - assets/.env

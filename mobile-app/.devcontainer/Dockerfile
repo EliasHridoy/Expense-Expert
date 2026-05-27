@@ -1,4 +1,16 @@
-FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
+# ── Base: Debian Slim (glibc compatible, ~75 MB vs ~400 MB for Ubuntu devcontainer base)
+# Alpine / nginx are NOT usable here — Flutter & Android SDK binaries require glibc,
+# which Alpine's musl libc does not provide.
+FROM debian:bookworm-slim
+
+# ── Create non-root vscode user (provided automatically by devcontainers base,
+#    but must be done manually on plain debian:slim)
+RUN groupadd --gid 1000 vscode && \
+    useradd --uid 1000 --gid vscode --shell /bin/bash --create-home vscode && \
+    # Allow passwordless sudo for convenience inside the container
+    apt-get update && apt-get install -y --no-install-recommends sudo && \
+    echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+    rm -rf /var/lib/apt/lists/*
 
 # ── System dependencies ────────────────────────────────────────────────────────
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive && \

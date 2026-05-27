@@ -41,6 +41,8 @@ macos/Flutter/ephemeral/
 # Environment / secrets
 .env
 .env.*
+assets/.env
+!assets/.env.example
 !.env.example
 google-services.json
 GoogleService-Info.plist
