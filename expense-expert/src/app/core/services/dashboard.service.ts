@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { where } from '@angular/fire/firestore';
 import { Observable, map, combineLatest, of, from } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { FirestoreService } from './firestore.service';
 import { AuthService } from './auth.service';
 import { ProfileService } from './profile.service';
@@ -40,7 +41,7 @@ export class DashboardService {
     // Fetch the user document directly from firestore, as auth user might not have createdAt mapped easily via authService.currentUser
     const userDoc$ = from(
       this.authService.authReady.then(() => {
-        return this.firestoreService.getDocument<any>(`users/${this.uid}`).toPromise();
+        return this.firestoreService.getDocument<any>(`users/${this.uid}`).pipe(take(1)).toPromise();
       })
     );
 
