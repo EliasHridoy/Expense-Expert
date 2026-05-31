@@ -11,7 +11,7 @@ import { ProfileService } from '../../../core/services/profile.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { TourService } from '../../../core/services/tour.service';
-import { IncomeEntry, UserProfile } from '../../../core/models/income.model';
+import { IncomeEntry, UserProfile, IncomeDraft } from '../../../core/models/income.model';
 
 @Component({
   selector: 'app-profile-page',
@@ -29,8 +29,8 @@ import { IncomeEntry, UserProfile } from '../../../core/models/income.model';
   template: `
     <app-page-header title="Profile" />
 
-    <!-- User Info & Salary -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- User Info -->
+    <div class="mb-8">
       <!-- User Info Card -->
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Account Info</h2>
@@ -45,60 +45,133 @@ import { IncomeEntry, UserProfile } from '../../../core/models/income.model';
           </div>
         </div>
       </div>
-
-      <!-- Monthly Salary Card -->
-      <div id="salary-card" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Monthly Salary ({{ selectedMonthLabel() }})</h2>
-        @if (editingSalary()) {
-          <div class="flex flex-col sm:flex-row sm:items-end gap-3">
-            <div class="flex-1 w-full relative">
-              <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Amount for {{ selectedMonthLabel() }}</label>
-              <input
-                type="number"
-                [(ngModel)]="salaryInput"
-                min="0"
-                class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Enter monthly salary"
-              />
-            </div>
-            <div class="flex gap-2 w-full sm:w-auto">
-              <button
-                (click)="saveSalary()"
-                class="flex-1 sm:flex-none rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors"
-              >
-                Save
-              </button>
-              <button
-                (click)="editingSalary.set(false)"
-                class="flex-1 sm:flex-none rounded-lg px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        } @else {
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {{ monthlySalary() | number: '1.0-0' }}
-              </p>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">for {{ selectedMonthLabel() }}</p>
-            </div>
-            <button
-              (click)="startEditSalary()"
-              class="rounded-lg px-3 py-1.5 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-colors"
-            >
-              Edit
-            </button>
-          </div>
-        }
-      </div>
     </div>
 
-    <!-- Additional Earnings Section -->
+    <!-- Legacy Salary Banner -->
+    @if (monthlySalary() > 0) {
+      <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h3 class="text-sm font-medium text-amber-800 dark:text-amber-400">Legacy Fixed Salary Detected</h3>
+          <p class="text-xs text-amber-700 dark:text-amber-500 mt-1">
+            You are receiving a legacy rolling salary of <span class="font-bold">{{ monthlySalary() | number: '1.0-0' }}</span> per month. 
+            We have switched to exact-date income tracking. Please disable this to prevent double-counting.
+          </p>
+        </div>
+        <button
+          (click)="disableLegacySalary()"
+          class="whitespace-nowrap rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 transition-colors"
+        >
+          Disable Fixed Salary
+        </button>
+      </div>
+    }
+
+    <!-- Income Drafts Section -->
+    <div id="income-drafts-section" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-8 transition-colors">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Income Templates</h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Save fixed income sources to add them with one click.</p>
+        </div>
+        <button
+          (click)="showAddDraftForm.set(!showAddDraftForm())"
+          class="whitespace-nowrap rounded-lg bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700 transition-colors"
+        >
+          {{ showAddDraftForm() ? 'Cancel' : '+ New Template' }}
+        </button>
+      </div>
+
+      <!-- Add Draft Form -->
+      @if (showAddDraftForm()) {
+        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 mb-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+            <div>
+              <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Source</label>
+              <input
+                type="text"
+                [(ngModel)]="newDraft.source"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="e.g. Monthly Salary"
+              />
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Amount</label>
+              <input
+                type="number"
+                [(ngModel)]="newDraft.amount"
+                min="0"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Note (Optional)</label>
+              <input
+                type="text"
+                [(ngModel)]="newDraft.note"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="e.g. Full-time"
+              />
+            </div>
+          </div>
+          <button
+            (click)="addDraft()"
+            [disabled]="!newDraft.source || !newDraft.amount"
+            class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Save Template
+          </button>
+        </div>
+      }
+
+      <!-- Drafts List -->
+      @if (incomeDrafts().length === 0) {
+        <div class="text-center py-6 text-sm text-gray-500 dark:text-gray-400 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
+          No templates found. Create one to add regular income easily.
+        </div>
+      } @else {
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          @for (draft of incomeDrafts(); track draft.id) {
+            <div class="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-500 transition-colors bg-gray-50 dark:bg-gray-700/30 group">
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ draft.source }}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <app-amount-display [amount]="draft.amount" type="income" class="text-xs" />
+                  @if (draft.note) {
+                    <span class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[100px] sm:max-w-[150px]">• {{ draft.note }}</span>
+                  }
+                </div>
+              </div>
+              <div class="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  (click)="confirmApplyDraft(draft)"
+                  title="Apply template"
+                  class="rounded-full p-2 text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-900/30 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+                <button
+                  (click)="confirmDeleteDraft(draft)"
+                  title="Delete template"
+                  class="rounded-full p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Income Section -->
     <div id="earnings-section" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Additional Earnings</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Monthly Income</h2>
         <div class="flex flex-wrap items-center gap-2 sm:gap-3">
           <app-month-picker
             [currentMonth]="currentMonth()"
@@ -159,7 +232,7 @@ import { IncomeEntry, UserProfile } from '../../../core/models/income.model';
             [disabled]="!newEntry.source || !newEntry.amount || !newEntry.date"
             class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Add Earning
+            Add Income
           </button>
         </div>
       }
@@ -168,7 +241,7 @@ import { IncomeEntry, UserProfile } from '../../../core/models/income.model';
       @if (incomeEntries().length > 0) {
         <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 rounded-lg px-4 py-3 mb-4">
           <span class="text-sm text-gray-600 dark:text-gray-400">
-            Total this month (Salary + Earnings)
+            Total Income this month {{ monthlySalary() > 0 ? '(including legacy salary)' : '' }}
           </span>
           <span class="text-lg font-bold text-green-600 dark:text-green-400">
             {{ (monthlySalary() + monthlyAdditional()) | number: '1.0-0' }}
@@ -180,7 +253,7 @@ import { IncomeEntry, UserProfile } from '../../../core/models/income.model';
       @if (incomeEntries().length === 0) {
         <app-empty-state
           icon="💰"
-          message="No additional earnings for this month"
+          message="No income recorded for this month"
         />
       } @else {
         <div class="space-y-2">
@@ -225,11 +298,27 @@ import { IncomeEntry, UserProfile } from '../../../core/models/income.model';
 
     <app-confirm-dialog
       [isOpen]="deleteDialogOpen()"
-      title="Delete Earning"
-      message="Are you sure you want to delete this earning entry?"
+      title="Delete Income Entry"
+      message="Are you sure you want to delete this income entry?"
       confirmLabel="Delete"
       (confirmed)="deleteEntry()"
       (cancelled)="deleteDialogOpen.set(false)"
+    />
+    <app-confirm-dialog
+      [isOpen]="deleteDraftDialogOpen()"
+      title="Delete Template"
+      message="Are you sure you want to delete this income template?"
+      confirmLabel="Delete"
+      (confirmed)="deleteDraft()"
+      (cancelled)="deleteDraftDialogOpen.set(false)"
+    />
+    <app-confirm-dialog
+      [isOpen]="applyDraftDialogOpen()"
+      title="Apply Template"
+      message="Are you sure you want to log this template as an income entry for today?"
+      confirmLabel="Apply"
+      (confirmed)="executeApplyDraft()"
+      (cancelled)="applyDraftDialogOpen.set(false)"
     />
   `,
 })
@@ -242,8 +331,6 @@ export class ProfilePageComponent implements OnInit {
 
   userProfile = signal<UserProfile | null>(null);
   monthlySalary = signal(0);
-  editingSalary = signal(false);
-  salaryInput = 0;
 
   currentMonth = signal(this.getCurrentMonth());
   selectedMonthLabel = computed(() => {
@@ -260,6 +347,16 @@ export class ProfilePageComponent implements OnInit {
 
   deleteDialogOpen = signal(false);
   entryToDelete: IncomeEntry | null = null;
+
+  incomeDrafts = signal<IncomeDraft[]>([]);
+  showAddDraftForm = signal(false);
+  newDraft = { source: '', amount: 0, note: '' };
+  
+  deleteDraftDialogOpen = signal(false);
+  draftToDelete: IncomeDraft | null = null;
+
+  applyDraftDialogOpen = signal(false);
+  draftToApply: IncomeDraft | null = null;
 
   userEmail = signal('');
   userName = signal('');
@@ -283,6 +380,13 @@ export class ProfilePageComponent implements OnInit {
     this.userName.set(user?.displayName || user?.email?.split('@')[0] || '');
 
     this.loadProfile();
+    this.loadDrafts();
+  }
+
+  private loadDrafts(): void {
+    this.profileService.getIncomeDrafts().subscribe((drafts) => {
+      this.incomeDrafts.set(drafts);
+    });
   }
 
   private async loadProfile(): Promise<void> {
@@ -304,21 +408,15 @@ export class ProfilePageComponent implements OnInit {
     });
   }
 
-  startEditSalary(): void {
-    this.salaryInput = this.monthlySalary();
-    this.editingSalary.set(true);
-  }
-
-  async saveSalary(): Promise<void> {
+  async disableLegacySalary(): Promise<void> {
     const month = this.currentMonth();
-    await this.profileService.updateSalary(this.salaryInput, month);
+    await this.profileService.updateSalary(0, month);
     const profile = await this.profileService.getProfile();
     this.userProfile.set(profile);
     if (profile) {
       this.monthlySalary.set(this.profileService.getSalaryForMonth(profile, month));
     }
-    this.editingSalary.set(false);
-    this.toastService.success('Salary updated');
+    this.toastService.success('Legacy fixed salary disabled');
   }
 
   async addEntry(): Promise<void> {
@@ -333,7 +431,7 @@ export class ProfilePageComponent implements OnInit {
 
     this.newEntry = { source: '', amount: 0, date: '', note: '' };
     this.showAddForm.set(false);
-    this.toastService.success('Earning added');
+    this.toastService.success('Income added');
     this.loadEntries();
   }
 
@@ -347,8 +445,56 @@ export class ProfilePageComponent implements OnInit {
     await this.profileService.deleteIncomeEntry(this.entryToDelete.id);
     this.deleteDialogOpen.set(false);
     this.entryToDelete = null;
-    this.toastService.success('Earning deleted');
+    this.toastService.success('Income deleted');
     this.loadEntries();
+  }
+
+  async addDraft(): Promise<void> {
+    if (!this.newDraft.source || !this.newDraft.amount) return;
+
+    await this.profileService.addIncomeDraft({
+      source: this.newDraft.source,
+      amount: this.newDraft.amount,
+      note: this.newDraft.note,
+    });
+
+    this.newDraft = { source: '', amount: 0, note: '' };
+    this.showAddDraftForm.set(false);
+    this.toastService.success('Template saved');
+  }
+
+  confirmApplyDraft(draft: IncomeDraft): void {
+    this.draftToApply = draft;
+    this.applyDraftDialogOpen.set(true);
+  }
+
+  async executeApplyDraft(): Promise<void> {
+    if (!this.draftToApply) return;
+    
+    await this.profileService.addIncomeEntry({
+      source: this.draftToApply.source,
+      amount: this.draftToApply.amount,
+      note: this.draftToApply.note,
+      date: new Date()
+    });
+    
+    this.toastService.success(`Applied ${this.draftToApply.source}`);
+    this.applyDraftDialogOpen.set(false);
+    this.draftToApply = null;
+    this.loadEntries();
+  }
+
+  confirmDeleteDraft(draft: IncomeDraft): void {
+    this.draftToDelete = draft;
+    this.deleteDraftDialogOpen.set(true);
+  }
+
+  async deleteDraft(): Promise<void> {
+    if (!this.draftToDelete) return;
+    await this.profileService.deleteIncomeDraft(this.draftToDelete.id);
+    this.deleteDraftDialogOpen.set(false);
+    this.draftToDelete = null;
+    this.toastService.success('Template deleted');
   }
 
   private getCurrentMonth(): string {

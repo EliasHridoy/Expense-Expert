@@ -34,20 +34,20 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
             <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 transition-colors duration-200 leading-tight">Expenses</span>
           </a>
 
-          <!-- Drafts -->
-          <a routerLink="/drafts" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: false }"
+          <!-- Loans -->
+          <a routerLink="/savings/loans" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: false }"
              class="nav-item group flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-xl transition-all duration-200 relative">
             <span class="active-pill absolute top-0.5 w-8 h-1 rounded-full bg-primary-600 dark:bg-primary-400 opacity-0 scale-x-0 transition-all duration-300"></span>
             <span class="icon-wrapper flex items-center justify-center w-10 h-7 rounded-xl transition-all duration-200">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </span>
-            <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 transition-colors duration-200 leading-tight">Drafts</span>
+            <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 transition-colors duration-200 leading-tight">Loans</span>
           </a>
 
           <!-- Savings -->
-          <a routerLink="/savings" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: false }"
+          <a routerLink="/savings" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }"
              class="nav-item group flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-xl transition-all duration-200 relative">
             <span class="active-pill absolute top-0.5 w-8 h-1 rounded-full bg-primary-600 dark:bg-primary-400 opacity-0 scale-x-0 transition-all duration-300"></span>
             <span class="icon-wrapper flex items-center justify-center w-10 h-7 rounded-xl transition-all duration-200">

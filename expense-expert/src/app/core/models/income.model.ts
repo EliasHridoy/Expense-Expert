@@ -29,3 +29,26 @@ export interface UpdateIncomeEntryDto {
   date?: Date;
   note?: string;
 }
+
+export interface IncomeDraft {
+  id: string;
+  source: string;
+  amount: number;
+  note: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateIncomeDraftDto {
+  source: string;
+  amount: number;
+  note: string;
+}
+
+export interface UpdateIncomeDraftDto {
+  source?: string;
+  amount?: number;
+  note?: string;
+  isActive?: boolean;
+}

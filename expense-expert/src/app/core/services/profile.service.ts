@@ -4,7 +4,7 @@ import { where } from '@angular/fire/firestore';
 import { Observable, map } from 'rxjs';
 import { FirestoreService } from './firestore.service';
 import { AuthService } from './auth.service';
-import { UserProfile, IncomeEntry, CreateIncomeEntryDto, UpdateIncomeEntryDto } from '../models/income.model';
+import { UserProfile, IncomeEntry, CreateIncomeEntryDto, UpdateIncomeEntryDto, IncomeDraft, CreateIncomeDraftDto, UpdateIncomeDraftDto } from '../models/income.model';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
@@ -22,6 +22,10 @@ export class ProfileService {
 
   private get incomePath(): string {
     return this.firestoreService.userPath(this.uid, 'income-entries');
+  }
+
+  private get incomeDraftsPath(): string {
+    return this.firestoreService.userPath(this.uid, 'income-drafts');
   }
 
   // --- User Profile (salary) ---
@@ -144,5 +148,29 @@ export class ProfileService {
   private toMonth(date: Date): string {
     const d = new Date(date);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  // --- Income Drafts (Templates) ---
+
+  getIncomeDrafts(): Observable<IncomeDraft[]> {
+    return this.firestoreService.getCollection<IncomeDraft>(
+      this.incomeDraftsPath,
+      where('isActive', '==', true)
+    );
+  }
+
+  async addIncomeDraft(dto: CreateIncomeDraftDto): Promise<string> {
+    return this.firestoreService.addDocument(this.incomeDraftsPath, {
+      ...dto,
+      isActive: true,
+    });
+  }
+
+  async updateIncomeDraft(id: string, dto: UpdateIncomeDraftDto): Promise<void> {
+    return this.firestoreService.updateDocument(`${this.incomeDraftsPath}/${id}`, dto);
+  }
+
+  async deleteIncomeDraft(id: string): Promise<void> {
+    return this.firestoreService.deleteDocument(`${this.incomeDraftsPath}/${id}`);
   }
 }

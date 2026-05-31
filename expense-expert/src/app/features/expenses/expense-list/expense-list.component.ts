@@ -35,7 +35,17 @@ import { FormsModule } from '@angular/forms';
     />
 
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-      <app-month-picker [currentMonth]="currentMonth()" (monthChanged)="onMonthChange($event)" />
+      <div class="flex items-center gap-2">
+        <app-month-picker [currentMonth]="currentMonth()" (monthChanged)="onMonthChange($event)" />
+        <button
+          id="expense-drafts-btn"
+          (click)="router.navigate(['/drafts'])"
+          class="px-3 py-1.5 text-sm font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          title="Expense Drafts"
+        >
+          Drafts
+        </button>
+      </div>
       <div class="flex flex-wrap items-center gap-4">
         <p class="text-sm text-gray-500 dark:text-gray-400">
           Spent: <app-amount-display [amount]="totalAmount()" type="expense" />

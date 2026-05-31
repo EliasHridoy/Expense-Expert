@@ -70,6 +70,12 @@ export class TourService {
         position: 'bottom',
       },
       {
+        elementId: 'expense-drafts-btn',
+        title: '📋 Expense Drafts',
+        description: 'Access your expense drafts here. Drafts are reusable templates for recurring expenses.',
+        position: 'bottom',
+      },
+      {
         elementId: 'expense-list-area',
         title: '📋 Your Expenses',
         description: 'All your expenses for the selected month appear here. Click any expense to see details or edit it.',
@@ -92,12 +98,6 @@ export class TourService {
     ],
     savings: [
       {
-        elementId: 'loans-summary-card',
-        title: '🤝 Pending Loans',
-        description: 'When you mark an expense as a loan to someone, it shows up here. Click to see all loans and record repayments.',
-        position: 'bottom',
-      },
-      {
         elementId: 'bank-accounts-section',
         title: '🏦 Bank Accounts',
         description: 'Add your bank accounts to organize where your savings go.',
@@ -110,17 +110,31 @@ export class TourService {
         position: 'top',
       },
     ],
+    loans: [
+      {
+        elementId: 'loan-tabs',
+        title: '🔄 Loan Types',
+        description: 'Switch between Money you borrowed (Taken) and Money you lent to others (Given).',
+        position: 'bottom',
+      },
+      {
+        elementId: 'add-loan-btn',
+        title: '➕ Record Loan',
+        description: 'Click here to record a new loan. Assign it to a person and track repayments easily.',
+        position: 'bottom',
+      },
+    ],
     profile: [
       {
-        elementId: 'salary-card',
-        title: '💵 Monthly Salary',
-        description: 'Set your monthly salary here. This is used to calculate your total income on the Dashboard.',
+        elementId: 'income-drafts-section',
+        title: '📝 Income Templates',
+        description: 'Create templates for your fixed income sources. Apply them each month with one click to save time.',
         position: 'bottom',
       },
       {
         elementId: 'earnings-section',
-        title: '💰 Additional Earnings',
-        description: 'Got freelance income, bonuses, or other earnings? Add them here by month. They\'ll be added to your dashboard total.',
+        title: '💰 Monthly Income',
+        description: 'Track all your earnings for the selected month here. It directly updates your dashboard total.',
         position: 'top',
       },
     ],

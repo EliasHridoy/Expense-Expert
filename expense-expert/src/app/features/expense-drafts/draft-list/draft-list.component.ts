@@ -27,6 +27,17 @@ import { TourService } from '../../../core/services/tour.service';
     ConfirmDialogComponent,
   ],
   template: `
+    <div class="mb-2">
+      <button
+        (click)="router.navigate(['/expenses'])"
+        class="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to Expenses
+      </button>
+    </div>
     <app-page-header
       title="Expense Drafts"
       actionLabel="+ New Draft"
