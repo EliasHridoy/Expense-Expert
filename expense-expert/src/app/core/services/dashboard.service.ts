@@ -8,6 +8,7 @@ import { ProfileService } from './profile.service';
 import { Expense, ExpenseCategory } from '../models/expense.model';
 import { SavingEntry } from '../models/saving.model';
 import { IncomeEntry } from '../models/income.model';
+import { LoanTaken } from '../models/loan.model';
 import { MonthSummary, MonthlyTrend, CategoryBreakdown } from '../models/dashboard.model';
 
 @Injectable({ providedIn: 'root' })
@@ -36,20 +37,19 @@ export class DashboardService {
       where('month', '<=', month)
     );
 
-    const salary$ = from(this.profileService.getProfile());
-
-    // Fetch the user document directly from firestore, as auth user might not have createdAt mapped easily via authService.currentUser
-    const userDoc$ = from(
-      this.authService.authReady.then(() => {
-        return this.firestoreService.getDocument<any>(`users/${this.uid}`).pipe(take(1)).toPromise();
-      })
+    const loansTaken$ = this.firestoreService.getCollection<LoanTaken>(
+      this.firestoreService.userPath(this.uid, 'loans-taken'),
+      where('month', '<=', month)
     );
 
-    return combineLatest([expenses$, savings$, income$, salary$, userDoc$]).pipe(
-      map(([allExpenses, allSavingEntries, allIncomeEntries, profile, userDoc]) => {
+    const salary$ = from(this.profileService.getProfile());
+
+    return combineLatest([expenses$, savings$, income$, loansTaken$, salary$]).pipe(
+      map(([allExpenses, allSavingEntries, allIncomeEntries, allLoansTaken, profile]) => {
         const expenses = allExpenses.filter((e) => e.month === month);
         const savingEntries = allSavingEntries.filter((e) => e.month === month);
         const incomeEntries = allIncomeEntries.filter((e) => e.month === month);
+        const loansTakenThisMonth = allLoansTaken.filter((l) => l.month === month);
 
         const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
         const totalSavings = savingEntries.reduce(
@@ -60,18 +60,21 @@ export class DashboardService {
           .filter((e) => e.category === ExpenseCategory.Savings)
           .reduce((sum, e) => sum + e.amount, 0);
 
-        const salary = profile?.monthlySalary ?? 0;
+        const salary = this.profileService.getSalaryForMonth(profile, month);
         const additionalIncome = incomeEntries.reduce((sum, e) => sum + e.amount, 0);
-        const currentMonthIncome = salary + additionalIncome;
+        // Loans taken this month are added to available income
+        const loansTakenIncome = loansTakenThisMonth.reduce((sum, l) => sum + l.amount, 0);
+        const currentMonthIncome = salary + additionalIncome + loansTakenIncome;
 
         let previousMonthRemaining = 0;
-        const createdAt = userDoc?.createdAt?.toDate();
+        const createdAt = profile?.createdAt;
         if (createdAt) {
           const pastMonths = this.getMonthsBetween(createdAt, month);
           for (const pastMonth of pastMonths) {
             const pastExpenses = allExpenses.filter((e) => e.month === pastMonth);
             const pastSavings = allSavingEntries.filter((e) => e.month === pastMonth);
             const pastIncome = allIncomeEntries.filter((e) => e.month === pastMonth);
+            const pastLoansTaken = allLoansTaken.filter((l) => l.month === pastMonth);
 
             const pastTotalExpenses = pastExpenses.reduce((sum, e) => sum + e.amount, 0);
             const pastTotalSavings = pastSavings.reduce(
@@ -82,8 +85,9 @@ export class DashboardService {
               .filter((e) => e.category === ExpenseCategory.Savings)
               .reduce((sum, e) => sum + e.amount, 0);
             const pastAdditionalIncome = pastIncome.reduce((sum, e) => sum + e.amount, 0);
-            // This is still applying current salary to past months, but there is no past salary history
-            const pastTotalIncome = salary + pastAdditionalIncome;
+            const pastSalary = this.profileService.getSalaryForMonth(profile, pastMonth);
+            const pastLoansTakenIncome = pastLoansTaken.reduce((sum, l) => sum + l.amount, 0);
+            const pastTotalIncome = pastSalary + pastAdditionalIncome + pastLoansTakenIncome;
 
             previousMonthRemaining += pastTotalIncome - pastTotalExpenses - (pastTotalSavings - pastSavingsInExpenses);
           }
@@ -99,6 +103,7 @@ export class DashboardService {
           totalSavings,
           remaining: totalIncome - totalExpenses - (totalSavings - savingsInExpenses),
           expenseCount: expenses.length,
+          loansTakenIncome,
         };
       })
     );

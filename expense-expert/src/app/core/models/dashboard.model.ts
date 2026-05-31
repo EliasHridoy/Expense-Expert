@@ -4,6 +4,9 @@ export interface MonthSummary {
   totalSavings: number;
   remaining: number;
   expenseCount: number;
+  previousMonthRemaining: number;
+  currentMonthIncome: number;
+  loansTakenIncome: number;
 }
 
 export interface MonthlyTrend {

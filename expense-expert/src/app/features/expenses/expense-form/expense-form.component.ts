@@ -247,7 +247,7 @@ export class ExpenseFormComponent implements OnInit {
   totalSteps = 3;
   steps = [1, 2, 3];
 
-  titleSuggestions = ['Grocery', 'Restaurant', 'Coffee', 'Transport', 'Utilities', 'Shopping'];
+  titleSuggestions = ['Grocery', 'Coffee', 'Transport', 'Utilities', 'Shopping'];
 
   private expenseId: string | null = null;
 

@@ -33,6 +33,7 @@ export class ExpenseService {
       month,
       loanCleared: false,
       loanRepaid: 0,
+      loanTakenId: dto.loanTakenId ?? null,
       draftId: dto.draftId ?? null,
       installmentIndex: dto.installmentIndex ?? null,
     });

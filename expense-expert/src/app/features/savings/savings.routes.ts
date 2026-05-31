@@ -42,6 +42,6 @@ export const SAVINGS_ROUTES: Routes = [
   {
     path: 'loans',
     loadComponent: () =>
-      import('./loan-summary/loan-summary.component').then((m) => m.LoanSummaryComponent),
+      import('./loans-page/loans-page.component').then((m) => m.LoansPageComponent),
   },
 ];

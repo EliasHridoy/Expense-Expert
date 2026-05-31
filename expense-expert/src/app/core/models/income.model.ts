@@ -1,5 +1,7 @@
 export interface UserProfile {
   monthlySalary: number;
+  salaries?: { [month: string]: number };
+  createdAt?: Date;
   updatedAt: Date;
 }
 

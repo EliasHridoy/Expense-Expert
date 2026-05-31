@@ -4,6 +4,7 @@ export enum ExpenseCategory {
   Entertainment = 'entertainment',
   Utilities = 'utilities',
   Savings = 'savings',
+  LoanRepayment = 'loan_repayment',
   Other = 'other',
 }
 
@@ -18,7 +19,8 @@ export interface Expense {
   isLoan: boolean;
   loanPersonId: string | null;
   loanCleared: boolean;
-  loanRepaid: number; // amount repaid so far (partial repayment)
+  loanRepaid: number;
+  loanTakenId: string | null; // if this expense is a repayment for a LoanTaken record
   draftId: string | null;
   installmentIndex: number | null;
   createdAt: Date;
@@ -33,6 +35,7 @@ export interface CreateExpenseDto {
   date: Date;
   isLoan: boolean;
   loanPersonId: string | null;
+  loanTakenId?: string | null;
   draftId?: string | null;
   installmentIndex?: number | null;
 }
@@ -54,5 +57,6 @@ export const EXPENSE_CATEGORIES = [
   { value: ExpenseCategory.Entertainment, label: 'Entertainment' },
   { value: ExpenseCategory.Utilities, label: 'Utilities' },
   { value: ExpenseCategory.Savings, label: 'Savings' },
+  { value: ExpenseCategory.LoanRepayment, label: 'Loan Repayment' },
   { value: ExpenseCategory.Other, label: 'Other' },
 ];

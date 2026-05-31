@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect, OnInit } from '@angular/core';
+import { Component, inject, signal, effect, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { DecimalPipe, DatePipe } from '@angular/common';
@@ -11,7 +11,7 @@ import { ProfileService } from '../../../core/services/profile.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { TourService } from '../../../core/services/tour.service';
-import { IncomeEntry } from '../../../core/models/income.model';
+import { IncomeEntry, UserProfile } from '../../../core/models/income.model';
 
 @Component({
   selector: 'app-profile-page',
@@ -48,11 +48,11 @@ import { IncomeEntry } from '../../../core/models/income.model';
 
       <!-- Monthly Salary Card -->
       <div id="salary-card" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Monthly Salary</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Monthly Salary ({{ selectedMonthLabel() }})</h2>
         @if (editingSalary()) {
           <div class="flex flex-col sm:flex-row sm:items-end gap-3">
             <div class="flex-1 w-full relative">
-              <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Amount</label>
+              <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Amount for {{ selectedMonthLabel() }}</label>
               <input
                 type="number"
                 [(ngModel)]="salaryInput"
@@ -82,7 +82,7 @@ import { IncomeEntry } from '../../../core/models/income.model';
               <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {{ monthlySalary() | number: '1.0-0' }}
               </p>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">per month</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">for {{ selectedMonthLabel() }}</p>
             </div>
             <button
               (click)="startEditSalary()"
@@ -240,11 +240,18 @@ export class ProfilePageComponent implements OnInit {
   private tourService = inject(TourService);
   private router = inject(Router);
 
+  userProfile = signal<UserProfile | null>(null);
   monthlySalary = signal(0);
   editingSalary = signal(false);
   salaryInput = 0;
 
   currentMonth = signal(this.getCurrentMonth());
+  selectedMonthLabel = computed(() => {
+    const monthStr = this.currentMonth();
+    const [year, month] = monthStr.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1);
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  });
   incomeEntries = signal<IncomeEntry[]>([]);
   monthlyAdditional = signal(0);
   showAddForm = signal(false);
@@ -262,7 +269,12 @@ export class ProfilePageComponent implements OnInit {
       // React to month changes
       const month = this.currentMonth();
       this.loadEntries(month);
-    });
+
+      const profile = this.userProfile();
+      if (profile) {
+        this.monthlySalary.set(this.profileService.getSalaryForMonth(profile, month));
+      }
+    }, { allowSignalWrites: true });
   }
 
   ngOnInit(): void {
@@ -276,7 +288,8 @@ export class ProfilePageComponent implements OnInit {
   private async loadProfile(): Promise<void> {
     const profile = await this.profileService.getProfile();
     if (profile) {
-      this.monthlySalary.set(profile.monthlySalary);
+      this.userProfile.set(profile);
+      this.monthlySalary.set(this.profileService.getSalaryForMonth(profile, this.currentMonth()));
     }
 
     this.tourService.loadTourState().then(() => {
@@ -297,8 +310,13 @@ export class ProfilePageComponent implements OnInit {
   }
 
   async saveSalary(): Promise<void> {
-    await this.profileService.updateSalary(this.salaryInput);
-    this.monthlySalary.set(this.salaryInput);
+    const month = this.currentMonth();
+    await this.profileService.updateSalary(this.salaryInput, month);
+    const profile = await this.profileService.getProfile();
+    this.userProfile.set(profile);
+    if (profile) {
+      this.monthlySalary.set(this.profileService.getSalaryForMonth(profile, month));
+    }
     this.editingSalary.set(false);
     this.toastService.success('Salary updated');
   }
