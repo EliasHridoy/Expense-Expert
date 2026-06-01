@@ -4,7 +4,7 @@ import { where } from '@angular/fire/firestore';
 import { Observable, map } from 'rxjs';
 import { FirestoreService } from './firestore.service';
 import { AuthService } from './auth.service';
-import { UserProfile, IncomeEntry, CreateIncomeEntryDto, UpdateIncomeEntryDto } from '../models/income.model';
+import { UserProfile, IncomeEntry, CreateIncomeEntryDto, UpdateIncomeEntryDto, IncomeDraft, CreateIncomeDraftDto, UpdateIncomeDraftDto } from '../models/income.model';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
@@ -24,6 +24,10 @@ export class ProfileService {
     return this.firestoreService.userPath(this.uid, 'income-entries');
   }
 
+  private get incomeDraftsPath(): string {
+    return this.firestoreService.userPath(this.uid, 'income-drafts');
+  }
+
   // --- User Profile (salary) ---
 
   async getProfile(): Promise<UserProfile | null> {
@@ -33,15 +37,72 @@ export class ProfileService {
       const data = snap.data();
       return {
         monthlySalary: data['monthlySalary'] ?? 0,
+        salaries: data['salaries'] ?? {},
+        createdAt: data['createdAt']?.toDate(),
         updatedAt: data['updatedAt']?.toDate() ?? new Date(),
       };
     }
     return null;
   }
 
-  async updateSalary(monthlySalary: number): Promise<void> {
+  getSalaryForMonth(profile: UserProfile | null, month: string): number {
+    if (!profile) return 0;
+    if (profile.salaries && profile.salaries[month] !== undefined) {
+      return profile.salaries[month];
+    }
+    if (profile.salaries) {
+      const pastMonths = Object.keys(profile.salaries).sort();
+      if (pastMonths.length > 0) {
+        const monthsBefore = pastMonths.filter((m) => m < month);
+        if (monthsBefore.length > 0) {
+          const closestMonth = monthsBefore[monthsBefore.length - 1];
+          return profile.salaries[closestMonth];
+        }
+        return profile.salaries[pastMonths[0]];
+      }
+    }
+    return profile.monthlySalary ?? 0;
+  }
+
+  async updateSalary(monthlySalary: number, month?: string): Promise<void> {
+    const profile = await this.getProfile();
+    const targetMonth = month || this.toMonth(new Date());
+    const oldSalaryForTargetMonth = this.getSalaryForMonth(profile, targetMonth);
+
     const ref = doc(this.firestore, this.profileDocPath);
-    await setDoc(ref, { monthlySalary, updatedAt: serverTimestamp() }, { merge: true });
+
+    const updatedSalaries: { [key: string]: number } = {
+      ...profile?.salaries,
+      [targetMonth]: monthlySalary,
+    };
+
+    // For legacy users, if the registration month is not in the map,
+    // initialize it with the old salary to preserve history prior to this edit.
+    const createdAt = profile?.createdAt || new Date();
+    const registrationMonth = this.toMonth(createdAt);
+    if (registrationMonth < targetMonth && (!profile?.salaries || profile.salaries[registrationMonth] === undefined)) {
+      updatedSalaries[registrationMonth] = profile?.monthlySalary ?? 0;
+    }
+
+    // Cascade the update to any subsequent months that have an explicit entry
+    // matching the old salary of the target month (indicating they were inheriting the old rate).
+    if (profile?.salaries) {
+      for (const m of Object.keys(profile.salaries)) {
+        if (m > targetMonth && profile.salaries[m] === oldSalaryForTargetMonth) {
+          updatedSalaries[m] = monthlySalary;
+        }
+      }
+    }
+
+    await setDoc(
+      ref,
+      {
+        monthlySalary,
+        salaries: updatedSalaries,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
   }
 
   // --- Income Entries (additional earnings) ---
@@ -87,5 +148,29 @@ export class ProfileService {
   private toMonth(date: Date): string {
     const d = new Date(date);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  // --- Income Drafts (Templates) ---
+
+  getIncomeDrafts(): Observable<IncomeDraft[]> {
+    return this.firestoreService.getCollection<IncomeDraft>(
+      this.incomeDraftsPath,
+      where('isActive', '==', true)
+    );
+  }
+
+  async addIncomeDraft(dto: CreateIncomeDraftDto): Promise<string> {
+    return this.firestoreService.addDocument(this.incomeDraftsPath, {
+      ...dto,
+      isActive: true,
+    });
+  }
+
+  async updateIncomeDraft(id: string, dto: UpdateIncomeDraftDto): Promise<void> {
+    return this.firestoreService.updateDocument(`${this.incomeDraftsPath}/${id}`, dto);
+  }
+
+  async deleteIncomeDraft(id: string): Promise<void> {
+    return this.firestoreService.deleteDocument(`${this.incomeDraftsPath}/${id}`);
   }
 }

@@ -16,7 +16,10 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
       </span>
       <button
         (click)="navigate(1)"
-        class="rounded-lg p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        [disabled]="isNextDisabled"
+        [class.opacity-50]="isNextDisabled"
+        [class.cursor-not-allowed]="isNextDisabled"
+        class="rounded-lg p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:hover:bg-transparent dark:disabled:hover:bg-transparent"
       >
         &rarr;
       </button>
@@ -33,7 +36,19 @@ export class MonthPickerComponent {
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   }
 
+  get isNextDisabled(): boolean {
+    if (!this.currentMonth) return false;
+    const [year, month] = this.currentMonth.split('-').map(Number);
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    
+    return year > currentYear || (year === currentYear && month >= currentMonth);
+  }
+
   navigate(delta: number): void {
+    if (delta > 0 && this.isNextDisabled) return;
+
     const [year, month] = this.currentMonth.split('-').map(Number);
     const date = new Date(year, month - 1 + delta, 1);
     const newYear = date.getFullYear();

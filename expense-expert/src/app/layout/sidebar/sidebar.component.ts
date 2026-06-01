@@ -52,8 +52,8 @@ export class SidebarComponent {
   navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: '\u{1F4CA}', exact: true, id: 'nav-dashboard' },
     { path: '/expenses', label: 'Expenses', icon: '\u{1F4B8}', exact: false, id: 'nav-expenses' },
-    { path: '/drafts', label: 'Expense Drafts', icon: '\u{1F4CB}', exact: false, id: 'nav-drafts' },
-    { path: '/savings', label: 'Savings', icon: '\u{1F3E6}', exact: false, id: 'nav-savings' },
+    { path: '/savings/loans', label: 'Loans', icon: '\u{1F4B0}', exact: false, id: 'nav-loans' },
+    { path: '/savings', label: 'Savings', icon: '\u{1F3E6}', exact: true, id: 'nav-savings' },
     { path: '/profile', label: 'Profile', icon: '\u{1F464}', exact: false, id: 'nav-profile' },
   ];
 

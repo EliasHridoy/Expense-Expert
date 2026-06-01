@@ -162,29 +162,7 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
                   ></textarea>
                 </div>
 
-                <div class="flex items-center gap-3 bg-primary-50 dark:bg-primary-900/20 p-4 rounded-2xl">
-                  <input
-                    formControlName="isLoan"
-                    type="checkbox"
-                    id="isLoanExpense"
-                    class="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                  />
-                  <label for="isLoanExpense" class="text-base font-medium text-primary-900 dark:text-primary-100">
-                    This is a loan to someone
-                  </label>
-                </div>
 
-                @if (form.get('isLoan')?.value) {
-                  <div class="animate-in fade-in slide-in-from-top-2">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Who is this for?</label>
-                    <app-person-select
-                      [persons]="persons()"
-                      [selectedId]="form.get('loanPersonId')?.value"
-                      (selected)="form.patchValue({ loanPersonId: $event })"
-                      (personAdded)="onAddPerson($event)"
-                    />
-                  </div>
-                }
 
                 <!-- Summary Card -->
                 <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-2xl mt-4 border border-gray-100 dark:border-gray-800">
@@ -247,7 +225,7 @@ export class ExpenseFormComponent implements OnInit {
   totalSteps = 3;
   steps = [1, 2, 3];
 
-  titleSuggestions = ['Grocery', 'Restaurant', 'Coffee', 'Transport', 'Utilities', 'Shopping'];
+  titleSuggestions = ['Grocery', 'Coffee', 'Transport', 'Utilities', 'Shopping'];
 
   private expenseId: string | null = null;
 

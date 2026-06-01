@@ -59,27 +59,6 @@ import { SavingGoalListComponent } from '../saving-goal-list/saving-goal-list.co
     @if (isLoading()) {
       <app-loading-spinner size="lg" [fullPage]="true" />
     } @else {
-      <!-- Loans Summary -->
-      <div class="mb-8">
-        <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Loans</h2>
-        <div
-          id="loans-summary-card" 
-          (click)="router.navigate(['/savings/loans'])"
-          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
-        >
-          <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Pending Loan to Pay</p>
-            <p class="text-xl font-bold text-gray-900 dark:text-gray-100" [class.text-red-600]="totalPendingLoan() > 0" [class.dark:text-red-400]="totalPendingLoan() > 0">
-              {{ totalPendingLoan() | number:'1.0-0' }}
-            </p>
-          </div>
-          <div class="text-gray-400 dark:text-gray-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-        </div>
-      </div>
 
       <!-- Bank Accounts -->
       <div id="bank-accounts-section" class="mb-8">
