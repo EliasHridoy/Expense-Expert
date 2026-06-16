@@ -309,7 +309,7 @@ class Expense {
 |---|---|---|
 | Build `MainScaffold` with `BottomNavBar` | ⬜ TODO | 5 tabs: Dashboard, Expenses, Drafts, Savings, Profile |
 | Implement tab routing with GoRouter `ShellRoute` | ⬜ TODO | Preserves tab state on switch |
-| Build `PageHeader` shared widget | ⬜ TODO | Title + optional action button |
+| Build `PageHeader` shared widget | ✅ DONE | Title + optional action button |
 | Build `LoadingSpinner`, `EmptyState` shared widgets | ⬜ TODO | |
 | Build `ConfirmDialog` shared widget | ⬜ TODO | Used by delete flows |
 | Build `ToastMessage` / SnackBar helper | ⬜ TODO | Replaces `ToastService` |
