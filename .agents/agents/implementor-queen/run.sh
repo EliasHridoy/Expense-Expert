@@ -44,11 +44,10 @@ Follow the output format in your instructions exactly.
 
 if [[ "$IS_FRONTEND" == "true" ]]; then
   log "implementor-queen: 🎨 Frontend task detected (design files present) → using codex"
-  codex exec \
-    --sandbox workspace-write \
-    --ask-for-approval never \
-    "$PROMPT"
+  printf '%s\n' "$PROMPT" | codex exec \
+    --dangerously-bypass-approvals-and-sandbox \
+    -
 else
   log "implementor-queen: ⚙️  Backend/general task detected → using opencode"
-  opencode run "$PROMPT"
+  printf '%s\n' "$PROMPT" | opencode run --auto
 fi

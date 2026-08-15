@@ -2,10 +2,34 @@
   "name": "expense-expert-rn",
   "private": true,
   "version": "1.0.0",
+  "main": "expo-router/entry",
   "scripts": {
-    "start": "expo start",
-    "web": "expo start --web",
+    "start": "npx expo start",
+    "web": "npx expo start --web",
     "test": "./expense-expert/node_modules/.bin/tsc -p tsconfig.json && node --test dist/tests/*.test.js",
     "build": "./expense-expert/node_modules/.bin/tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "1.23.1",
+    "expo": "^51.0.0",
+    "expo-local-authentication": "~14.0.1",
+    "expo-notifications": "~0.28.1",
+    "expo-print": "~13.0.1",
+    "expo-router": "^3.5.0",
+    "expo-sharing": "~12.0.1",
+    "expo-status-bar": "~1.12.1",
+    "firebase": "^10.12.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.74.5",
+    "react-native-svg": "^15.2.0",
+    "react-native-web": "~0.19.10",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0",
+    "@expo/metro-config": "^0.18.0",
+    "@types/react": "~18.2.45",
+    "typescript": "^5.1.3"
   }
 }

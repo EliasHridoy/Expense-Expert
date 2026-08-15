@@ -14,6 +14,20 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": false
   },
-  "include": ["app", "components", "src", "tests", "types", "app.config.ts", "metro.config.js", "babel.config.js", "tailwind.config.js"],
-  "exclude": ["expense-expert", "dist"]
+  "include": [
+    "app",
+    "components",
+    "src",
+    "tests",
+    "types",
+    "app.config.ts",
+    "metro.config.js",
+    "babel.config.js",
+    "tailwind.config.js"
+  ],
+  "exclude": [
+    "expense-expert",
+    "dist"
+  ],
+  "extends": "expo/tsconfig.base"
 }

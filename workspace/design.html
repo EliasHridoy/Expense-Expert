@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Expert — Tactical Financial Ledger</title>
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* CSS RESETS & DESIGN SYSTEM TOKENS */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-dark: #0B0F17;
+      --surface-base: #141A24;
+      --surface-alt: #1C2433;
+      --surface-border: #222C3D;
+      --surface-border-hover: #2E3B52;
+      
+      --color-emerald: #10B981;
+      --color-emerald-glow: rgba(16, 185, 129, 0.15);
+      --color-cobalt: #3B82F6;
+      --color-amber: #F59E0B;
+      --color-coral: #F43F5E;
+      --color-coral-glow: rgba(244, 63, 94, 0.15);
+
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+
+      --font-ui: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      
+      --transition-fast: 0.15s ease;
+      --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .num-mono {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* TELEMETRY HEADER */
+    .telemetry-header {
+      background-color: var(--surface-base);
+      border-bottom: 1px solid var(--surface-border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--color-emerald), #059669);
+      border-radius: var(--radius-sm);
+      display: grid;
+      place-items: center;
+      color: #000;
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-version {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      background: var(--surface-alt);
+      color: var(--color-cobalt);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--surface-border);
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .sync-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--color-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      cursor: pointer;
+      user-select: none;
+      transition: var(--transition-fast);
+    }
+
+    .sync-badge.offline {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--color-amber);
+      border-color: rgba(245, 158, 11, 0.25);
+    }
+
+    .sync-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--surface-border);
+      background: var(--surface-alt);
+      color: var(--text-main);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition-fast);
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: var(--surface-border);
+      border-color: var(--surface-border-hover);
+    }
+
+    .btn-primary {
+      background: var(--color-emerald);
+      color: #0B0F17;
+      border-color: var(--color-emerald);
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      background: #34D399;
+      border-color: #34D399;
+    }
+
+    .btn-danger {
+      background: rgba(244, 63, 94, 0.1);
+      color: var(--color-coral);
+      border-color: rgba(244, 63, 94, 0.3);
+    }
+
+    .btn-danger:hover {
+      background: rgba(244, 63, 94, 0.2);
+    }
+
+    /* MAIN CONTENT LAYOUT */
+    .app-container {
+      max-width: 1380px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      flex: 1;
+    }
+
+    /* SCOREBOARD CONTAINER */
+    .scoreboard-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .metric-card {
+      background: var(--surface-base);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--surface-border);
+    }
+
+    .metric-card.positive::before { background: var(--color-emerald); }
+    .metric-card.negative::before { background: var(--color-coral); }
+    .metric-card.accent::before { background: var(--color-amber); }
+    .metric-card.info::before { background: var(--color-cobalt); }
+
+    .metric-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--surface-alt);
+      color: var(--text-muted);
+    }
+
+    .metric-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .metric-footer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .trend-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .trend-up { color: var(--color-emerald); }
+    .trend-down { color: var(--color-coral); }
+
+    /* DUAL PANE WORKSTATION */
+    .workstation-grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--surface-base);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--surface-border);
+      padding-bottom: 14px;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .segmented-control {
+      display: flex;
+      background: var(--bg-dark);
+      padding: 3px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--surface-border);
+    }
+
+    .segmented-btn {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 4px;
+      transition: var(--transition-fast);
+    }
+
+    .segmented-btn.active {
+      background: var(--surface-alt);
+      color: var(--text-main);
+    }
+
+    /* CHART CONTAINER */
+    .chart-container {
+      width: 100%;
+      height: 200px;
+      position: relative;
+    }
+
+    svg.cashflow-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .category-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .category-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .category-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .category-name {
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .category-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .bar-bg {
+      height: 6px;
+      width: 100%;
+      background: var(--surface-alt);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* DRAFTS & LOANS SECTION */
+    .sub-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin-top: 8px;
+    }
+
+    .draft-card {
+      background: var(--surface-alt);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .draft-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .draft-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-main);
+    }
+
+    .draft-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* LEDGER TABLE */
+    .ledger-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .search-input-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-dark);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px 8px 32px;
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--color-cobalt);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table.ledger-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    table.ledger-table th {
+      background: var(--bg-dark);
+      color: var(--text-dim);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--surface-border);
+    }
+
+    table.ledger-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--surface-border);
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+
+    table.ledger-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.ledger-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .badge-income {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--color-emerald);
+    }
+
+    .badge-expense {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--color-coral);
+    }
+
+    .badge-loan {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--color-amber);
+    }
+
+    .action-icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: var(--transition-fast);
+    }
+
+    .action-icon-btn:hover {
+      color: var(--color-coral);
+      background: rgba(244, 63, 94, 0.1);
+    }
+
+    /* MODAL OVERLAYS */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 15, 23, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: var(--surface-base);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 480px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      transform: translateY(10px) scale(0.98);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-backdrop.active .modal-box {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .form-input, .form-select {
+      background: var(--bg-dark);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--color-emerald);
+    }
+
+    /* BIOMETRIC LOCK OVERLAY */
+    .biometric-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-dark);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .biometric-screen.locked {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .bio-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--surface-base);
+      border: 1px solid var(--color-emerald);
+      display: grid;
+      place-items: center;
+      color: var(--color-emerald);
+      font-size: 32px;
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+    }
+
+    /* RESPONSIVE LAYOUT BREAKPOINTS */
+    @media (max-width: 1024px) {
+      .workstation-grid {
+        grid-template-columns: 1fr;
+      }
+      .scoreboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .scoreboard-grid {
+        grid-template-columns: 1fr;
+      }
+      .telemetry-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .app-container {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TELEMETRY HEADER -->
+  <header class="telemetry-header">
+    <div class="brand-group">
+      <div class="brand-mark">EE</div>
+      <div class="brand-title">
+        EXPENSE EXPERT
+        <span class="brand-version">RN-EXPO v2.4</span>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div class="sync-badge" id="syncBadge" onclick="toggleSyncState()">
+        <span class="sync-dot"></span>
+        <span id="syncText">HYDRATED (FIRESTORE SYNCED)</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn" onclick="openModal('pdfModal')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        PDF Statement
+      </button>
+      <button class="btn" onclick="lockApp()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        Lock App
+      </button>
+      <button class="btn btn-primary" onclick="openModal('expenseModal')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        + Add Expense
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="app-container">
+
+    <!-- SCOREBOARD METRIC CARDS -->
+    <section class="scoreboard-grid">
+      <div class="metric-card positive">
+        <div class="metric-header">
+          <span class="metric-label">Total Monthly Income</span>
+          <span class="metric-tag">FIRESTORE AGG</span>
+        </div>
+        <div class="metric-value num-mono" id="valIncome">$12,450.00</div>
+        <div class="metric-footer">
+          <span class="trend-badge trend-up">+8.4%</span>
+          <span>vs previous month</span>
+        </div>
+      </div>
+
+      <div class="metric-card negative">
+        <div class="metric-header">
+          <span class="metric-label">Total Expenses</span>
+          <span class="metric-tag">LOCKED CACHE</span>
+        </div>
+        <div class="metric-value num-mono" id="valExpense">$4,180.50</div>
+        <div class="metric-footer">
+          <span class="trend-badge trend-down">-3.1%</span>
+          <span id="expenseCountText">14 transactions logged</span>
+        </div>
+      </div>
+
+      <div class="metric-card positive">
+        <div class="metric-header">
+          <span class="metric-label">Net Cashflow Velocity</span>
+          <span class="metric-tag">REALTIME</span>
+        </div>
+        <div class="metric-value num-mono" id="valNet">$8,269.50</div>
+        <div class="metric-footer">
+          <span class="trend-badge trend-up">66.4%</span>
+          <span>savings velocity rate</span>
+        </div>
+      </div>
+
+      <div class="metric-card accent">
+        <div class="metric-header">
+          <span class="metric-label">Active Loans Liabilities</span>
+          <span class="metric-tag">BATCH INCREMENT</span>
+        </div>
+        <div class="metric-value num-mono" id="valLoan">$3,200.00</div>
+        <div class="metric-footer">
+          <span class="trend-badge trend-up">68.0%</span>
+          <span>repaid ($6,800 paid of $10K)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- WORKSTATION GRID -->
+    <section class="workstation-grid">
+
+      <!-- LEFT COLUMN: ANALYTICS & RECURRING DRAFTS -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-emerald)" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            Cashflow Telemetry
+          </div>
+          <div class="segmented-control">
+            <button class="segmented-btn active" onclick="switchPeriod('monthly', this)">Monthly</button>
+            <button class="segmented-btn" onclick="switchPeriod('quarterly', this)">Quarterly</button>
+          </div>
+        </div>
+
+        <!-- SVG CHART -->
+        <div class="chart-container">
+          <svg class="cashflow-svg" viewBox="0 0 380 180">
+            <!-- Grid Lines -->
+            <line x1="0" y1="30" x2="380" y2="30" stroke="#222C3D" stroke-dasharray="3 3"/>
+            <line x1="0" y1="80" x2="380" y2="80" stroke="#222C3D" stroke-dasharray="3 3"/>
+            <line x1="0" y1="130" x2="380" y2="130" stroke="#222C3D" stroke-dasharray="3 3"/>
+            
+            <!-- Income Area Path -->
+            <path d="M 10,130 Q 90,40 190,70 T 370,20 L 370,160 L 10,160 Z" fill="rgba(16, 185, 129, 0.08)"/>
+            <path d="M 10,130 Q 90,40 190,70 T 370,20" fill="none" stroke="#10B981" stroke-width="2.5"/>
+            
+            <!-- Expense Line Path -->
+            <path d="M 10,145 Q 90,110 190,125 T 370,105" fill="none" stroke="#F43F5E" stroke-width="2" stroke-dasharray="4 2"/>
+            
+            <!-- Data Points -->
+            <circle cx="190" cy="70" r="4" fill="#10B981" stroke="#0B0F17" stroke-width="2"/>
+            <circle cx="370" cy="20" r="4" fill="#10B981" stroke="#0B0F17" stroke-width="2"/>
+            <circle cx="370" cy="105" r="4" fill="#F43F5E" stroke="#0B0F17" stroke-width="2"/>
+          </svg>
+        </div>
+
+        <div class="panel-header" style="margin-top: 10px;">
+          <div class="panel-title">Category Breakdown</div>
+          <span class="metric-tag">THIS MONTH</span>
+        </div>
+
+        <!-- CATEGORY PROGRESS BARS -->
+        <div class="category-list">
+          <div class="category-item">
+            <div class="category-row">
+              <span class="category-name"><span class="category-dot" style="background:#10B981"></span> Housing & Utilities</span>
+              <span class="num-mono" style="font-weight:600">$1,850.00 (44.2%)</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill" style="width: 44.2%; background:#10B981;"></div></div>
+          </div>
+
+          <div class="category-item">
+            <div class="category-row">
+              <span class="category-name"><span class="category-dot" style="background:#3B82F6"></span> Server & Cloud Infra</span>
+              <span class="num-mono" style="font-weight:600">$940.00 (22.5%)</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill" style="width: 22.5%; background:#3B82F6;"></div></div>
+          </div>
+
+          <div class="category-item">
+            <div class="category-row">
+              <span class="category-name"><span class="category-dot" style="background:#F59E0B"></span> Loan Repayments</span>
+              <span class="num-mono" style="font-weight:600">$800.00 (19.1%)</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill" style="width: 19.1%; background:#F59E0B;"></div></div>
+          </div>
+
+          <div class="category-item">
+            <div class="category-row">
+              <span class="category-name"><span class="category-dot" style="background:#F43F5E"></span> Food & Dining</span>
+              <span class="num-mono" style="font-weight:600">$590.50 (14.2%)</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill" style="width: 14.2%; background:#F43F5E;"></div></div>
+          </div>
+        </div>
+
+        <div class="sub-section-title">Recurring Monthly Draft Templates</div>
+        <div class="draft-card">
+          <div class="draft-info">
+            <div class="draft-title">Standard Monthly Fixed Expenses</div>
+            <div class="draft-meta">3 items: Rent ($1,500), Fiber ($90), Insurance ($260)</div>
+          </div>
+          <button class="btn btn-primary" style="font-size:11px; padding:6px 10px;" onclick="applyDraftBatch()">
+            Apply Draft
+          </button>
+        </div>
+
+        <div class="draft-card">
+          <div class="draft-info">
+            <div class="draft-title">Loan Repayment Installment</div>
+            <div class="draft-meta">Atomic balance decrement ($400)</div>
+          </div>
+          <button class="btn" style="font-size:11px; padding:6px 10px;" onclick="logLoanRepayment()">
+            Log $400
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: LIVE EXPENSE LEDGER -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-cobalt)" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            Transactional Expense Ledger
+          </div>
+          <span class="metric-tag">ATOMIC WRITEBATCH</span>
+        </div>
+
+        <div class="ledger-toolbar">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search transactions, categories, tags..." oninput="filterLedger()">
+          </div>
+
+          <div class="segmented-control">
+            <button class="segmented-btn active" onclick="filterCategory('ALL', this)">All</button>
+            <button class="segmented-btn" onclick="filterCategory('Housing', this)">Housing</button>
+            <button class="segmented-btn" onclick="filterCategory('Infra', this)">Infra</button>
+            <button class="segmented-btn" onclick="filterCategory('Loan', this)">Loans</button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="ledger-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description / Payee</th>
+                <th>Category</th>
+                <th>Type</th>
+                <th style="text-align: right;">Amount</th>
+                <th style="text-align: center;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="ledgerTbody">
+              <!-- Rendered dynamically by Javascript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ADD EXPENSE MODAL -->
+  <div class="modal-backdrop" id="expenseModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">New Atomic Ledger Entry</div>
+        <button class="close-btn" onclick="closeModal('expenseModal')">&times;</button>
+      </div>
+
+      <form id="addExpenseForm" onsubmit="handleAddExpense(event)">
+        <div class="form-group">
+          <label class="form-label">Description / Merchant</label>
+          <input type="text" id="inputDesc" class="form-input" placeholder="e.g. AWS Cloud Services" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+          <div class="form-group">
+            <label class="form-label">Amount ($)</label>
+            <input type="number" step="0.01" id="inputAmount" class="form-input num-mono" placeholder="250.00" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Entry Type</label>
+            <select id="inputType" class="form-select">
+              <option value="EXPENSE">Expense (-)</option>
+              <option value="INCOME">Income (+)</option>
+              <option value="LOAN">Loan Repayment</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="inputCategory" class="form-select">
+              <option value="Infra">Infra & Cloud</option>
+              <option value="Housing">Housing & Utilities</option>
+              <option value="Loan">Loan Repayment</option>
+              <option value="Food">Food & Dining</option>
+              <option value="Salary">Salary & Income</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input type="date" id="inputDate" class="form-input num-mono" required>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+          <button type="button" class="btn" onclick="closeModal('expenseModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Commit Transaction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- PDF EXPORT MODAL -->
+  <div class="modal-backdrop" id="pdfModal">
+    <div class="modal-box" style="max-width: 580px;">
+      <div class="modal-header">
+        <div class="modal-title">Generate Cross-Platform PDF Statement</div>
+        <button class="close-btn" onclick="closeModal('pdfModal')">&times;</button>
+      </div>
+
+      <div style="background: var(--bg-dark); border: 1px solid var(--surface-border); border-radius: var(--radius-md); padding: 16px; font-family: var(--font-mono); font-size: 11px;">
+        <div style="color: var(--color-emerald); font-weight:700; border-bottom: 1px dashed var(--surface-border); padding-bottom: 8px; margin-bottom: 8px;">
+          STATEMENT PREVIEW — EXPENSE EXPERT AUDIT
+        </div>
+        <div>PERIOD: August 2026</div>
+        <div>TOTAL INCOME: $12,450.00</div>
+        <div>TOTAL EXPENSES: $4,180.50</div>
+        <div>NET VELOCITY: +$8,269.50</div>
+        <div>STORAGE HYDRATION: EXPO-ASYNCSTORAGE LOCAL CACHE</div>
+        <div>HASH SIGNATURE: 0x9F82A41C7B</div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+        <span style="font-size: 11px; color: var(--text-dim);">Uses expo-print & Web Blob fallback</span>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn" onclick="closeModal('pdfModal')">Close</button>
+          <button class="btn btn-primary" onclick="simulatePdfDownload()">Download Statement PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIOMETRIC SECURITY SCREEN -->
+  <div class="biometric-screen" id="biometricScreen">
+    <div class="bio-icon">🔐</div>
+    <div style="text-align: center;">
+      <h2 style="font-size: 20px; font-weight: 800;">Expense Expert Secured</h2>
+      <p style="color: var(--text-muted); font-size: 13px; margin-top: 4px;">AppState shifted to background. Touch ID / Face ID required.</p>
+    </div>
+    <button class="btn btn-primary" style="padding: 12px 24px; font-size: 14px;" onclick="unlockApp()">
+      Authenticate with Face ID
+    </button>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // INITIAL TRANSACTION LEDGER DATA
+    let transactions = [
+      { id: 1, date: '2026-08-14', desc: 'Equinix Bare Metal Cluster', cat: 'Infra', type: 'EXPENSE', amount: 940.00 },
+      { id: 2, date: '2026-08-12', desc: 'Apartment Lease & Fiber', cat: 'Housing', type: 'EXPENSE', amount: 1850.00 },
+      { id: 3, date: '2026-08-10', desc: 'Client Retainer Payment', cat: 'Salary', type: 'INCOME', amount: 12450.00 },
+      { id: 4, date: '2026-08-08', desc: 'Equipment Loan Installment', cat: 'Loan', type: 'LOAN', amount: 400.00 },
+      { id: 5, date: '2026-08-05', desc: 'Team Lunch & Coffee', cat: 'Food', type: 'EXPENSE', amount: 190.50 },
+      { id: 6, date: '2026-08-01', desc: 'Grocery Stockup', cat: 'Food', type: 'EXPENSE', amount: 400.00 }
+    ];
+
+    let currentFilterCat = 'ALL';
+    let isOnline = true;
+
+    // RENDER LEDGER TABLE
+    function renderLedger() {
+      const tbody = document.getElementById('ledgerTbody');
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      
+      const filtered = transactions.filter(t => {
+        const matchesCat = currentFilterCat === 'ALL' || t.cat === currentFilterCat;
+        const matchesSearch = t.desc.toLowerCase().includes(search) || t.cat.toLowerCase().includes(search);
+        return matchesCat && matchesSearch;
+      });
+
+      tbody.innerHTML = filtered.map(t => {
+        let badgeClass = 'badge-expense';
+        let amountPrefix = '-$';
+        let amountColor = 'var(--color-coral)';
+
+        if (t.type === 'INCOME') {
+          badgeClass = 'badge-income';
+          amountPrefix = '+$';
+          amountColor = 'var(--color-emerald)';
+        } else if (t.type === 'LOAN') {
+          badgeClass = 'badge-loan';
+          amountPrefix = '-$';
+          amountColor = 'var(--color-amber)';
+        }
+
+        return `
+          <tr>
+            <td class="num-mono" style="color: var(--text-muted);">${t.date}</td>
+            <td style="font-weight: 600;">${t.desc}</td>
+            <td><span class="metric-tag">${t.cat}</span></td>
+            <td><span class="badge ${badgeClass}">${t.type}</span></td>
+            <td class="num-mono" style="text-align: right; font-weight: 700; color: ${amountColor};">
+              ${amountPrefix}${t.amount.toFixed(2)}
+            </td>
+            <td style="text-align: center;">
+              <button class="action-icon-btn" onclick="deleteTransaction(${t.id})" title="Delete entry">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      recalculateMetrics();
+    }
+
+    // RECALCULATE SCOREBOARD METRICS
+    function recalculateMetrics() {
+      let income = 0;
+      let expense = 0;
+      let loanPaid = 6800;
+
+      transactions.forEach(t => {
+        if (t.type === 'INCOME') income += t.amount;
+        else expense += t.amount;
+      });
+
+      const net = income - expense;
+
+      document.getElementById('valIncome').innerText = `$${income.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+      document.getElementById('valExpense').innerText = `$${expense.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+      document.getElementById('valNet').innerText = `$${net.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+      document.getElementById('expenseCountText').innerText = `${transactions.length} transactions logged`;
+    }
+
+    // MODAL CONTROL FUNCTIONS
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+      if (id === 'expenseModal') {
+        document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
+      }
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    // ADD NEW EXPENSE HANDLER
+    function handleAddExpense(e) {
+      e.preventDefault();
+      const desc = document.getElementById('inputDesc').value;
+      const amount = parseFloat(document.getElementById('inputAmount').value);
+      const type = document.getElementById('inputType').value;
+      const cat = document.getElementById('inputCategory').value;
+      const date = document.getElementById('inputDate').value;
+
+      const newTx = {
+        id: Date.now(),
+        date,
+        desc,
+        cat,
+        type,
+        amount
+      };
+
+      transactions.unshift(newTx);
+      renderLedger();
+      closeModal('expenseModal');
+      document.getElementById('addExpenseForm').reset();
+    }
+
+    // DELETE TRANSACTION
+    function deleteTransaction(id) {
+      transactions = transactions.filter(t => t.id !== id);
+      renderLedger();
+    }
+
+    // FILTER HANDLERS
+    function filterLedger() {
+      renderLedger();
+    }
+
+    function filterCategory(cat, btn) {
+      currentFilterCat = cat;
+      document.querySelectorAll('.segmented-control .segmented-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderLedger();
+    }
+
+    function switchPeriod(period, btn) {
+      btn.parentElement.querySelectorAll('.segmented-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    // SYNC STATE SIMULATOR
+    function toggleSyncState() {
+      isOnline = !isOnline;
+      const badge = document.getElementById('syncBadge');
+      const text = document.getElementById('syncText');
+
+      if (isOnline) {
+        badge.classList.remove('offline');
+        text.innerText = 'HYDRATED (FIRESTORE SYNCED)';
+      } else {
+        badge.classList.add('offline');
+        text.innerText = 'OFFLINE CACHED (ASYNCSTORAGE)';
+      }
+    }
+
+    // DRAFT APPLICATION BATCH
+    function applyDraftBatch() {
+      const draftItems = [
+        { id: Date.now() + 1, date: new Date().toISOString().split('T')[0], desc: 'Monthly Apartment Rent Draft', cat: 'Housing', type: 'EXPENSE', amount: 1500.00 },
+        { id: Date.now() + 2, date: new Date().toISOString().split('T')[0], desc: 'Fiber Optic Utility Draft', cat: 'Housing', type: 'EXPENSE', amount: 90.00 }
+      ];
+      transactions.unshift(...draftItems);
+      renderLedger();
+      alert('Applied monthly draft template! 2 recurring transactions added.');
+    }
+
+    function logLoanRepayment() {
+      const loanTx = {
+        id: Date.now(),
+        date: new Date().toISOString().split('T')[0],
+        desc: 'Loan Balance Repayment Installment',
+        cat: 'Loan',
+        type: 'LOAN',
+        amount: 400.00
+      };
+      transactions.unshift(loanTx);
+      renderLedger();
+      alert('Log atomic writeBatch executed: $400 loan repayment recorded.');
+    }
+
+    // BIOMETRIC LOCK SIMULATOR
+    function lockApp() {
+      document.getElementById('biometricScreen').classList.add('locked');
+    }
+
+    function unlockApp() {
+      document.getElementById('biometricScreen').classList.remove('locked');
+    }
+
+    function simulatePdfDownload() {
+      alert('PDF Statement successfully compiled & downloaded via expo-print / Web Download.');
+      closeModal('pdfModal');
+    }
+
+    // INITIAL SETUP ON LOAD
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
+      renderLedger();
+    });
+  </script>
+</body>
+</html>
