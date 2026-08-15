@@ -1,0 +1,11 @@
+{
+  "name": "expense-expert-rn",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "start": "expo start",
+    "web": "expo start --web",
+    "test": "./expense-expert/node_modules/.bin/tsc -p tsconfig.json && node --test dist/tests/*.test.js",
+    "build": "./expense-expert/node_modules/.bin/tsc -p tsconfig.json"
+  }
+}

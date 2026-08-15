@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Expense Expert",
+    "slug": "expense-expert",
+    "scheme": "expenseexpert",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "assetBundlePatterns": ["**/*"],
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
