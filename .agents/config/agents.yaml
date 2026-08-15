@@ -1,0 +1,87 @@
+agents:
+  - name: planner-queen
+    description: "Generates and refines structured implementation plans"
+    cli: agy
+    model: gemini-3.1-pro-high
+    input:
+      - workspace/requirements.md
+      - workspace/research.md
+    output:
+      - workspace/plan.md
+    skills:
+      - skills/write-plan/SKILL.md
+
+  - name: researcher-queen
+    description: "Best practices research and risk identification"
+    cli: agy
+    model: gemini-3.6-flash-high
+    input:
+      - workspace/plan.md
+    output:
+      - workspace/research.md
+    skills:
+      - skills/web-search/SKILL.md
+
+  - name: designer-queen
+    description: "Visual/UX design spec and HTML mockup generation"
+    cli: agy
+    model: gemini-3.6-flash-medium
+    optional: true
+    input:
+      - workspace/plan.md
+    output:
+      - workspace/design-spec.md
+      - workspace/design.html
+    skills:
+      - skills/frontend-design/SKILL.md
+
+  - name: implementor-queen
+    description: "Full-stack code implementation — auto-selects CLI at runtime"
+    cli: auto                    # codex (frontend) or opencode (backend) — resolved in run.sh
+    model: free
+    cli_detection:
+      trigger_files:
+        - workspace/design-spec.md
+        - workspace/design.html
+      when_triggered: codex      # UI/frontend task
+      otherwise: opencode        # backend/general task
+    input:
+      - workspace/plan.md
+      - workspace/design-spec.md  # optional
+      - workspace/design.html     # optional
+    output:
+      - workspace/implementation.md
+
+  - name: tester-prince
+    description: "QA validation and test report generation"
+    cli: agy
+    model: gemini-3.5-flash-medium
+    input:
+      - workspace/plan.md
+      - workspace/implementation.md
+    output:
+      - workspace/test-report.md
+    skills:
+      - skills/write-test-report/SKILL.md
+
+  - name: git-princess
+    description: "Conventional commit, staging, and push"
+    cli: agy
+    model: gemini-3.1-pro-low
+    input:
+      - workspace/plan.md
+      - workspace/implementation.md
+      - workspace/test-report.md
+    output:
+      - workspace/git-summary.md
+    skills:
+      - skills/git-commit/SKILL.md
+
+  - name: logger-commander
+    description: "Session changelog writer — appends to changelog-<topic>.md"
+    cli: agy
+    model: gemini-3.6-flash-low
+    input:
+      - workspace/           # all files
+    output:
+      - workspace/changelog-{topic}.md   # APPEND mode

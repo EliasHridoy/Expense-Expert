@@ -1,0 +1,48 @@
+pipeline:
+  # Number of planner-queen ↔ researcher-queen back-and-forth rounds
+  # before moving to the final planner-queen pass and downstream phases.
+  planning_rounds: 3
+
+  # Maximum number of times implementor-queen is retried when
+  # tester-prince returns STATUS: FAIL or STATUS: PARTIAL.
+  max_implementation_retries: 2
+
+  phases:
+    - name: planning
+      description: "Iterative plan refinement between planner and researcher"
+      agents:
+        - planner-queen
+        - researcher-queen
+      loop: true                     # looped planning_rounds times
+      final_agent: planner-queen     # one extra planner pass after the loop
+      mode: sequential
+
+    - name: design
+      description: "Visual design spec and HTML mockup (frontend tasks only)"
+      agents:
+        - designer-queen
+      mode: sequential
+      optional: true                 # skip with --skip designer-queen
+
+    - name: implementation
+      description: "Code implementation — auto-selects codex or opencode"
+      agents:
+        - implementor-queen
+      mode: sequential
+      retryable: true                # retried if tester-prince returns FAIL
+
+    - name: testing
+      description: "Test execution and validation against plan criteria"
+      agents:
+        - tester-prince
+      mode: sequential
+      gates:
+        on_fail: retry_implementation # trigger implementor-queen retry
+        on_pass: continue
+
+    - name: shipping
+      description: "Git commit + session changelog"
+      agents:
+        - git-princess
+        - logger-commander
+      mode: sequential
