@@ -13,7 +13,7 @@ This roadmap defines the execution strategy for converting the existing Angular-
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Environment Setup** - Dockerized React Native setup with Firebase integration
-- [ ] **Phase 2: Authentication System** - Secure cross-platform login and session management
+- [x] **Phase 2: Authentication System** - Secure cross-platform login and session management
 - [ ] **Phase 3: Core Transaction Entry** - Offline-first expense recording with safe integer math
 - [ ] **Phase 4: Categorization & Budgeting** - Custom categories, filtering, and budget tracking
 - [ ] **Phase 5: Dashboards & Visualizations** - Responsive financial overview and interactive charts
@@ -46,9 +46,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Implement authentication context and state management.
-- [ ] 02-02: Build login and registration UI components (responsive for mobile/web).
-- [ ] 02-03: Wire up Firebase Auth methods (login, logout, persistence).
+- [x] 02-01: Implement authentication context and state management.
+- [x] 02-02: Build login and registration UI components (responsive for mobile/web).
+- [x] 02-03: Wire up Firebase Auth methods (login, logout, persistence).
 
 ### Phase 3: Core Transaction Entry
 **Goal**: Users can reliably enter expenses with offline support and precise math.
@@ -121,7 +121,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Environment Setup | 3/3 | Complete | 2026-08-23 |
-| 2. Authentication System | 0/3 | Not started | - |
+| 2. Authentication System | 3/3 | Complete | 2026-08-23 |
 | 3. Core Transaction Entry | 0/4 | Not started | - |
 | 4. Categorization & Budgeting | 0/4 | Not started | - |
 | 5. Dashboards & Visualizations | 0/4 | Not started | - |
