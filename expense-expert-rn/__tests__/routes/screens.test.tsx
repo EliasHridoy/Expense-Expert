@@ -5,9 +5,26 @@ import LoginScreen from '../../app/(auth)/login';
 import RegisterScreen from '../../app/(auth)/register';
 import AppDashboardScreen from '../../app/(app)/index';
 import { useAuth } from '../../src/features/auth/hooks/useAuth';
+import { useExpenses } from '../../src/features/expenses/hooks/useExpenses';
 
 jest.mock('../../src/features/auth/hooks/useAuth', () => ({
   useAuth: jest.fn(),
+}));
+
+jest.mock('../../src/features/expenses/hooks/useExpenses', () => ({
+  useExpenses: () => ({
+    expenses: [],
+    pendingSyncCount: 0,
+    isLoading: false,
+    isSyncing: false,
+    isOnline: true,
+    addExpense: jest.fn(),
+    updateExpense: jest.fn(),
+    deleteExpense: jest.fn(),
+    getExpenseById: jest.fn(),
+    syncQueue: jest.fn(),
+    refreshExpenses: jest.fn(),
+  }),
 }));
 
 const mockPush = jest.fn();
