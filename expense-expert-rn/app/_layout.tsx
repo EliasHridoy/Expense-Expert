@@ -1,17 +1,51 @@
 import '../global.css';
-import React from 'react';
-import { Stack } from 'expo-router';
+import React, { useEffect } from 'react';
+import { Slot, useRouter, useSegments } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { View, ActivityIndicator } from 'react-native';
+import { AuthProvider } from '../src/features/auth/context/AuthProvider';
+import { useAuth } from '../src/features/auth/hooks/useAuth';
+
+export function NavigationGate() {
+  const { user, isLoading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (!user && !inAuthGroup) {
+      router.replace('/(auth)/login');
+    } else if (user && inAuthGroup) {
+      router.replace('/(app)');
+    }
+  }, [user, isLoading, segments, router]);
+
+  if (isLoading) {
+    return (
+      <View
+        testID="navigation-gate-loading"
+        className="flex-1 justify-center items-center bg-slate-50 dark:bg-slate-900"
+      >
+        <ActivityIndicator size="large" color="#4f46e5" />
+      </View>
+    );
+  }
+
+  return <Slot />;
+}
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <StatusBar style="auto" />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
-      </Stack>
+      <AuthProvider>
+        <NavigationGate />
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }
+

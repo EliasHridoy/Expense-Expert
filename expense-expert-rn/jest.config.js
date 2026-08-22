@@ -12,5 +12,6 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@app/(.*)$': '<rootDir>/app/$1',
+    '\\.css$': '<rootDir>/jest.setup.js',
   },
 };
