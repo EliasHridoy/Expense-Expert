@@ -101,7 +101,7 @@ export const CategoryDonutChart: React.FC<CategoryDonutChartProps> = ({
 
         {/* Center Donut Label */}
         <View
-          pointerEvents="none"
+          style={{ pointerEvents: 'none' as any }}
           className="absolute items-center justify-center w-28 text-center"
         >
           <Text

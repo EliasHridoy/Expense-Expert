@@ -107,10 +107,9 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
       {children}
       <View
         testID="toast-container"
-        pointerEvents="box-none"
         style={[
           styles.container,
-          { top: Math.max(insetsTop, 16) + 8 },
+          { top: Math.max(insetsTop, 16) + 8, pointerEvents: 'box-none' as any },
         ]}
       >
         {toasts.map((toast) => (

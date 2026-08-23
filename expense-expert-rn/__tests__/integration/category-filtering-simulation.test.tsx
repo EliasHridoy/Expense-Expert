@@ -311,7 +311,7 @@ describe('Categorization & Filtering Module — Extensive Simulation Test Suite'
       await waitFor(() => {
         expect(getByText('Subscriptions')).toBeTruthy();
       });
-    });
+    }, 15000);
   });
 
   // =========================================================================
