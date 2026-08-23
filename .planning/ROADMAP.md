@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Authentication System** - Secure cross-platform login and session management
 - [x] **Phase 3: Core Transaction Entry** - Offline-first expense recording with safe integer math
 - [x] **Phase 4: Categorization & Budgeting** - Custom categories, filtering, and budget tracking
-- [ ] **Phase 5: Dashboards & Visualizations** - Responsive financial overview and interactive charts
+- [x] **Phase 5: Dashboards & Visualizations** - Responsive financial overview and interactive charts
 - [ ] **Phase 6: Real-time Synchronization & Stability** - Leak-free real-time listeners and final polish
 
 ## Phase Details
@@ -87,16 +87,16 @@ Plans:
 **Depends on**: Phase 4
 **Requirements**: DASH-01, DASH-02, DASH-03
 **Success Criteria** (what must be TRUE):
-  1. User sees a clear overview of financial health (Money In vs. Money Out).
-  2. User can interact with charts (pie/bar) representing categorical spending.
-  3. The web layout efficiently uses desktop screen space without merely scaling up the mobile view.
+  1. User can view financial summary cards for expenses, income, and balance.
+  2. User can interact with visual charts showing spending breakdown by category.
+  3. UI adapts cleanly between mobile and desktop/web layouts.
 **Plans**: 4 plans
 
 Plans:
-- [ ] 05-01: Design and implement the responsive grid layout for the dashboard.
-- [ ] 05-02: Integrate charting library (e.g., react-native-chart-kit, Victory Native, or similar).
-- [ ] 05-03: Build financial health overview widgets (total income, total expense, balance).
-- [ ] 05-04: Connect charts to real-time expense data and filter controls.
+- [x] 05-01: Create DashboardService & aggregation utilities (integer-cents monthly summaries, trends, category breakdowns, savings & loan aggregations).
+- [x] 05-02: Build cross-platform responsive metric cards (Total Income, Total Expenses, Net Remaining, Savings, Loans Taken) and MonthNavigator.
+- [x] 05-03: Build universal SVG visualization components (Category Donut/Pie Chart with legend, Monthly Spending Trend Bar Chart, interactive tooltips).
+- [x] 05-04: Integrate full Dashboard page (`/dashboard`), navigation shortcuts, monthly switcher, and automated test suites.
 
 ### Phase 6: Real-time Synchronization & Stability
 **Goal**: Ensure robust, leak-free real-time data flow and finalize application testing.
@@ -124,5 +124,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Authentication System | 3/3 | Complete | 2026-08-23 |
 | 3. Core Transaction Entry | 4/4 | Complete | 2026-08-23 |
 | 4. Categorization & Budgeting | 4/4 | Complete | 2026-08-23 |
-| 5. Dashboards & Visualizations | 0/4 | Not started | - |
+| 5. Dashboards & Visualizations | 4/4 | Complete | 2026-08-23 |
 | 6. Real-time Synchronization & Stability | 0/3 | Not started | - |
