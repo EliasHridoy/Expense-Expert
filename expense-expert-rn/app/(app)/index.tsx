@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -9,10 +9,17 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { format } from 'date-fns';
 import { useAuth } from '../../src/features/auth/hooks/useAuth';
 import { useExpenses } from '../../src/features/expenses/hooks/useExpenses';
 import { CategoryContext } from '../../src/features/categories/context/CategoryContext';
 import { BudgetContext } from '../../src/features/budgets/context/BudgetContext';
+import { DashboardContext } from '../../src/features/dashboard/context/DashboardContext';
+import { MonthNavigator } from '../../src/features/dashboard/components/MonthNavigator';
+import { SummaryCardsGrid } from '../../src/features/dashboard/components/SummaryCardsGrid';
+import { CategoryDonutChart } from '../../src/features/dashboard/components/CategoryDonutChart';
+import { MonthlyTrendBarChart } from '../../src/features/dashboard/components/MonthlyTrendBarChart';
+import { ActionShortcuts } from '../../src/features/dashboard/components/ActionShortcuts';
 import { OfflineSyncBanner } from '../../src/features/expenses/components/OfflineSyncBanner';
 import { ExpenseListHeader } from '../../src/features/expenses/components/ExpenseListHeader';
 import { BudgetProgressBar } from '../../src/features/budgets/components/BudgetProgressBar';
@@ -21,6 +28,7 @@ import { BUILTIN_CATEGORY_ICONS } from '../../src/features/expenses/types/catego
 import { formatCents } from '../../src/features/expenses/utils/currency.util';
 import { formatDisplayDate } from '../../src/features/expenses/utils/date.util';
 import { getThresholdColor } from '../../src/features/budgets/utils/budget.util';
+import { MonthSummary } from '../../src/features/dashboard/types/dashboard.types';
 
 export default function AppDashboardScreen() {
   const router = useRouter();
@@ -35,8 +43,44 @@ export default function AppDashboardScreen() {
 
   const categoryContext = useContext(CategoryContext);
   const budgetContext = useContext(BudgetContext);
+  const dashboardContext = useContext(DashboardContext);
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const defaultMonth = useMemo(() => format(new Date(), 'yyyy-MM'), []);
+  const activeMonth = dashboardContext?.activeMonth ?? defaultMonth;
+  const setActiveMonth = dashboardContext?.setActiveMonth ?? (() => {});
+
+  const currentSummary: MonthSummary = useMemo(() => {
+    if (dashboardContext?.summary) {
+      return dashboardContext.summary;
+    }
+    // Calculate fallback summary directly from expenses for the active month
+    const monthExpenses = expenses.filter((e) => e.month === activeMonth);
+    const totalExpCents = monthExpenses.reduce((sum, e) => sum + e.amountInCents, 0);
+
+    return {
+      month: activeMonth,
+      totalIncomeInCents: 0,
+      totalIncome: 0,
+      currentMonthIncomeInCents: 0,
+      currentMonthIncome: 0,
+      previousMonthRemainingInCents: 0,
+      previousMonthRemaining: 0,
+      totalExpensesInCents: totalExpCents,
+      totalExpenses: totalExpCents / 100,
+      totalSavingsInCents: 0,
+      totalSavings: 0,
+      remainingInCents: -totalExpCents,
+      remaining: -totalExpCents / 100,
+      loansTakenIncomeInCents: 0,
+      loansTakenIncome: 0,
+      expenseCount: monthExpenses.length,
+    };
+  }, [dashboardContext?.summary, expenses, activeMonth]);
+
+  const trends = dashboardContext?.trends ?? [];
+  const breakdowns = dashboardContext?.breakdowns ?? [];
 
   const displayName =
     profile?.displayName ||
@@ -99,8 +143,8 @@ export default function AppDashboardScreen() {
         className="flex-1"
         showsVerticalScrollIndicator={false}
       >
-        <View className="w-full max-w-lg space-y-6">
-          {/* Header Card */}
+        <View className="w-full max-w-6xl space-y-6">
+          {/* Section 1: Header & User Details */}
           <View className="w-full bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
             <View className="flex-row items-center justify-between mb-4">
               <View className="flex-row items-center gap-3">
@@ -176,55 +220,49 @@ export default function AppDashboardScreen() {
             </View>
           </View>
 
-          {/* Quick Navigation Cards Row */}
-          <View className="w-full flex-row gap-3">
-            <TouchableOpacity
-              testID="nav-budgets-btn"
-              onPress={() => router.push('/budgets')}
-              activeOpacity={0.85}
-              accessibilityRole="button"
-              accessibilityLabel="Navigate to Budgets"
-              className="flex-1 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs"
-            >
-              <View className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 items-center justify-center mb-2">
-                <Text className="text-xl">🎯</Text>
-              </View>
-              <Text className="text-sm font-bold text-slate-900 dark:text-white">
-                Budgets
-              </Text>
-              <Text className="text-[11px] text-slate-500 dark:text-slate-400">
-                Limits & progress
-              </Text>
-            </TouchableOpacity>
+          {/* Section 1b: Month Switcher */}
+          <MonthNavigator
+            activeMonth={activeMonth}
+            onChangeMonth={setActiveMonth}
+          />
 
-            <TouchableOpacity
-              testID="nav-categories-btn"
-              onPress={() => router.push('/categories')}
-              activeOpacity={0.85}
-              accessibilityRole="button"
-              accessibilityLabel="Navigate to Categories"
-              className="flex-1 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs"
-            >
-              <View className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/50 items-center justify-center mb-2">
-                <Text className="text-xl">🏷️</Text>
-              </View>
-              <Text className="text-sm font-bold text-slate-900 dark:text-white">
-                Categories
-              </Text>
-              <Text className="text-[11px] text-slate-500 dark:text-slate-400">
-                Custom tags
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Offline Sync Banner */}
+          {/* Section 2: Offline Sync Banner */}
           <OfflineSyncBanner
             pendingCount={pendingSyncCount}
             isOnline={isOnline}
             onSyncNow={syncQueue}
           />
 
-          {/* Compact Budget Summary Widget */}
+          {/* Section 3: Summary Metrics Grid */}
+          <SummaryCardsGrid
+            summary={currentSummary}
+            onPressCard={(_cardKey) => {
+              // Quick jump to relevant views
+            }}
+          />
+
+          {/* Section 4: Visualizations Grid (Desktop 2-Col / Mobile Stack) */}
+          <View className="w-full flex-col lg:flex-row gap-6">
+            <View className="flex-1">
+              <CategoryDonutChart
+                data={breakdowns}
+                onSelectCategory={(cat) => setCategory(cat)}
+              />
+            </View>
+            <View className="flex-1">
+              <MonthlyTrendBarChart
+                trends={trends}
+              />
+            </View>
+          </View>
+
+          {/* Section 5: Action Shortcuts & Compact Budget Progress Widget */}
+          <ActionShortcuts
+            onAddExpense={() => router.push('/expenses/new')}
+            onNavigateBudgets={() => router.push('/budgets')}
+            onNavigateCategories={() => router.push('/categories')}
+          />
+
           {budgetContext && (
             <View
               testID="dashboard-budget-widget"
@@ -311,31 +349,7 @@ export default function AppDashboardScreen() {
             </View>
           )}
 
-          {/* Quick Action Card */}
-          <View className="w-full bg-gradient-to-r bg-indigo-600 rounded-2xl p-5 shadow-md flex-row items-center justify-between">
-            <View className="flex-1 mr-3">
-              <Text className="text-base font-bold text-white mb-0.5">
-                Track an Expense
-              </Text>
-              <Text className="text-xs text-indigo-100">
-                Log purchases quickly with auto-categorization
-              </Text>
-            </View>
-            <TouchableOpacity
-              testID="quick-add-expense-btn"
-              onPress={() => router.push('/expenses/new')}
-              activeOpacity={0.85}
-              className="bg-white rounded-xl px-4 py-2.5 shadow-sm"
-              accessibilityRole="button"
-              accessibilityLabel="Add Expense"
-            >
-              <Text className="text-xs font-bold text-indigo-600">
-                + Add Expense
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Recent Transactions Section */}
+          {/* Section 6: Recent Transactions */}
           <View className="w-full bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-700">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-base font-bold text-slate-900 dark:text-slate-100">
