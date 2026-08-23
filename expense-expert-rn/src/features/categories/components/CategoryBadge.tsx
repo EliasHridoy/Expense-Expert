@@ -21,7 +21,9 @@ export const CategoryBadge: React.FC<CategoryBadgeProps> = ({
   testID = 'category-badge',
 }) => {
   const { getCategoryByValue } = useCategories();
-  const categoryItem = getCategoryByValue(category);
+  const categoryItem = getCategoryByValue?.(category);
+  const icon = categoryItem?.icon || '📁';
+  const label = categoryItem?.label || category || 'Other';
 
   const sizeStyles = {
     sm: {
@@ -48,7 +50,7 @@ export const CategoryBadge: React.FC<CategoryBadgeProps> = ({
     >
       {showIcon && (
         <Text testID="category-badge-icon" className={sizeStyles.icon}>
-          {categoryItem.icon || '📁'}
+          {icon}
         </Text>
       )}
       <Text
@@ -56,8 +58,9 @@ export const CategoryBadge: React.FC<CategoryBadgeProps> = ({
         numberOfLines={1}
         className={`font-medium text-slate-800 dark:text-slate-200 ${sizeStyles.text}`}
       >
-        {categoryItem.label || category || 'Other'}
+        {label}
       </Text>
     </View>
   );
 };
+

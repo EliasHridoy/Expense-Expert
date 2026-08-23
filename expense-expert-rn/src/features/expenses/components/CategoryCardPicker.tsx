@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Pressable,
   Text,
   View,
 } from 'react-native';
+import { CategoryContext } from '../../categories/context/CategoryContext';
 import {
   EXPENSE_CATEGORIES,
   CategoryItem,
@@ -25,15 +26,18 @@ export const CategoryCardPicker: React.FC<CategoryCardPickerProps> = ({
   customCategories = [],
   testID = 'category-card-picker',
 }) => {
-  // Merge builtin categories with custom categories
-  const categories = [
-    ...EXPENSE_CATEGORIES,
-    ...customCategories.map((c) => ({
-      value: c.value,
-      label: c.label,
-      icon: c.icon,
-    })),
-  ];
+  const categoryContext = useContext(CategoryContext);
+  const baseCategories = categoryContext?.categories || EXPENSE_CATEGORIES;
+
+  // Merge and deduplicate by value
+  const categoryMap = new Map<string, { value: string; label: string; icon: string }>();
+  baseCategories.forEach((c) => {
+    categoryMap.set(c.value, { value: c.value, label: c.label, icon: c.icon });
+  });
+  customCategories.forEach((c) => {
+    categoryMap.set(c.value, { value: c.value, label: c.label, icon: c.icon });
+  });
+  const categories = Array.from(categoryMap.values());
 
   return (
     <View
@@ -72,3 +76,4 @@ export const CategoryCardPicker: React.FC<CategoryCardPickerProps> = ({
     </View>
   );
 };
+

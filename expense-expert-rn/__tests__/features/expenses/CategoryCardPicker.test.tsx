@@ -2,6 +2,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { CategoryCardPicker } from '../../../src/features/expenses/components/CategoryCardPicker';
 import { ExpenseCategory } from '../../../src/features/expenses/types/category.types';
+import { CategoryContext } from '../../../src/features/categories/context/CategoryContext';
 
 describe('CategoryCardPicker', () => {
   it('renders all default expense categories', () => {
@@ -41,7 +42,7 @@ describe('CategoryCardPicker', () => {
     expect(onSelect).toHaveBeenCalledWith(ExpenseCategory.Transport);
   });
 
-  it('renders custom categories in addition to builtin categories', () => {
+  it('renders custom categories in addition to builtin categories via props', () => {
     const onSelect = jest.fn();
     const customCategories = [
       {
@@ -66,4 +67,42 @@ describe('CategoryCardPicker', () => {
     const petsCard = getByTestId('category-card-pets');
     expect(petsCard.props.accessibilityState.selected).toBe(true);
   });
+
+  it('renders categories from CategoryContext dynamically', () => {
+    const onSelect = jest.fn();
+    const mockContextValue = {
+      categories: [
+        { id: '1', value: 'food', label: 'Food', icon: '🍔', isCustom: false },
+        { id: '2', value: 'gym', label: 'Gym', icon: '🏋️', isCustom: true },
+      ],
+      builtInCategories: [
+        { id: '1', value: 'food', label: 'Food', icon: '🍔', isCustom: false },
+      ],
+      customCategories: [
+        { id: '2', value: 'gym', label: 'Gym', icon: '🏋️', isCustom: true },
+      ],
+      isLoading: false,
+      addCategory: jest.fn(),
+      deleteCategory: jest.fn(),
+      getCategoryByValue: jest.fn(),
+      refreshCategories: jest.fn(),
+    };
+
+    const { getByText, getByTestId } = render(
+      <CategoryContext.Provider value={mockContextValue}>
+        <CategoryCardPicker
+          selectedValue="gym"
+          onSelect={onSelect}
+        />
+      </CategoryContext.Provider>
+    );
+
+    expect(getByText('Gym')).toBeTruthy();
+    expect(getByText('🏋️')).toBeTruthy();
+    const gymCard = getByTestId('category-card-gym');
+    expect(gymCard.props.accessibilityState.selected).toBe(true);
+    fireEvent.press(gymCard);
+    expect(onSelect).toHaveBeenCalledWith('gym');
+  });
 });
+
