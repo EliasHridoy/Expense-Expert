@@ -7,6 +7,8 @@ import {
   query,
   where,
   serverTimestamp,
+  onSnapshot,
+  Unsubscribe,
 } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../../../config/firebase';
@@ -102,6 +104,77 @@ export const BudgetService = {
         return [];
       }
     }
+  },
+
+  /**
+   * Subscribes to real-time budget updates for a specific month in Firestore.
+   */
+  subscribeToBudgets(
+    userId: string,
+    month: string,
+    onData: (budgets: CategoryBudget[]) => void,
+    onError?: (error: Error) => void
+  ): Unsubscribe {
+    if (!userId || !month) {
+      onData([]);
+      return () => {};
+    }
+
+    const q = query(
+      collection(db, this.getBudgetsPath(userId)),
+      where('month', '==', month)
+    );
+
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const budgets: CategoryBudget[] = snapshot.docs.map((docSnap) => {
+          const data = docSnap.data();
+          const limitInCents = Number.isFinite(data.limitInCents)
+            ? data.limitInCents
+            : toCents(data.limit);
+          const limit = fromCents(limitInCents);
+
+          const createdAt =
+            data.createdAt && typeof data.createdAt.toDate === 'function'
+              ? data.createdAt.toDate().toISOString()
+              : (typeof data.createdAt === 'string' ? data.createdAt : new Date().toISOString());
+
+          const updatedAt =
+            data.updatedAt && typeof data.updatedAt.toDate === 'function'
+              ? data.updatedAt.toDate().toISOString()
+              : (typeof data.updatedAt === 'string' ? data.updatedAt : new Date().toISOString());
+
+          return {
+            id: docSnap.id,
+            userId: data.userId || userId,
+            category: data.category,
+            month: data.month || month,
+            limit,
+            limitInCents,
+            createdAt,
+            updatedAt,
+          };
+        });
+
+        onData(budgets);
+
+        // Update local cache in background
+        AsyncStorage.setItem(
+          this.getCacheKey(userId, month),
+          JSON.stringify(budgets)
+        ).catch((cacheError) => {
+          console.warn('Failed to update budgets cache from snapshot:', cacheError);
+        });
+      },
+      (error) => {
+        if (onError) {
+          onError(error);
+        } else {
+          console.warn(`[BudgetService] Realtime listener error for month ${month}:`, error);
+        }
+      }
+    );
   },
 
   /**

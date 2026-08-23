@@ -19,6 +19,7 @@ import {
   calculateTotalBudgetSummary,
 } from '../utils/budget.util';
 import { BudgetContext, BudgetContextType } from './BudgetContext';
+import { RealtimeSyncManager } from '../../sync/services/RealtimeSyncManager';
 
 export interface BudgetProviderProps {
   children: React.ReactNode;
@@ -61,12 +62,37 @@ export const BudgetProvider: React.FC<BudgetProviderProps> = ({
   }, []);
 
   useEffect(() => {
-    if (user?.uid) {
-      loadBudgets(user.uid, activeMonth);
-    } else {
+    if (!user?.uid) {
       setBudgets([]);
       setIsLoading(false);
+      return;
     }
+
+    loadBudgets(user.uid, activeMonth);
+
+    const subKey = `budgets_${user.uid}_${activeMonth}`;
+    const unsubscribe = RealtimeSyncManager.register(subKey, () => {
+      if (typeof BudgetService.subscribeToBudgets === 'function') {
+        const unsub = BudgetService.subscribeToBudgets(
+          user.uid,
+          activeMonth,
+          (updatedBudgets) => {
+            setBudgets(updatedBudgets);
+            setIsLoading(false);
+          },
+          (error) => {
+            console.warn(`[BudgetProvider] Subscription error for ${subKey}:`, error);
+            setIsLoading(false);
+          }
+        );
+        return typeof unsub === 'function' ? unsub : () => {};
+      }
+      return () => {};
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, [user?.uid, activeMonth, loadBudgets]);
 
   const setActiveMonth = useCallback((month: string) => {

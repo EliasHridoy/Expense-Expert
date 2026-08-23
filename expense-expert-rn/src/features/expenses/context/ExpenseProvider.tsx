@@ -7,6 +7,7 @@ import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { toCents, fromCents } from '../utils/currency.util';
 import { formatMonth, toISODate } from '../utils/date.util';
+import { RealtimeSyncManager } from '../../sync/services/RealtimeSyncManager';
 
 interface ExpenseProviderProps {
   children: React.ReactNode;
@@ -16,6 +17,7 @@ export const ExpenseProvider: React.FC<ExpenseProviderProps> = ({ children }) =>
   const { user } = useAuth();
   const { isOnline } = useNetworkStatus();
 
+  const [activeMonth, setActiveMonth] = useState<string>(() => formatMonth(new Date()));
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [pendingSyncCount, setPendingSyncCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -31,13 +33,16 @@ export const ExpenseProvider: React.FC<ExpenseProviderProps> = ({ children }) =>
         return;
       }
 
-      const targetMonth = month || formatMonth(new Date());
+      const targetMonth = month || activeMonth;
+      if (month && month !== activeMonth) {
+        setActiveMonth(month);
+      }
 
       try {
         const count = await OfflineQueueService.getPendingCount(user.uid);
         setPendingSyncCount(count);
 
-        if (isOnline) {
+        if (isOnline && typeof ExpenseService.getExpensesByMonth === 'function') {
           setIsLoading(true);
           const remoteExpenses = await ExpenseService.getExpensesByMonth(
             user.uid,
@@ -56,7 +61,7 @@ export const ExpenseProvider: React.FC<ExpenseProviderProps> = ({ children }) =>
         setIsLoading(false);
       }
     },
-    [user?.uid, isOnline]
+    [user?.uid, activeMonth, isOnline]
   );
 
   const syncQueue = useCallback(async (): Promise<number> => {
@@ -82,16 +87,56 @@ export const ExpenseProvider: React.FC<ExpenseProviderProps> = ({ children }) =>
     }
   }, [isSyncing, user?.uid, isOnline, refreshExpenses]);
 
+  // Real-time subscription for active month
+  useEffect(() => {
+    if (!user?.uid) {
+      setExpenses([]);
+      setPendingSyncCount(0);
+      return;
+    }
+
+    OfflineQueueService.getPendingCount(user.uid).then(setPendingSyncCount);
+
+    const subKey = `expenses_${user.uid}_${activeMonth}`;
+    const unsubscribe = RealtimeSyncManager.register(subKey, () => {
+      if (typeof ExpenseService.subscribeToExpenses === 'function') {
+        const unsub = ExpenseService.subscribeToExpenses(
+          user.uid,
+          activeMonth,
+          (remoteExpenses) => {
+            setExpenses((prev) => {
+              const pendingItems = prev.filter((item) => item.syncStatus === 'pending');
+              const remoteIds = new Set(remoteExpenses.map((e) => e.id));
+              const uniquePending = pendingItems.filter((e) => !remoteIds.has(e.id));
+              return [...uniquePending, ...remoteExpenses];
+            });
+            setIsLoading(false);
+          },
+          (error) => {
+            console.warn(`[ExpenseProvider] Subscription error for ${subKey}:`, error);
+            setIsLoading(false);
+          }
+        );
+        return typeof unsub === 'function' ? unsub : () => {};
+      }
+      return () => {};
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [user?.uid, activeMonth]);
+
   // Initial load and auth state changes
   useEffect(() => {
     if (user?.uid) {
       OfflineQueueService.getPendingCount(user.uid).then(setPendingSyncCount);
-      refreshExpenses();
+      refreshExpenses(activeMonth);
     } else {
       setExpenses([]);
       setPendingSyncCount(0);
     }
-  }, [user?.uid, refreshExpenses]);
+  }, [user?.uid, activeMonth, refreshExpenses]);
 
   // Auto-sync when transitioning from offline to online
   useEffect(() => {

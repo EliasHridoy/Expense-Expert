@@ -1,11 +1,14 @@
 import React, {
   useCallback,
+  useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { format } from 'date-fns';
 import { useAuth } from '../../auth/hooks/useAuth';
+import { ExpenseContext } from '../../expenses/context/ExpenseContext';
 import { DashboardService } from '../services/dashboard.service';
 import {
   MonthSummary,
@@ -88,6 +91,21 @@ export const DashboardProvider: React.FC<DashboardProviderProps> = ({
       setIsRefreshing(false);
     }
   }, [user?.uid, activeMonth, loadDashboardData]);
+
+  // Reactive recalculation when underlying expenses update
+  const expenseContext = useContext(ExpenseContext);
+  const expenses = expenseContext?.expenses;
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (user?.uid && expenses !== undefined) {
+      loadDashboardData(user.uid, activeMonth, true);
+    }
+  }, [expenses, user?.uid, activeMonth, loadDashboardData]);
 
   const setActiveMonth = useCallback((month: string) => {
     setActiveMonthState(month);

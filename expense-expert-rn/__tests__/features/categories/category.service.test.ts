@@ -20,6 +20,7 @@ jest.mock('firebase/firestore', () => ({
   query: jest.fn(() => 'mock-query'),
   orderBy: jest.fn(),
   serverTimestamp: jest.fn(() => 'SERVER_TIMESTAMP'),
+  onSnapshot: jest.fn(),
 }));
 
 jest.mock('@/config/firebase', () => ({
@@ -137,6 +138,57 @@ describe('CategoryService', () => {
 
       const result = await CategoryService.fetchCustomCategories(userId);
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('subscribeToCustomCategories', () => {
+    it('returns dummy unsubscribe if userId is empty', () => {
+      const onData = jest.fn();
+      const unsub = CategoryService.subscribeToCustomCategories('', onData);
+      expect(typeof unsub).toBe('function');
+      expect(onData).toHaveBeenCalledWith([]);
+    });
+
+    it('sets up onSnapshot listener and maps documents', () => {
+      const mockUnsubscribe = jest.fn();
+      let capturedSnapshotCallback: any;
+
+      (require('firebase/firestore').onSnapshot as jest.Mock).mockImplementation(
+        (_q, callback) => {
+          capturedSnapshotCallback = callback;
+          return mockUnsubscribe;
+        }
+      );
+
+      const onData = jest.fn();
+      const unsub = CategoryService.subscribeToCustomCategories(userId, onData);
+
+      expect(typeof unsub).toBe('function');
+      expect(require('firebase/firestore').onSnapshot).toHaveBeenCalled();
+
+      const mockSnapshot = {
+        docs: [
+          {
+            id: 'custom_snack',
+            data: () => ({ name: 'Snacks', icon: '🍿' }),
+          },
+        ],
+      };
+
+      capturedSnapshotCallback(mockSnapshot);
+
+      expect(onData).toHaveBeenCalledWith([
+        {
+          id: 'custom_snack',
+          value: 'custom_snack',
+          label: 'Snacks',
+          icon: '🍿',
+          isCustom: true,
+        },
+      ]);
+
+      unsub();
+      expect(mockUnsubscribe).toHaveBeenCalled();
     });
   });
 

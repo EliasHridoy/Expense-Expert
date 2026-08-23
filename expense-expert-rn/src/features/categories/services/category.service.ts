@@ -7,6 +7,8 @@ import {
   query,
   orderBy,
   serverTimestamp,
+  onSnapshot,
+  Unsubscribe,
 } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../../../config/firebase';
@@ -84,6 +86,58 @@ export const CategoryService = {
         return [];
       }
     }
+  },
+
+  /**
+   * Subscribes to real-time custom category updates in Firestore.
+   */
+  subscribeToCustomCategories(
+    userId: string,
+    onData: (categories: CategoryItem[]) => void,
+    onError?: (error: Error) => void
+  ): Unsubscribe {
+    if (!userId) {
+      onData([]);
+      return () => {};
+    }
+
+    const q = query(
+      collection(db, this.getCategoriesPath(userId)),
+      orderBy('name', 'asc')
+    );
+
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const customs: CategoryItem[] = snapshot.docs.map((docSnap) => {
+          const data = docSnap.data();
+          return {
+            id: docSnap.id,
+            value: docSnap.id,
+            label: data.name,
+            icon: data.icon || '📁',
+            isCustom: true,
+          };
+        });
+
+        onData(customs);
+
+        // Update local cache in background
+        AsyncStorage.setItem(
+          `${CATEGORIES_CACHE_KEY}_${userId}`,
+          JSON.stringify(customs)
+        ).catch((cacheError) => {
+          console.warn('Failed to update categories cache from snapshot:', cacheError);
+        });
+      },
+      (error) => {
+        if (onError) {
+          onError(error);
+        } else {
+          console.warn('[CategoryService] Realtime listener error:', error);
+        }
+      }
+    );
   },
 
   /**

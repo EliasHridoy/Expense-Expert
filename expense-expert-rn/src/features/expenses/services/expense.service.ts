@@ -10,6 +10,8 @@ import {
   where,
   orderBy,
   serverTimestamp,
+  onSnapshot,
+  Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../../../config/firebase';
 import {
@@ -276,6 +278,72 @@ export const ExpenseService = {
         : data.updatedAt || new Date().toISOString(),
       syncStatus: 'synced' as SyncStatus,
     };
+  },
+
+  /**
+   * Subscribes to real-time expense updates for a specific month partition in Firestore.
+   */
+  subscribeToExpenses(
+    userId: string,
+    month: string,
+    onData: (expenses: Expense[]) => void,
+    onError?: (error: Error) => void
+  ): Unsubscribe {
+    if (!userId || !month) {
+      onData([]);
+      return () => {};
+    }
+
+    const q = query(
+      collection(db, this.getExpensesPath(userId)),
+      where('month', '==', month),
+      orderBy('date', 'desc')
+    );
+
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const expenses: Expense[] = snapshot.docs.map((docSnap) => {
+          const data = docSnap.data();
+          const amountInCents = data.amountInCents ?? toCents(data.amount);
+          const amount = data.amount ?? fromCents(amountInCents);
+
+          return {
+            id: docSnap.id,
+            title: data.title || '',
+            description: data.description || '',
+            amount,
+            amountInCents,
+            category: data.category || 'General',
+            date: data.date ? toISODate(data.date) : new Date().toISOString(),
+            month: data.month || month,
+            isLoan: Boolean(data.isLoan),
+            loanPersonId: data.loanPersonId ?? null,
+            loanCleared: Boolean(data.loanCleared),
+            loanRepaid: data.loanRepaid ?? 0,
+            loanTakenId: data.loanTakenId ?? null,
+            draftId: data.draftId ?? null,
+            installmentIndex: data.installmentIndex ?? null,
+            createdAt: data.createdAt?.toDate
+              ? data.createdAt.toDate().toISOString()
+              : data.createdAt || new Date().toISOString(),
+            updatedAt: data.updatedAt?.toDate
+              ? data.updatedAt.toDate().toISOString()
+              : data.updatedAt || new Date().toISOString(),
+            syncStatus: (snapshot.metadata.hasPendingWrites ? 'pending' : 'synced') as SyncStatus,
+          };
+        });
+
+        onData(expenses);
+      },
+      (error) => {
+        if (onError) {
+          onError(error);
+        } else {
+          console.warn(`[ExpenseService] Realtime listener error for month ${month}:`, error);
+        }
+      }
+    );
   },
 
   /**

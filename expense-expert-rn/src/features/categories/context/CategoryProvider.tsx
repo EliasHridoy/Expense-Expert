@@ -3,6 +3,7 @@ import { useAuth } from '../../auth/hooks/useAuth';
 import { CategoryService } from '../services/category.service';
 import { CategoryItem } from '../types/category.types';
 import { CategoryContext, CategoryContextType } from './CategoryContext';
+import { RealtimeSyncManager } from '../../sync/services/RealtimeSyncManager';
 
 export interface CategoryProviderProps {
   children: React.ReactNode;
@@ -36,12 +37,36 @@ export const CategoryProvider: React.FC<CategoryProviderProps> = ({ children }) 
   }, []);
 
   useEffect(() => {
-    if (user?.uid) {
-      loadCategories(user.uid);
-    } else {
+    if (!user?.uid) {
       setCustomCategories([]);
       setIsLoading(false);
+      return;
     }
+
+    loadCategories(user.uid);
+
+    const subKey = `categories_${user.uid}`;
+    const unsubscribe = RealtimeSyncManager.register(subKey, () => {
+      if (typeof CategoryService.subscribeToCustomCategories === 'function') {
+        const unsub = CategoryService.subscribeToCustomCategories(
+          user.uid,
+          (customs) => {
+            setCustomCategories(customs);
+            setIsLoading(false);
+          },
+          (error) => {
+            console.warn(`[CategoryProvider] Subscription error for ${subKey}:`, error);
+            setIsLoading(false);
+          }
+        );
+        return typeof unsub === 'function' ? unsub : () => {};
+      }
+      return () => {};
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, [user?.uid, loadCategories]);
 
   const refreshCategories = useCallback(async () => {

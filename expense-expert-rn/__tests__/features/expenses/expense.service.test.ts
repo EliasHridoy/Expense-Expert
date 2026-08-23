@@ -21,6 +21,7 @@ jest.mock('firebase/firestore', () => ({
   where: jest.fn(),
   orderBy: jest.fn(),
   serverTimestamp: jest.fn(() => 'SERVER_TIMESTAMP'),
+  onSnapshot: jest.fn(),
 }));
 
 jest.mock('@/config/firebase', () => ({
@@ -263,6 +264,59 @@ describe('ExpenseService', () => {
       expect(expense?.title).toBe('Movie Night');
       expect(expense?.amount).toBe(15);
       expect(expense?.amountInCents).toBe(1500);
+    });
+  });
+
+  describe('subscribeToExpenses', () => {
+    it('creates an onSnapshot subscription and maps snapshot docs', () => {
+      const mockUnsubscribe = jest.fn();
+      let capturedSnapshotCallback: any;
+
+      (require('firebase/firestore').onSnapshot as jest.Mock).mockImplementation(
+        (_q, callback) => {
+          capturedSnapshotCallback = callback;
+          return mockUnsubscribe;
+        }
+      );
+
+      const onData = jest.fn();
+      const unsub = ExpenseService.subscribeToExpenses(userId, '2026-08', onData);
+
+      expect(typeof unsub).toBe('function');
+      expect(require('firebase/firestore').onSnapshot).toHaveBeenCalled();
+
+      // Trigger callback with mock snapshot
+      const mockSnapshot = {
+        docs: [
+          {
+            id: 'exp_live',
+            data: () => ({
+              title: 'Live Coffee',
+              amount: 3.5,
+              amountInCents: 350,
+              category: 'Food',
+              date: '2026-08-23T12:00:00.000Z',
+              month: '2026-08',
+            }),
+          },
+        ],
+        metadata: { hasPendingWrites: false },
+      };
+
+      capturedSnapshotCallback(mockSnapshot);
+
+      expect(onData).toHaveBeenCalledWith([
+        expect.objectContaining({
+          id: 'exp_live',
+          title: 'Live Coffee',
+          amount: 3.5,
+          amountInCents: 350,
+          syncStatus: 'synced',
+        }),
+      ]);
+
+      unsub();
+      expect(mockUnsubscribe).toHaveBeenCalled();
     });
   });
 

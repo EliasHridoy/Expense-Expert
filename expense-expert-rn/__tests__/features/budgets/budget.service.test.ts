@@ -20,6 +20,7 @@ jest.mock('firebase/firestore', () => ({
   query: jest.fn(() => 'mock-query'),
   where: jest.fn(),
   serverTimestamp: jest.fn(() => 'SERVER_TIMESTAMP'),
+  onSnapshot: jest.fn(),
 }));
 
 jest.mock('../../../src/config/firebase', () => ({
@@ -154,6 +155,73 @@ describe('BudgetService', () => {
 
       const result = await BudgetService.getBudgetsByMonth(userId, month);
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('subscribeToBudgets', () => {
+    it('returns dummy unsubscribe if userId or month is empty', () => {
+      const onData = jest.fn();
+      const unsub1 = BudgetService.subscribeToBudgets('', month, onData);
+      expect(typeof unsub1).toBe('function');
+      expect(onData).toHaveBeenCalledWith([]);
+
+      onData.mockClear();
+      const unsub2 = BudgetService.subscribeToBudgets(userId, '', onData);
+      expect(typeof unsub2).toBe('function');
+      expect(onData).toHaveBeenCalledWith([]);
+    });
+
+    it('sets up onSnapshot listener and maps documents', () => {
+      const mockUnsubscribe = jest.fn();
+      let capturedSnapshotCallback: any;
+
+      (require('firebase/firestore').onSnapshot as jest.Mock).mockImplementation(
+        (_q, callback) => {
+          capturedSnapshotCallback = callback;
+          return mockUnsubscribe;
+        }
+      );
+
+      const onData = jest.fn();
+      const unsub = BudgetService.subscribeToBudgets(userId, '2026-08', onData);
+
+      expect(typeof unsub).toBe('function');
+      expect(require('firebase/firestore').onSnapshot).toHaveBeenCalled();
+
+      const mockSnapshot = {
+        docs: [
+          {
+            id: '2026-08_food',
+            data: () => ({
+              userId,
+              category: 'food',
+              month: '2026-08',
+              limit: 400,
+              limitInCents: 40000,
+              createdAt: '2026-08-01T00:00:00.000Z',
+              updatedAt: '2026-08-01T00:00:00.000Z',
+            }),
+          },
+        ],
+      };
+
+      capturedSnapshotCallback(mockSnapshot);
+
+      expect(onData).toHaveBeenCalledWith([
+        {
+          id: '2026-08_food',
+          userId,
+          category: 'food',
+          month: '2026-08',
+          limit: 400,
+          limitInCents: 40000,
+          createdAt: '2026-08-01T00:00:00.000Z',
+          updatedAt: '2026-08-01T00:00:00.000Z',
+        },
+      ]);
+
+      unsub();
+      expect(mockUnsubscribe).toHaveBeenCalled();
     });
   });
 
