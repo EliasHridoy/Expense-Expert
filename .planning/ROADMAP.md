@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation & Environment Setup** - Dockerized React Native setup with Firebase integration
 - [x] **Phase 2: Authentication System** - Secure cross-platform login and session management
 - [x] **Phase 3: Core Transaction Entry** - Offline-first expense recording with safe integer math
-- [ ] **Phase 4: Categorization & Budgeting** - Custom categories, filtering, and budget tracking
+- [x] **Phase 4: Categorization & Budgeting** - Custom categories, filtering, and budget tracking
 - [ ] **Phase 5: Dashboards & Visualizations** - Responsive financial overview and interactive charts
 - [ ] **Phase 6: Real-time Synchronization & Stability** - Leak-free real-time listeners and final polish
 
@@ -71,16 +71,16 @@ Plans:
 **Depends on**: Phase 3
 **Requirements**: CAT-01, CAT-02, CAT-03
 **Success Criteria** (what must be TRUE):
-  1. User can assign predefined or custom categories to expenses.
-  2. User can filter the transaction list by date ranges and specific categories.
-  3. User can define category budgets and see visual progress indicators.
+  1. User can create, edit, and delete custom categories.
+  2. User can filter transactions by category and date range.
+  3. User can set monthly budget limits and track spending against them.
 **Plans**: 4 plans
 
 Plans:
-- [ ] 04-01: Build category management UI and state for custom/predefined categories.
-- [ ] 04-02: Develop the transaction list view with filtering capabilities (date and category).
-- [ ] 04-03: Implement budget setting logic and storage in Firestore.
-- [ ] 04-04: Build visual progress bars/indicators for budget vs. spent amounts.
+- [x] 04-01: Create CategoryService, CustomCategory management UI, and CategoryContext with Firestore sync.
+- [x] 04-02: Build transaction list filtering & search engine (category filter chips, date range selector, text search).
+- [x] 04-03: Create BudgetService, Budget models (integer cents), and Category Budget management UI.
+- [x] 04-04: Integrate Category & Budget screens, visual progress meters, routes, and comprehensive automated test suites.
 
 ### Phase 5: Dashboards & Visualizations
 **Goal**: Provide actionable financial insights via responsive charts.
@@ -123,6 +123,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Foundation & Environment Setup | 3/3 | Complete | 2026-08-23 |
 | 2. Authentication System | 3/3 | Complete | 2026-08-23 |
 | 3. Core Transaction Entry | 4/4 | Complete | 2026-08-23 |
-| 4. Categorization & Budgeting | 0/4 | Not started | - |
+| 4. Categorization & Budgeting | 4/4 | Complete | 2026-08-23 |
 | 5. Dashboards & Visualizations | 0/4 | Not started | - |
 | 6. Real-time Synchronization & Stability | 0/3 | Not started | - |
