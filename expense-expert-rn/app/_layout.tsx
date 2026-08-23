@@ -6,6 +6,8 @@ import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator } from 'react-native';
 import { AuthProvider } from '../src/features/auth/context/AuthProvider';
 import { useAuth } from '../src/features/auth/hooks/useAuth';
+import { ErrorBoundary } from '../src/core/components/ErrorBoundary';
+import { ToastProvider } from '../src/core/feedback/ToastProvider';
 
 export function NavigationGate() {
   const { user, isLoading } = useAuth();
@@ -40,12 +42,15 @@ export function NavigationGate() {
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <StatusBar style="auto" />
-      <AuthProvider>
-        <NavigationGate />
-      </AuthProvider>
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <StatusBar style="auto" />
+        <AuthProvider>
+          <ToastProvider>
+            <NavigationGate />
+          </ToastProvider>
+        </AuthProvider>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }
-
