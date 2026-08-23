@@ -3,6 +3,7 @@ import {
   sortExpenses,
   groupExpenses,
 } from '../../../src/features/expenses/utils/filter.util';
+import { toDateInputValue } from '../../../src/features/expenses/utils/date.util';
 import { Expense } from '../../../src/features/expenses/types/expense.types';
 import { FilterCriteria, DEFAULT_FILTER_CRITERIA } from '../../../src/features/expenses/types/filter.types';
 
@@ -167,8 +168,8 @@ describe('filter.util', () => {
         const criteria: FilterCriteria = {
           ...DEFAULT_FILTER_CRITERIA,
           dateRange: 'custom',
-          customStartDate: yesterday.toISOString().split('T')[0],
-          customEndDate: todayISO.split('T')[0],
+          customStartDate: toDateInputValue(yesterday),
+          customEndDate: toDateInputValue(now),
         };
         const result = filterExpenses(mockExpenses, criteria);
         expect(result.some((e) => e.id === '1')).toBe(true);
@@ -180,7 +181,7 @@ describe('filter.util', () => {
         const criteria: FilterCriteria = {
           ...DEFAULT_FILTER_CRITERIA,
           dateRange: 'custom',
-          customStartDate: yesterday.toISOString().split('T')[0],
+          customStartDate: toDateInputValue(yesterday),
         };
         const result = filterExpenses(mockExpenses, criteria);
         expect(result.some((e) => e.id === '1')).toBe(true);
@@ -191,7 +192,7 @@ describe('filter.util', () => {
         const criteria: FilterCriteria = {
           ...DEFAULT_FILTER_CRITERIA,
           dateRange: 'custom',
-          customEndDate: twoWeeksAgo.toISOString().split('T')[0],
+          customEndDate: toDateInputValue(twoWeeksAgo),
         };
         const result = filterExpenses(mockExpenses, criteria);
         expect(result.some((e) => e.id === '3')).toBe(true);

@@ -35,7 +35,7 @@ export const ActionShortcuts: React.FC<ActionShortcutsProps> = ({
           accessibilityLabel="Track Expense"
           className="flex-1 bg-indigo-600 active:bg-indigo-700 dark:bg-indigo-600 dark:active:bg-indigo-500 rounded-2xl p-4 flex-row items-center justify-between shadow-sm"
         >
-          <View className="flex-row items-center space-x-3">
+          <View className="flex-row items-center gap-x-3">
             <View className="w-10 h-10 rounded-xl bg-white/20 items-center justify-center mr-3">
               <Text className="text-xl text-white font-black">+</Text>
             </View>
@@ -61,7 +61,7 @@ export const ActionShortcuts: React.FC<ActionShortcutsProps> = ({
             activeOpacity={0.7}
             accessibilityRole="button"
             accessibilityLabel="Navigate to Budgets"
-            className="flex-1 sm:flex-initial bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 rounded-2xl px-4 py-3.5 flex-row items-center space-x-2 shadow-xs active:bg-slate-50 dark:active:bg-slate-700"
+            className="flex-1 sm:flex-initial bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 rounded-2xl px-4 py-3.5 flex-row items-center gap-x-2 shadow-xs active:bg-slate-50 dark:active:bg-slate-700"
           >
             <Text className="text-lg mr-2">🎯</Text>
             <View>
@@ -82,7 +82,7 @@ export const ActionShortcuts: React.FC<ActionShortcutsProps> = ({
             activeOpacity={0.7}
             accessibilityRole="button"
             accessibilityLabel="Navigate to Categories"
-            className="flex-1 sm:flex-initial bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 rounded-2xl px-4 py-3.5 flex-row items-center space-x-2 shadow-xs active:bg-slate-50 dark:active:bg-slate-700"
+            className="flex-1 sm:flex-initial bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 rounded-2xl px-4 py-3.5 flex-row items-center gap-x-2 shadow-xs active:bg-slate-50 dark:active:bg-slate-700"
           >
             <Text className="text-lg mr-2">🏷️</Text>
             <View>

@@ -18,7 +18,8 @@ export function toCents(amount: number | string | null | undefined): number {
     if (!Number.isFinite(amount)) {
       return 0;
     }
-    return Math.round(amount * 100);
+    const sign = amount < 0 ? -1 : 1;
+    return sign * Math.round(Math.abs(amount) * 100);
   }
 
   if (typeof amount === 'string') {
@@ -39,19 +40,12 @@ export function toCents(amount: number | string | null | undefined): number {
       return 0;
     }
 
-    const parts = cleaned.split('.');
-    const wholeStr = parts[0] || '0';
-    // If fractional part exists, pad to 2 places and take first 2 digits
-    const fracStr = parts.length > 1 ? parts[1].padEnd(2, '0').slice(0, 2) : '00';
-
-    const whole = parseInt(wholeStr, 10);
-    const frac = parseInt(fracStr, 10);
-
-    if (Number.isNaN(whole) || Number.isNaN(frac)) {
+    const num = parseFloat(cleaned);
+    if (Number.isNaN(num) || !Number.isFinite(num)) {
       return 0;
     }
 
-    const totalCents = whole * 100 + frac;
+    const totalCents = Math.round(num * 100);
     return isNegative ? -totalCents : totalCents;
   }
 

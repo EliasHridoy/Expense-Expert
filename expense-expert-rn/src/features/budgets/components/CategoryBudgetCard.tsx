@@ -127,12 +127,12 @@ export const CategoryBudgetCard: React.FC<CategoryBudgetCardProps> = ({
       />
 
       {/* Action Buttons */}
-      <View className="flex-row justify-end items-center space-x-2 pt-2 border-t border-slate-100 dark:border-slate-700/40">
+      <View className="flex-row justify-end items-center gap-x-2 pt-2 border-t border-slate-100 dark:border-slate-700/40">
         {onEdit && (
           <TouchableOpacity
             testID={`${testID}-edit-btn`}
             onPress={() => onEdit(usage)}
-            className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700/60 active:opacity-70 mr-2"
+            className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700/60 active:opacity-70"
           >
             <Text className="text-xs font-medium text-slate-700 dark:text-slate-200">
               Edit Limit

@@ -80,6 +80,7 @@ export const AuthService = {
       displayName: data.displayName || displayName,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
+      ...data,
     };
   },
 };

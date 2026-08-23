@@ -7,6 +7,9 @@ export interface UserProfile {
   photoURL?: string | null;
   createdAt?: any;
   updatedAt?: any;
+  monthlySalary?: number;
+  salaries?: Record<string, number>;
+  [key: string]: any;
 }
 
 export interface LoginCredentials {

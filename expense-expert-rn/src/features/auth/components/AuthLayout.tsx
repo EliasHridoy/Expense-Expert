@@ -22,14 +22,21 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
   testID = 'auth-layout',
 }) => {
   return (
-    <SafeAreaView className="flex-1 bg-slate-50 dark:bg-slate-900" testID={testID}>
+    <SafeAreaView
+      style={{ flex: 1, minHeight: '100%' }}
+      className="flex-1 bg-slate-50 dark:bg-slate-900"
+      testID={testID}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
         className="flex-1"
       >
         <ScrollView
+          style={{ flex: 1 }}
           contentContainerStyle={{
             flexGrow: 1,
+            minHeight: '100%',
             justifyContent: 'center',
             alignItems: 'center',
             paddingVertical: 32,

@@ -95,7 +95,7 @@ export const MonthNavigator: React.FC<MonthNavigatorProps> = ({
       </TouchableOpacity>
 
       {/* Middle: Month & Year display + optional Current Month reset badge */}
-      <View className="flex-row items-center space-x-2.5">
+      <View className="flex-row items-center gap-x-2.5">
         <Text
           testID="month-title-text"
           className="text-base sm:text-lg font-bold text-slate-900 dark:text-white"
@@ -109,7 +109,7 @@ export const MonthNavigator: React.FC<MonthNavigatorProps> = ({
             onPress={handleResetCurrentMonth}
             accessibilityRole="button"
             accessibilityLabel="Jump to Current Month"
-            className="px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 active:bg-indigo-100 ml-1.5"
+            className="px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 active:bg-indigo-100"
           >
             <Text className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
               Current Month

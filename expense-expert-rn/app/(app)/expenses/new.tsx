@@ -8,6 +8,7 @@ export default function NewExpenseScreen() {
 
   return (
     <SafeAreaView
+      style={{ flex: 1, minHeight: '100%' }}
       testID="new-expense-screen"
       className="flex-1 bg-slate-50 dark:bg-slate-900 p-4 sm:p-6"
     >

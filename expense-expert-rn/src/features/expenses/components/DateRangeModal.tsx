@@ -142,7 +142,7 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({
           </View>
 
           {/* Date Inputs */}
-          <View className="space-y-4 mb-4">
+          <View className="gap-y-4 mb-4">
             <View>
               <Text className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Start Date (YYYY-MM-DD)
@@ -157,7 +157,7 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({
               />
             </View>
 
-            <View className="mt-3">
+            <View>
               <Text className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 End Date (YYYY-MM-DD)
               </Text>

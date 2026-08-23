@@ -220,7 +220,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
       {/* STEP 1: Amount & Category */}
       {currentStep === 1 ? (
-        <View testID="expense-step-1" className="space-y-6">
+        <View testID="expense-step-1" className="gap-y-6">
           <View className="items-center mb-2">
             <Text className="text-xl font-bold text-slate-900 dark:text-white">
               How much did you spend?
@@ -236,7 +236,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
             testID="expense-amount-input"
           />
 
-          <View className="space-y-3">
+          <View className="gap-y-3">
             <Text className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Category
             </Text>
@@ -251,7 +251,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
       {/* STEP 2: Title & Date */}
       {currentStep === 2 ? (
-        <View testID="expense-step-2" className="space-y-6">
+        <View testID="expense-step-2" className="gap-y-6">
           <View className="items-center mb-2">
             <Text className="text-xl font-bold text-slate-900 dark:text-white">
               What was it for?
@@ -261,7 +261,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
             </Text>
           </View>
 
-          <View className="space-y-5 bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700/50">
+          <View className="gap-y-5 bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700/50">
             <View>
               <Text className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Title
@@ -308,7 +308,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
       {/* STEP 3: Details & Summary */}
       {currentStep === 3 ? (
-        <View testID="expense-step-3" className="space-y-6">
+        <View testID="expense-step-3" className="gap-y-6">
           <View className="items-center mb-2">
             <Text className="text-xl font-bold text-slate-900 dark:text-white">
               Almost done!
@@ -318,7 +318,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
             </Text>
           </View>
 
-          <View className="space-y-5 bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700/50">
+          <View className="gap-y-5 bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700/50">
             <View>
               <Text className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Note (Optional)

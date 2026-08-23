@@ -30,7 +30,7 @@ export const DateSelector: React.FC<DateSelectorProps> = ({
   const displayDate = value ? formatDisplayDate(value) : formatDisplayDate(new Date());
 
   return (
-    <View testID={testID} className="space-y-2">
+    <View testID={testID} className="gap-y-2">
       <View className="flex-row items-center justify-between">
         <Text className="text-sm font-medium text-slate-700 dark:text-slate-300">
           {label}

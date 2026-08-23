@@ -36,7 +36,11 @@ export default function CategoriesScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50 dark:bg-slate-900" testID="categories-screen">
+    <SafeAreaView
+      style={{ flex: 1, minHeight: '100%' }}
+      className="flex-1 bg-slate-50 dark:bg-slate-900"
+      testID="categories-screen"
+    >
       {/* Screen Header */}
       <View className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/60 px-5 py-4 flex-row items-center justify-between">
         <View className="flex-row items-center">
@@ -71,11 +75,12 @@ export default function CategoriesScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={{ padding: 16, alignItems: 'center' }}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: 16, alignItems: 'center', minHeight: '100%', flexGrow: 1 }}
         className="flex-1"
         showsVerticalScrollIndicator={false}
       >
-        <View className="w-full max-w-lg space-y-6">
+        <View className="w-full max-w-lg gap-y-6">
           {/* Custom Categories Section */}
           <View className="w-full bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-700/50">
             <View className="flex-row items-center justify-between mb-4">
@@ -119,7 +124,7 @@ export default function CategoriesScreen() {
                 </TouchableOpacity>
               </View>
             ) : (
-              <View testID="custom-categories-list" className="space-y-2.5">
+              <View testID="custom-categories-list" className="gap-y-2.5">
                 {customCategories.map((item) => {
                   const catId = item.id || item.value;
                   const isDeleting = deletingId === catId;
@@ -185,7 +190,7 @@ export default function CategoriesScreen() {
               </View>
             </View>
 
-            <View testID="builtin-categories-list" className="space-y-2.5">
+            <View testID="builtin-categories-list" className="gap-y-2.5">
               {builtInCategories.map((item) => (
                 <View
                   key={item.value}

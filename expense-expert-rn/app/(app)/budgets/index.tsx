@@ -82,7 +82,11 @@ export default function BudgetsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50 dark:bg-slate-900" testID="budgets-screen">
+    <SafeAreaView
+      style={{ flex: 1, minHeight: '100%' }}
+      className="flex-1 bg-slate-50 dark:bg-slate-900"
+      testID="budgets-screen"
+    >
       {/* Screen Header */}
       <View className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/60 px-5 py-4 flex-row items-center justify-between">
         <View className="flex-row items-center">
@@ -117,11 +121,12 @@ export default function BudgetsScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={{ padding: 16, alignItems: 'center' }}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: 16, alignItems: 'center', minHeight: '100%', flexGrow: 1 }}
         className="flex-1"
         showsVerticalScrollIndicator={false}
       >
-        <View className="w-full max-w-lg space-y-4">
+        <View className="w-full max-w-lg gap-y-4">
           {/* Month Selector Carousel / Navigation */}
           <View
             testID="month-selector"
@@ -203,7 +208,7 @@ export default function BudgetsScreen() {
                 </TouchableOpacity>
               </View>
             ) : (
-              <View testID="category-budgets-list" className="space-y-3">
+              <View testID="category-budgets-list" className="gap-y-3">
                 {budgetUsages.map((usage) => (
                   <CategoryBudgetCard
                     key={usage.budgetId}

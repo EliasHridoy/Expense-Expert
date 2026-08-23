@@ -43,7 +43,7 @@ export function NavigationGate() {
 export default function RootLayout() {
   return (
     <ErrorBoundary>
-      <SafeAreaProvider>
+      <SafeAreaProvider style={{ flex: 1 }}>
         <StatusBar style="auto" />
         <AuthProvider>
           <ToastProvider>

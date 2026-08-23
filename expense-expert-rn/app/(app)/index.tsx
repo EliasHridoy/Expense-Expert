@@ -137,13 +137,17 @@ export default function AppDashboardScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50 dark:bg-slate-900">
+    <SafeAreaView
+      style={{ flex: 1, minHeight: '100%' }}
+      className="flex-1 bg-slate-50 dark:bg-slate-900"
+    >
       <ScrollView
-        contentContainerStyle={{ padding: 16, alignItems: 'center' }}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: 16, alignItems: 'center', minHeight: '100%', flexGrow: 1 }}
         className="flex-1"
         showsVerticalScrollIndicator={false}
       >
-        <View className="w-full max-w-6xl space-y-6">
+        <View className="w-full max-w-6xl gap-y-6">
           {/* Section 1: Header & User Details */}
           <View className="w-full bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
             <View className="flex-row items-center justify-between mb-4">
@@ -434,9 +438,9 @@ export default function AppDashboardScreen() {
                   </View>
                 ) : criteria.groupBy !== 'none' ? (
                   /* Grouped View */
-                  <View className="space-y-4 mt-3" testID="grouped-expenses-list">
+                  <View className="gap-y-4 mt-3" testID="grouped-expenses-list">
                     {groupedExpenses.map((group) => (
-                      <View key={group.key} className="space-y-2">
+                      <View key={group.key} className="gap-y-2">
                         {/* Group Header */}
                         <View className="flex-row items-center justify-between px-1 pt-2 border-b border-slate-200 dark:border-slate-700 pb-1">
                           <Text className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
@@ -448,7 +452,7 @@ export default function AppDashboardScreen() {
                         </View>
 
                         {/* Group Items */}
-                        <View className="space-y-2">
+                        <View className="gap-y-2">
                           {group.items.map((expense) => {
                             const icon = getCategoryIcon(expense.category);
                             const isPending = expense.syncStatus === 'pending';
@@ -549,7 +553,7 @@ export default function AppDashboardScreen() {
                   </View>
                 ) : (
                   /* Flat List View */
-                  <View className="space-y-3 mt-3" testID="recent-expenses-list">
+                  <View className="gap-y-3 mt-3" testID="recent-expenses-list">
                     {filteredExpenses.map((expense) => {
                       const icon = getCategoryIcon(expense.category);
                       const isPending = expense.syncStatus === 'pending';
