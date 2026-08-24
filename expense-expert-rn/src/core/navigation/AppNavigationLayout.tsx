@@ -44,13 +44,11 @@ export const AppNavigationLayout: React.FC<AppNavigationLayoutProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    minHeight: '100%',
     backgroundColor: '#f8fafc',
     flexDirection: 'column',
   },
   content: {
     flex: 1,
-    minHeight: '100%',
     width: '100%',
   },
 });

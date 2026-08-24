@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import ProfileScreen from '@/../app/(app)/profile/index';
 
 const mockReplace = jest.fn();
@@ -12,6 +12,8 @@ jest.mock('expo-router', () => ({
 }));
 
 const mockLogout = jest.fn();
+const mockUpdateProfile = jest.fn();
+
 jest.mock('@/features/auth/hooks/useAuth', () => ({
   useAuth: () => ({
     user: {
@@ -26,6 +28,7 @@ jest.mock('@/features/auth/hooks/useAuth', () => ({
       createdAt: '2025-06-01T00:00:00.000Z',
     },
     logout: mockLogout,
+    updateProfile: mockUpdateProfile,
     isLoading: false,
     isAuthenticated: true,
   }),
@@ -63,10 +66,56 @@ describe('ProfileScreen (/profile)', () => {
     expect(queryByTestId('user-uid-text')).toBeNull();
   });
 
-  it('displays financial baseline settings', () => {
+  it('displays financial baseline settings and allows entering edit mode', () => {
     const { getByTestId, getByText } = render(<ProfileScreen />);
     expect(getByTestId('profile-salary-text')).toHaveTextContent('$6,500');
     expect(getByText('USD ($)')).toBeTruthy();
+    expect(getByTestId('edit-preferences-btn')).toBeTruthy();
+  });
+
+  it('allows editing and saving financial preferences', async () => {
+    mockUpdateProfile.mockResolvedValueOnce({
+      uid: 'super_secret_uid_12345',
+      displayName: 'Alexander Rivers',
+      monthlySalary: 7500,
+    });
+
+    const { getByTestId, queryByTestId, getByText } = render(<ProfileScreen />);
+
+    // Click Edit
+    fireEvent.press(getByTestId('edit-preferences-btn'));
+    expect(getByTestId('preferences-edit-form')).toBeTruthy();
+
+    // Edit Salary and Display Name
+    fireEvent.changeText(getByTestId('profile-salary-input'), '7500.00');
+    fireEvent.changeText(getByTestId('profile-display-name-input'), 'Alexander Rivers');
+
+    // Click Save
+    fireEvent.press(getByTestId('save-preferences-btn'));
+
+    await waitFor(() => {
+      expect(mockUpdateProfile).toHaveBeenCalledWith({
+        monthlySalary: 7500,
+        displayName: 'Alexander Rivers',
+      });
+    });
+
+    await waitFor(() => {
+      expect(getByText('Financial preferences updated successfully!')).toBeTruthy();
+      expect(queryByTestId('preferences-edit-form')).toBeNull();
+    });
+  });
+
+  it('allows canceling financial preferences edit mode', () => {
+    const { getByTestId, queryByTestId } = render(<ProfileScreen />);
+
+    // Enter edit mode
+    fireEvent.press(getByTestId('edit-preferences-btn'));
+    expect(getByTestId('preferences-edit-form')).toBeTruthy();
+
+    // Cancel edit
+    fireEvent.press(getByTestId('cancel-preferences-btn'));
+    expect(queryByTestId('preferences-edit-form')).toBeNull();
   });
 
   it('navigates back to dashboard when back button is pressed', () => {

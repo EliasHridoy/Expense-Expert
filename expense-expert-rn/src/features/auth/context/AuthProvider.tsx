@@ -20,6 +20,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await AuthService.logout();
   }, []);
 
+  const updateProfile = useCallback(
+    async (data: Partial<UserProfile>) => {
+      if (!user) {
+        throw new Error('No authenticated user');
+      }
+      const updated = await AuthService.updateProfileData(user.uid, data);
+      setProfile(updated);
+      return updated;
+    },
+    [user]
+  );
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
@@ -50,8 +62,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       register: AuthService.register,
       logout,
       signInWithGoogle: AuthService.signInWithGoogle,
+      updateProfile,
     }),
-    [user, profile, isLoading, logout]
+    [user, profile, isLoading, logout, updateProfile]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

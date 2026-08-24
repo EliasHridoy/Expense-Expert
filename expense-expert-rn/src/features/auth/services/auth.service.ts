@@ -83,4 +83,22 @@ export const AuthService = {
       ...data,
     };
   },
+
+  /** Update profile data in Firestore users/{uid} */
+  async updateProfileData(uid: string, data: Partial<UserProfile>): Promise<UserProfile> {
+    const userRef = doc(db, 'users', uid);
+    const updatePayload: Record<string, any> = {
+      ...data,
+      updatedAt: serverTimestamp(),
+    };
+    await setDoc(userRef, updatePayload, { merge: true });
+    const snap = await getDoc(userRef);
+    const updated = snap.data() || {};
+    return {
+      uid,
+      email: updated.email || '',
+      displayName: updated.displayName || '',
+      ...updated,
+    };
+  },
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
+  TextInput,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
@@ -10,12 +11,26 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../../src/features/auth/hooks/useAuth';
-import { colors, themeStyles } from '../../../src/theme';
+import { colors } from '../../../src/theme';
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, profile, logout } = useAuth();
+  const { user, profile, logout, updateProfile } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Financial Preferences Edit State
+  const [isEditingPreferences, setIsEditingPreferences] = useState(false);
+  const [editingSalary, setEditingSalary] = useState<string>(
+    profile?.monthlySalary != null ? String(profile.monthlySalary) : ''
+  );
+  const [editingDisplayName, setEditingDisplayName] = useState<string>(
+    profile?.displayName || user?.displayName || ''
+  );
+  const [isSavingPreferences, setIsSavingPreferences] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<{
+    type: 'success' | 'error';
+    text: string;
+  } | null>(null);
 
   const displayName =
     profile?.displayName ||
@@ -39,6 +54,52 @@ export default function ProfileScreen() {
     return 'Active Member';
   };
 
+  const handleStartEdit = () => {
+    setEditingSalary(
+      profile?.monthlySalary != null ? String(profile.monthlySalary) : ''
+    );
+    setEditingDisplayName(displayName);
+    setStatusMessage(null);
+    setIsEditingPreferences(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingPreferences(false);
+    setStatusMessage(null);
+  };
+
+  const handleSavePreferences = async () => {
+    setIsSavingPreferences(true);
+    setStatusMessage(null);
+
+    try {
+      const cleanSalary = editingSalary.replace(/[^0-9.]/g, '');
+      const parsedSalary = parseFloat(cleanSalary) || 0;
+      const cleanDisplayName = editingDisplayName.trim() || displayName;
+
+      if (updateProfile) {
+        await updateProfile({
+          monthlySalary: parsedSalary,
+          displayName: cleanDisplayName,
+        });
+      }
+
+      setStatusMessage({
+        type: 'success',
+        text: 'Financial preferences updated successfully!',
+      });
+      setIsEditingPreferences(false);
+    } catch (error: any) {
+      console.error('Failed to update preferences:', error);
+      setStatusMessage({
+        type: 'error',
+        text: error?.message || 'Failed to update preferences. Please try again.',
+      });
+    } finally {
+      setIsSavingPreferences(false);
+    }
+  };
+
   const handleLogout = async () => {
     if (isLoggingOut) return;
     setIsLoggingOut(true);
@@ -58,7 +119,7 @@ export default function ProfileScreen() {
       testID="profile-screen"
       style={styles.screen}
       contentContainerStyle={styles.scrollContent}
-      showsVerticalScrollIndicator={false}
+      showsVerticalScrollIndicator={true}
     >
       <View style={styles.container}>
         {/* Top Header Navigation */}
@@ -78,6 +139,30 @@ export default function ProfileScreen() {
             <Text style={styles.headerSubtitle}>Account information & preferences</Text>
           </View>
         </View>
+
+        {/* Status Message (Toast Alert) */}
+        {statusMessage && (
+          <View
+            testID="profile-status-message"
+            style={[
+              styles.statusBanner,
+              statusMessage.type === 'success'
+                ? styles.statusBannerSuccess
+                : styles.statusBannerError,
+            ]}
+          >
+            <Text
+              style={[
+                styles.statusBannerText,
+                statusMessage.type === 'success'
+                  ? styles.statusTextSuccess
+                  : styles.statusTextError,
+              ]}
+            >
+              {statusMessage.text}
+            </Text>
+          </View>
+        )}
 
         {/* Welcome & Profile Summary Card */}
         <View style={styles.profileCard} testID="profile-user-card">
@@ -139,24 +224,106 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Financial Preferences Card */}
+        {/* Financial Preferences Card (Editable) */}
         <View style={styles.detailsCard} testID="profile-financial-details">
-          <Text style={styles.sectionHeading}>Financial Preferences</Text>
-          <Text style={styles.sectionSubheading}>Monthly baseline and currency settings</Text>
-
-          <View style={styles.infoList}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Monthly Baseline Salary</Text>
-              <Text style={styles.infoValue} testID="profile-salary-text">
-                {monthlySalary > 0 ? `$${monthlySalary.toLocaleString()}` : 'Not Set'}
+          <View style={styles.sectionHeaderRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.sectionHeading}>Financial Preferences</Text>
+              <Text style={styles.sectionSubheading}>
+                Monthly baseline salary and currency settings
               </Text>
             </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Default Currency</Text>
-              <Text style={styles.infoValue}>USD ($)</Text>
-            </View>
+            {!isEditingPreferences ? (
+              <TouchableOpacity
+                testID="edit-preferences-btn"
+                onPress={handleStartEdit}
+                activeOpacity={0.7}
+                style={styles.editBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Edit financial preferences"
+              >
+                <Text style={styles.editBtnText}>✏️ Edit</Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
+
+          {!isEditingPreferences ? (
+            <View style={styles.infoList}>
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Monthly Baseline Salary</Text>
+                <Text style={styles.infoValue} testID="profile-salary-text">
+                  {monthlySalary > 0 ? `$${monthlySalary.toLocaleString()}` : 'Not Set'}
+                </Text>
+              </View>
+
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Default Currency</Text>
+                <Text style={styles.infoValue}>USD ($)</Text>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.editFormContainer} testID="preferences-edit-form">
+              {/* Display Name Input */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Display Name</Text>
+                <TextInput
+                  testID="profile-display-name-input"
+                  value={editingDisplayName}
+                  onChangeText={setEditingDisplayName}
+                  placeholder="e.g. John Doe"
+                  placeholderTextColor="#94a3b8"
+                  style={styles.textInput}
+                />
+              </View>
+
+              {/* Monthly Salary Input */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Monthly Baseline Salary ($)</Text>
+                <View style={styles.salaryInputRow}>
+                  <Text style={styles.salaryPrefix}>$</Text>
+                  <TextInput
+                    testID="profile-salary-input"
+                    value={editingSalary}
+                    onChangeText={setEditingSalary}
+                    keyboardType="decimal-pad"
+                    placeholder="5000.00"
+                    placeholderTextColor="#94a3b8"
+                    style={[styles.textInput, { flex: 1, borderWidth: 0 }]}
+                  />
+                </View>
+                <Text style={styles.inputHint}>
+                  This baseline is used to automatically compute your monthly income roll-forward.
+                </Text>
+              </View>
+
+              {/* Action Buttons */}
+              <View style={styles.formActionRow}>
+                <TouchableOpacity
+                  testID="cancel-preferences-btn"
+                  onPress={handleCancelEdit}
+                  disabled={isSavingPreferences}
+                  activeOpacity={0.7}
+                  style={styles.cancelBtn}
+                >
+                  <Text style={styles.cancelBtnText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  testID="save-preferences-btn"
+                  onPress={handleSavePreferences}
+                  disabled={isSavingPreferences}
+                  activeOpacity={0.85}
+                  style={styles.saveBtn}
+                >
+                  {isSavingPreferences ? (
+                    <ActivityIndicator size="small" color="#ffffff" testID="save-loading" />
+                  ) : (
+                    <Text style={styles.saveBtnText}>Save Preferences</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
 
         {/* Security & Sign Out Section */}
@@ -189,7 +356,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingVertical: 24,
+    paddingTop: 20,
+    paddingBottom: 180, // Comfortable spacing above mobile bottom tab bar
     alignItems: 'center',
   },
   container: {
@@ -200,7 +368,7 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 4,
     gap: 14,
   },
   backBtn: {
@@ -236,6 +404,31 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#64748b',
     marginTop: 2,
+  },
+  statusBanner: {
+    width: '100%',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: 1,
+  },
+  statusBannerSuccess: {
+    backgroundColor: '#ecfdf5',
+    borderColor: '#a7f3d0',
+  },
+  statusBannerError: {
+    backgroundColor: '#fff1f2',
+    borderColor: '#fecdd3',
+  },
+  statusBannerText: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  statusTextSuccess: {
+    color: '#059669',
+  },
+  statusTextError: {
+    color: '#e11d48',
   },
   profileCard: {
     backgroundColor: '#ffffff',
@@ -308,6 +501,11 @@ const styles = StyleSheet.create({
       ? { boxShadow: '0 4px 16px rgba(15, 23, 42, 0.04)' }
       : { elevation: 2 }),
   },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   sectionHeading: {
     fontSize: 16,
     fontWeight: '700',
@@ -318,6 +516,20 @@ const styles = StyleSheet.create({
     color: '#64748b',
     marginTop: 2,
     marginBottom: 16,
+  },
+  editBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    backgroundColor: '#f1f5f9',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
+  },
+  editBtnText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#334155',
   },
   infoList: {
     borderTopWidth: 1,
@@ -340,6 +552,88 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#0f172a',
     fontWeight: '700',
+  },
+  editFormContainer: {
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
+    paddingTop: 16,
+    gap: 14,
+  },
+  inputGroup: {
+    gap: 6,
+  },
+  inputLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#334155',
+  },
+  inputHint: {
+    fontSize: 11,
+    color: '#94a3b8',
+    marginTop: 2,
+  },
+  textInput: {
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    backgroundColor: '#f8fafc',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0f172a',
+    ...(Platform.OS === 'web' ? ({ outlineStyle: 'none' } as any) : {}),
+  },
+  salaryInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    backgroundColor: '#f8fafc',
+    paddingHorizontal: 12,
+  },
+  salaryPrefix: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#64748b',
+    marginRight: 6,
+  },
+  formActionRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 8,
+  },
+  cancelBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: '#f1f5f9',
+    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
+  },
+  cancelBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#475569',
+  },
+  saveBtn: {
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: '#4f46e5',
+    ...(Platform.OS === 'web'
+      ? {
+          boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)',
+          cursor: 'pointer',
+        }
+      : { elevation: 2 }),
+  },
+  saveBtnText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#ffffff',
   },
   actionCard: {
     marginTop: 8,

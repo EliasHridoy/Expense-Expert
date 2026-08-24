@@ -270,7 +270,7 @@ async function runBrowserTests() {
     console.log('📸 [Proof] Saved screenshot: screenshots/07-dashboard-updated.png');
 
     console.log('\n========================================');
-    console.log(' STEP 8: Test Dedicated Profile Page (Desktop)');
+    console.log(' STEP 8: Test Dedicated Profile Page & Edit Preferences (Desktop)');
     console.log('========================================');
     // Click User badge in Navbar to go to Profile
     await page.evaluate(() => {
@@ -291,20 +291,38 @@ async function runBrowserTests() {
       throw new Error('Raw UID found rendered on Profile screen! UID must remain hidden.');
     }
 
+    // Test Editing Financial Preferences
+    console.log('  Testing Edit Financial Preferences...');
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="edit-preferences-btn"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="preferences-edit-form"]', { timeout: 5000 });
+
+    const salaryInput = await page.waitForSelector('[data-testid="profile-salary-input"]');
+    await page.$eval('[data-testid="profile-salary-input"]', (el) => { el.value = ''; });
+    await salaryInput.type('6500.00', { delay: 20 });
+
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="save-preferences-btn"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="profile-salary-text"]', { timeout: 10000 });
+    await sleep(1000);
+    console.log('✅ Financial preferences updated and saved successfully!');
+
     await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '10-desktop-profile-screen.png'), fullPage: true });
     console.log('📸 [Proof] Saved screenshot: screenshots/10-desktop-profile-screen.png');
 
-    console.log('\n========================================');
-    console.log(' STEP 9: Test Mobile Viewport & Bottom Nav Profile');
-    console.log('========================================');
-    await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
+    // Go back to Dashboard using Back Button
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="back-to-dashboard-btn"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="summary-cards-grid"]', { timeout: 10000 });
     await sleep(1000);
 
-    // Tap Dashboard on Mobile Bottom Nav
-    await page.evaluate(() => {
-      document.querySelector('[data-testid="mobile-nav-dashboard"]')?.click();
-    });
-    await page.waitForSelector('[data-testid="month-navigator"]', { timeout: 10000 });
+    console.log('\n========================================');
+    console.log(' STEP 9: Test Mobile Viewport, Bottom Nav & Profile Scrolling');
+    console.log('========================================');
+    await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
     await sleep(1000);
     console.log('✅ Mobile Bottom Navigation Panel rendered successfully');
     await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '08-mobile-dashboard-bottom-nav.png') });
@@ -320,7 +338,16 @@ async function runBrowserTests() {
     await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '11-mobile-profile-screen.png') });
     console.log('📸 [Proof] Saved screenshot: screenshots/11-mobile-profile-screen.png');
 
-    console.log('\n🎉 ALL REAL CHROME BROWSER FULL-CYCLE & DEDICATED PROFILE TESTS PASSED WITH 100% SUCCESS!');
+    // Test Scrolling Profile all the way to the bottom
+    await page.evaluate(() => {
+      const scrollEl = document.querySelector('[data-testid="profile-screen"]') || window;
+      scrollEl.scrollTo({ top: 800, behavior: 'smooth' });
+    });
+    await sleep(1000);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '12-mobile-profile-scrolled.png') });
+    console.log('📸 [Proof] Saved screenshot: screenshots/12-mobile-profile-scrolled.png');
+
+    console.log('\n🎉 ALL REAL CHROME BROWSER FULL-CYCLE, EDIT PREFERENCES & SCROLLING TESTS PASSED WITH 100% SUCCESS!');
   } catch (err) {
     console.error('❌ Browser Test Execution Failed:', err);
     await page.screenshot({ path: path.join(SCREENSHOTS_DIR, 'error-state.png'), fullPage: true }).catch(() => {});

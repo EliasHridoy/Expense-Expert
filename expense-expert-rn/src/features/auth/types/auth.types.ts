@@ -32,4 +32,5 @@ export interface AuthContextValue {
   register: (credentials: RegisterCredentials) => Promise<User>;
   logout: () => Promise<void>;
   signInWithGoogle: () => Promise<User>;
+  updateProfile: (data: Partial<UserProfile>) => Promise<UserProfile>;
 }
