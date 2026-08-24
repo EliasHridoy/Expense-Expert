@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View, ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, Text, View, ScrollView, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useExpenses } from '../../../src/features/expenses/hooks/useExpenses';
@@ -99,12 +99,13 @@ export default function EditExpenseScreen() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      style={{ flex: 1, backgroundColor: '#f8fafc', ...(Platform.OS === 'web' ? { width: '100%' } : {}) }}
       contentContainerStyle={{
         paddingHorizontal: 16,
         paddingTop: 24,
-        paddingBottom: 180,
+        paddingBottom: 100,
         alignItems: 'center',
+        flexGrow: 1,
       }}
       showsVerticalScrollIndicator={true}
       testID="edit-expense-screen"

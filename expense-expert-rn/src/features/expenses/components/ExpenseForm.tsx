@@ -160,7 +160,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
   ) || { label: category, icon: '📁' };
 
   return (
-    <View testID={testID} style={styles.formContainer} className="flex-1 max-w-lg mx-auto w-full pb-8">
+    <View testID={testID} style={styles.formContainer} className="w-full max-w-lg mx-auto pb-4">
       {/* Header Navigation */}
       <View style={styles.navHeader} className="flex-row items-center justify-between mb-6 px-1">
         <View style={styles.navHeaderLeft} className="flex-row items-center gap-3">
@@ -176,9 +176,14 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
               <Text style={styles.circleBtnText} className="text-base text-slate-700 dark:text-slate-300">←</Text>
             </Pressable>
           ) : null}
-          <Text style={styles.formTitle} className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-            {isEditMode ? 'Edit Expense' : 'Add Expense'}
-          </Text>
+          <View>
+            <Text style={styles.formTitle} className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {isEditMode ? 'Edit Expense' : 'Add Expense'}
+            </Text>
+            <Text style={styles.stepBadgeText} className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+              Step {currentStep} of 3
+            </Text>
+          </View>
         </View>
 
         <Pressable
@@ -627,24 +632,46 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#e2e8f0',
   },
-  reviewSub: {
+  stepBadgeText: {
     fontSize: 12,
-    color: '#64748b',
-    fontWeight: '500',
+    fontWeight: '700',
+    color: '#4f46e5',
+    marginTop: 2,
   },
   actionSection: {
-    marginTop: 24,
+    marginTop: 20,
     paddingTop: 12,
+    paddingBottom: Platform.OS === 'web' ? 12 : 8,
+    width: '100%',
+    ...(Platform.OS === 'web'
+      ? {
+          position: 'sticky' as any,
+          bottom: 16,
+          zIndex: 30,
+          backgroundColor: 'rgba(248, 250, 252, 0.95)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          paddingHorizontal: 8,
+          borderRadius: 20,
+          borderWidth: 1,
+          borderColor: 'rgba(226, 232, 240, 0.8)',
+          boxShadow: '0 4px 16px rgba(15, 23, 42, 0.08)',
+        }
+      : {}),
   },
   continueBtn: {
     width: '100%',
     borderRadius: 16,
-    paddingVertical: 16,
+    paddingVertical: 15,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#4f46e5',
     ...(Platform.OS === 'web'
-      ? { boxShadow: '0 6px 20px rgba(79, 70, 229, 0.3)', cursor: 'pointer' }
+      ? {
+          boxShadow: '0 6px 20px rgba(79, 70, 229, 0.35)',
+          cursor: 'pointer',
+          userSelect: 'none',
+        }
       : {
           shadowColor: '#4f46e5',
           shadowOffset: { width: 0, height: 4 },
@@ -656,12 +683,16 @@ const styles = StyleSheet.create({
   submitBtn: {
     width: '100%',
     borderRadius: 16,
-    paddingVertical: 16,
+    paddingVertical: 15,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#059669',
     ...(Platform.OS === 'web'
-      ? { boxShadow: '0 6px 20px rgba(5, 150, 105, 0.3)', cursor: 'pointer' }
+      ? {
+          boxShadow: '0 6px 20px rgba(5, 150, 105, 0.35)',
+          cursor: 'pointer',
+          userSelect: 'none',
+        }
       : {
           shadowColor: '#059669',
           shadowOffset: { width: 0, height: 4 },
@@ -671,13 +702,21 @@ const styles = StyleSheet.create({
         }),
   },
   btnDisabled: {
-    backgroundColor: '#cbd5e1',
-    opacity: 0.6,
-    boxShadow: 'none',
+    backgroundColor: '#94a3b8',
+    opacity: 0.7,
+    ...(Platform.OS === 'web'
+      ? {
+          cursor: 'not-allowed',
+          boxShadow: 'none',
+        }
+      : {
+          elevation: 0,
+        }),
   } as any,
   btnText: {
     fontSize: 16,
     fontWeight: '800',
     color: '#ffffff',
+    letterSpacing: 0.3,
   },
 });

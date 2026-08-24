@@ -90,15 +90,15 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   card: {
-    width: '30%',
-    minWidth: 90,
-    height: 90,
-    borderRadius: 18,
+    width: '31%',
+    minWidth: 84,
+    height: 80,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 8,
+    padding: 6,
     borderWidth: 2,
-    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
+    ...(Platform.OS === 'web' ? { cursor: 'pointer', userSelect: 'none' } as any : {}),
   },
   cardSelected: {
     borderColor: colors.primary,
@@ -118,8 +118,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   icon: {
-    fontSize: 26,
-    marginBottom: 4,
+    fontSize: 24,
+    marginBottom: 3,
   },
   label: {
     fontSize: 12,

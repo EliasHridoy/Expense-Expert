@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { Platform, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ExpenseForm } from '../../../src/features/expenses/components/ExpenseForm';
 
@@ -25,11 +25,13 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: '#f8fafc',
+    ...(Platform.OS === 'web' ? { width: '100%' } : {}),
   },
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 24,
-    paddingBottom: 180, // Comfortable spacing above bottom navigation bar
+    paddingBottom: 100,
     alignItems: 'center',
+    flexGrow: 1,
   },
 });
