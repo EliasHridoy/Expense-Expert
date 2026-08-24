@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   View,
@@ -158,22 +160,23 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
   ) || { label: category, icon: '📁' };
 
   return (
-    <View testID={testID} className="flex-1 max-w-lg mx-auto w-full pb-8">
+    <View testID={testID} style={styles.formContainer} className="flex-1 max-w-lg mx-auto w-full pb-8">
       {/* Header Navigation */}
-      <View className="flex-row items-center justify-between mb-6 px-1">
-        <View className="flex-row items-center gap-3">
+      <View style={styles.navHeader} className="flex-row items-center justify-between mb-6 px-1">
+        <View style={styles.navHeaderLeft} className="flex-row items-center gap-3">
           {currentStep > 1 ? (
             <Pressable
               testID="expense-back-btn"
               accessibilityRole="button"
               accessibilityLabel="Go back to previous step"
               onPress={handlePrevious}
+              style={styles.circleBtn}
               className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 active:bg-slate-200 dark:active:bg-slate-700"
             >
-              <Text className="text-base text-slate-700 dark:text-slate-300">←</Text>
+              <Text style={styles.circleBtnText} className="text-base text-slate-700 dark:text-slate-300">←</Text>
             </Pressable>
           ) : null}
-          <Text className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+          <Text style={styles.formTitle} className="text-2xl font-bold text-slate-900 dark:text-slate-100">
             {isEditMode ? 'Edit Expense' : 'Add Expense'}
           </Text>
         </View>
@@ -183,20 +186,25 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
           accessibilityRole="button"
           accessibilityLabel="Cancel expense entry"
           onPress={handleClose}
+          style={styles.circleBtn}
           className="p-2 rounded-full active:bg-slate-100 dark:active:bg-slate-800"
         >
-          <Text className="text-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <Text style={styles.closeIcon} className="text-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
             ✕
           </Text>
         </Pressable>
       </View>
 
       {/* 3-Step Progress Indicator */}
-      <View className="flex-row gap-2 mb-6 px-1">
+      <View style={styles.progressRow} className="flex-row gap-2 mb-6 px-1">
         {[1, 2, 3].map((step) => (
           <View
             key={step}
             testID={`progress-step-${step}`}
+            style={[
+              styles.progressBar,
+              currentStep >= step ? styles.progressBarActive : styles.progressBarInactive,
+            ]}
             className={`h-1.5 flex-1 rounded-full ${
               currentStep >= step
                 ? 'bg-indigo-600 dark:bg-indigo-500'
@@ -210,9 +218,10 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
       {errorMessage ? (
         <View
           testID="expense-form-error"
+          style={styles.errorBanner}
           className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 rounded-2xl p-4 mb-4"
         >
-          <Text className="text-xs font-semibold text-rose-600 dark:text-rose-400 text-center">
+          <Text style={styles.errorText} className="text-xs font-semibold text-rose-600 dark:text-rose-400 text-center">
             {errorMessage}
           </Text>
         </View>
@@ -220,12 +229,12 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
       {/* STEP 1: Amount & Category */}
       {currentStep === 1 ? (
-        <View testID="expense-step-1" className="gap-y-6">
-          <View className="items-center mb-2">
-            <Text className="text-xl font-bold text-slate-900 dark:text-white">
+        <View testID="expense-step-1" style={styles.stepContainer} className="gap-y-6">
+          <View style={styles.stepHeader} className="items-center mb-2">
+            <Text style={styles.stepTitle} className="text-xl font-bold text-slate-900 dark:text-white">
               How much did you spend?
             </Text>
-            <Text className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <Text style={styles.stepSubtitle} className="text-sm text-slate-500 dark:text-slate-400 mt-1">
               Enter the amount and pick a category.
             </Text>
           </View>
@@ -236,8 +245,8 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
             testID="expense-amount-input"
           />
 
-          <View className="gap-y-3">
-            <Text className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <View style={styles.pickerSection} className="gap-y-3">
+            <Text style={styles.inputLabel} className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Category
             </Text>
             <CategoryCardPicker
@@ -251,19 +260,19 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
       {/* STEP 2: Title & Date */}
       {currentStep === 2 ? (
-        <View testID="expense-step-2" className="gap-y-6">
-          <View className="items-center mb-2">
-            <Text className="text-xl font-bold text-slate-900 dark:text-white">
+        <View testID="expense-step-2" style={styles.stepContainer} className="gap-y-6">
+          <View style={styles.stepHeader} className="items-center mb-2">
+            <Text style={styles.stepTitle} className="text-xl font-bold text-slate-900 dark:text-white">
               What was it for?
             </Text>
-            <Text className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <Text style={styles.stepSubtitle} className="text-sm text-slate-500 dark:text-slate-400 mt-1">
               Enter a title and select the date.
             </Text>
           </View>
 
-          <View className="gap-y-5 bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700/50">
+          <View style={styles.cardContainer} className="gap-y-5 bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700/50">
             <View>
-              <Text className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              <Text style={styles.inputLabel} className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Title
               </Text>
               <TextInput
@@ -272,6 +281,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 onChangeText={setTitle}
                 placeholder="e.g., Grocery shopping"
                 placeholderTextColor="#94a3b8"
+                style={styles.textInput}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 px-4 py-3 text-sm outline-none"
               />
 
@@ -279,6 +289,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
+                style={styles.suggestionsScroll}
                 className="mt-3"
                 contentContainerStyle={{ gap: 8 }}
               >
@@ -287,9 +298,10 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
                     key={suggestion}
                     testID={`suggestion-pill-${suggestion}`}
                     onPress={() => setTitle(suggestion)}
+                    style={styles.suggestionPill}
                     className="rounded-full bg-slate-100 dark:bg-slate-700 px-3 py-1.5 active:bg-slate-200 dark:active:bg-slate-600"
                   >
-                    <Text className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                    <Text style={styles.suggestionText} className="text-xs font-medium text-slate-600 dark:text-slate-300">
                       {suggestion}
                     </Text>
                   </Pressable>
@@ -308,19 +320,19 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
       {/* STEP 3: Details & Summary */}
       {currentStep === 3 ? (
-        <View testID="expense-step-3" className="gap-y-6">
-          <View className="items-center mb-2">
-            <Text className="text-xl font-bold text-slate-900 dark:text-white">
+        <View testID="expense-step-3" style={styles.stepContainer} className="gap-y-6">
+          <View style={styles.stepHeader} className="items-center mb-2">
+            <Text style={styles.stepTitle} className="text-xl font-bold text-slate-900 dark:text-white">
               Almost done!
             </Text>
-            <Text className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <Text style={styles.stepSubtitle} className="text-sm text-slate-500 dark:text-slate-400 mt-1">
               Add any extra details.
             </Text>
           </View>
 
-          <View className="gap-y-5 bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700/50">
+          <View style={styles.cardContainer} className="gap-y-5 bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700/50">
             <View>
-              <Text className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              <Text style={styles.inputLabel} className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Note (Optional)
               </Text>
               <TextInput
@@ -332,6 +344,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 placeholder="Add more details..."
                 placeholderTextColor="#94a3b8"
                 textAlignVertical="top"
+                style={[styles.textInput, { minHeight: 80, height: 80 }]}
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-slate-100 px-4 py-3 text-sm outline-none min-h-[80px]"
               />
             </View>
@@ -339,31 +352,34 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
             {/* Review Summary Card */}
             <View
               testID="expense-summary-card"
+              style={styles.reviewCard}
               className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800"
             >
-              <Text className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+              <Text style={styles.reviewHeader} className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
                 Summary
               </Text>
-              <View className="flex-row justify-between items-center mb-2">
+              <View style={styles.reviewRow} className="flex-row justify-between items-center mb-2">
                 <Text
                   testID="expense-summary-title"
                   numberOfLines={1}
+                  style={styles.reviewTitle}
                   className="text-sm font-medium text-slate-700 dark:text-slate-300 flex-1 mr-2"
                 >
                   {title || 'Untitled'}
                 </Text>
                 <Text
                   testID="expense-summary-amount"
+                  style={styles.reviewAmount}
                   className="text-base font-bold text-slate-900 dark:text-white"
                 >
                   {formatCents(toCents(amount))}
                 </Text>
               </View>
-              <View className="flex-row justify-between items-center text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200/50 dark:border-slate-800">
-                <Text testID="expense-summary-category" className="text-xs text-slate-500 dark:text-slate-400">
+              <View style={styles.reviewFooter} className="flex-row justify-between items-center text-xs text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200/50 dark:border-slate-800">
+                <Text testID="expense-summary-category" style={styles.reviewSub} className="text-xs text-slate-500 dark:text-slate-400">
                   {selectedCategoryMeta.icon} {selectedCategoryMeta.label}
                 </Text>
-                <Text testID="expense-summary-date" className="text-xs text-slate-500 dark:text-slate-400">
+                <Text testID="expense-summary-date" style={styles.reviewSub} className="text-xs text-slate-500 dark:text-slate-400">
                   {formatDisplayDate(date)}
                 </Text>
               </View>
@@ -373,7 +389,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
       ) : null}
 
       {/* Sticky / Bottom Action Bar */}
-      <View className="mt-8 pt-4">
+      <View style={styles.actionSection} className="mt-8 pt-4">
         {currentStep < 3 ? (
           <Pressable
             testID="expense-continue-btn"
@@ -381,13 +397,17 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
             accessibilityState={{ disabled: !canProceed }}
             disabled={!canProceed}
             onPress={handleNext}
+            style={[
+              styles.continueBtn,
+              !canProceed && styles.btnDisabled,
+            ]}
             className={`w-full rounded-2xl py-4 items-center justify-center shadow-lg transition-all active:scale-[0.98] ${
               canProceed
                 ? 'bg-indigo-600 dark:bg-indigo-500 shadow-indigo-500/30'
                 : 'bg-slate-300 dark:bg-slate-700 opacity-60 shadow-none'
             }`}
           >
-            <Text className="text-base font-bold text-white">Continue</Text>
+            <Text style={styles.btnText} className="text-base font-bold text-white">Continue</Text>
           </Pressable>
         ) : (
           <Pressable
@@ -396,6 +416,10 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
             accessibilityState={{ disabled: !canProceed || isSubmitting }}
             disabled={!canProceed || isSubmitting}
             onPress={handleSubmit}
+            style={[
+              styles.submitBtn,
+              (!canProceed || isSubmitting) && styles.btnDisabled,
+            ]}
             className={`w-full rounded-2xl py-4 items-center justify-center shadow-lg transition-all active:scale-[0.98] ${
               !canProceed || isSubmitting
                 ? 'bg-slate-300 dark:bg-slate-700 opacity-60 shadow-none'
@@ -405,7 +429,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
             {isSubmitting ? (
               <ActivityIndicator color="#ffffff" testID="expense-submit-spinner" />
             ) : (
-              <Text className="text-base font-bold text-white">
+              <Text style={styles.btnText} className="text-base font-bold text-white">
                 {isEditMode ? 'Update Expense' : 'Save Expense'}
               </Text>
             )}
@@ -415,3 +439,245 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  formContainer: {
+    width: '100%',
+    maxWidth: 540,
+    alignSelf: 'center',
+    paddingBottom: 32,
+  },
+  navHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  navHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  circleBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: '#f1f5f9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
+  },
+  circleBtnText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#334155',
+  },
+  formTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#0f172a',
+  },
+  closeIcon: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#94a3b8',
+  },
+  progressRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 24,
+  },
+  progressBar: {
+    height: 6,
+    flex: 1,
+    borderRadius: 9999,
+  },
+  progressBarActive: {
+    backgroundColor: '#4f46e5',
+  },
+  progressBarInactive: {
+    backgroundColor: '#e2e8f0',
+  },
+  errorBanner: {
+    backgroundColor: '#fff1f2',
+    borderWidth: 1,
+    borderColor: '#fecdd3',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: '#e11d48',
+    fontSize: 13,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  stepContainer: {
+    gap: 20,
+  },
+  stepHeader: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  stepTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#0f172a',
+    textAlign: 'center',
+  },
+  stepSubtitle: {
+    fontSize: 13,
+    color: '#64748b',
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  pickerSection: {
+    gap: 10,
+    marginTop: 8,
+  },
+  inputLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#334155',
+    marginBottom: 6,
+  },
+  cardContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 24,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    gap: 18,
+    ...(Platform.OS === 'web'
+      ? { boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)' }
+      : {
+          shadowColor: '#0f172a',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.05,
+          shadowRadius: 10,
+          elevation: 2,
+        }),
+  },
+  textInput: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 14,
+    color: '#0f172a',
+    ...(Platform.OS === 'web' ? ({ outlineStyle: 'none' } as any) : {}),
+  },
+  suggestionsScroll: {
+    marginTop: 10,
+  },
+  suggestionPill: {
+    backgroundColor: '#f1f5f9',
+    borderRadius: 9999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    marginRight: 8,
+    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
+  },
+  suggestionText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#475569',
+  },
+  reviewCard: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    marginTop: 8,
+  },
+  reviewHeader: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#94a3b8',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 10,
+  },
+  reviewRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  reviewTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#0f172a',
+  },
+  reviewAmount: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#059669',
+  },
+  reviewFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+  },
+  reviewSub: {
+    fontSize: 12,
+    color: '#64748b',
+    fontWeight: '500',
+  },
+  actionSection: {
+    marginTop: 24,
+    paddingTop: 12,
+  },
+  continueBtn: {
+    width: '100%',
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#4f46e5',
+    ...(Platform.OS === 'web'
+      ? { boxShadow: '0 6px 20px rgba(79, 70, 229, 0.3)', cursor: 'pointer' }
+      : {
+          shadowColor: '#4f46e5',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 3,
+        }),
+  },
+  submitBtn: {
+    width: '100%',
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#059669',
+    ...(Platform.OS === 'web'
+      ? { boxShadow: '0 6px 20px rgba(5, 150, 105, 0.3)', cursor: 'pointer' }
+      : {
+          shadowColor: '#059669',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 3,
+        }),
+  },
+  btnDisabled: {
+    backgroundColor: '#cbd5e1',
+    opacity: 0.6,
+    boxShadow: 'none',
+  } as any,
+  btnText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#ffffff',
+  },
+});

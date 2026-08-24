@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, useWindowDimensions, TouchableOpacity } from 'react-native';
+import { View, Text, useWindowDimensions, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import Svg, { Rect, Line, Text as SvgText, G } from 'react-native-svg';
 import { format, parseISO } from 'date-fns';
 import { MonthlyTrend } from '../types/dashboard.types';
@@ -81,29 +81,30 @@ export const MonthlyTrendBarChart: React.FC<MonthlyTrendBarChartProps> = ({
   return (
     <View
       testID={testID}
+      style={styles.card}
       className="w-full bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-sm"
     >
-      <View className="flex-row justify-between items-center mb-4">
+      <View style={styles.headerRow} className="flex-row justify-between items-center mb-4">
         <View>
-          <Text className="text-base font-bold text-slate-900 dark:text-slate-100">
+          <Text style={styles.title} className="text-base font-bold text-slate-900 dark:text-slate-100">
             Expenses vs Savings
           </Text>
-          <Text className="text-xs text-slate-400">
+          <Text style={styles.subtitle} className="text-xs text-slate-400">
             {chartData.length <= 6 ? `Last ${chartData.length} Months` : 'Historical Trends'}
           </Text>
         </View>
 
         {/* Legend */}
-        <View className="flex-row items-center gap-3">
-          <View className="flex-row items-center gap-1.5">
-            <View className="w-3 h-3 rounded-sm bg-rose-500" />
-            <Text className="text-xs font-medium text-slate-600 dark:text-slate-300">
+        <View style={styles.legendRow} className="flex-row items-center gap-3">
+          <View style={styles.legendItem} className="flex-row items-center gap-1.5">
+            <View style={[styles.legendBox, { backgroundColor: '#f43f5e' }]} className="w-3 h-3 rounded-sm bg-rose-500" />
+            <Text style={styles.legendText} className="text-xs font-medium text-slate-600 dark:text-slate-300">
               Expenses
             </Text>
           </View>
-          <View className="flex-row items-center gap-1.5">
-            <View className="w-3 h-3 rounded-sm bg-indigo-500" />
-            <Text className="text-xs font-medium text-slate-600 dark:text-slate-300">
+          <View style={styles.legendItem} className="flex-row items-center gap-1.5">
+            <View style={[styles.legendBox, { backgroundColor: '#6366f1' }]} className="w-3 h-3 rounded-sm bg-indigo-500" />
+            <Text style={styles.legendText} className="text-xs font-medium text-slate-600 dark:text-slate-300">
               Savings
             </Text>
           </View>
@@ -230,3 +231,59 @@ export const MonthlyTrendBarChart: React.FC<MonthlyTrendBarChartProps> = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 24,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    width: '100%',
+    ...(Platform.OS === 'web'
+      ? { boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)' }
+      : {
+          shadowColor: '#0f172a',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.05,
+          shadowRadius: 10,
+          elevation: 2,
+        }),
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0f172a',
+  },
+  subtitle: {
+    fontSize: 12,
+    color: '#94a3b8',
+    marginTop: 2,
+  },
+  legendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  legendBox: {
+    width: 12,
+    height: 12,
+    borderRadius: 3,
+  },
+  legendText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#64748b',
+  },
+});

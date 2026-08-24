@@ -147,6 +147,8 @@ export default function AppDashboardScreen() {
         router.push('/expenses/new');
         break;
       case 'savings':
+        router.push('/savings');
+        break;
       case 'remaining':
         router.push('/budgets');
         break;

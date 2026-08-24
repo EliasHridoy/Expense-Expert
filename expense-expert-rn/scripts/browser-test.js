@@ -166,12 +166,12 @@ async function runBrowserTests() {
     await page.waitForSelector('[data-testid="summary-cards-grid"]', { timeout: 10000 });
     await sleep(1000);
 
-    // 2. Click Total Savings Card -> should navigate to /budgets
+    // 2. Click Total Savings Card -> should navigate to /savings
     await page.evaluate(() => {
       document.querySelector('[data-testid="summary-card-savings"]')?.click();
     });
-    await page.waitForSelector('[data-testid="budgets-screen"]', { timeout: 10000 });
-    console.log('✅ Total Savings card navigated to /budgets');
+    await page.waitForSelector('[data-testid="savings-screen"]', { timeout: 10000 });
+    console.log('✅ Total Savings card navigated directly to /savings');
 
     // Go back to Dashboard via Navbar
     await page.evaluate(() => {
@@ -181,47 +181,54 @@ async function runBrowserTests() {
     await sleep(1000);
 
     console.log('\n========================================');
-    console.log(' STEP 4: Test Desktop Navbar Navigation');
+    console.log(' STEP 4: Test Desktop Navbar Navigation to Savings');
     console.log('========================================');
-    // Click Categories in top navbar
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="nav-savings"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="savings-screen"]', { timeout: 10000 });
+    await sleep(1000);
+    console.log('✅ Top Navbar navigated to Savings Screen');
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '13-savings-screen.png'), fullPage: true });
+    console.log('📸 [Proof] Saved screenshot: screenshots/13-savings-screen.png');
+
+    console.log('\n========================================');
+    console.log(' STEP 5: Test Desktop Navbar Navigation to Drafts');
+    console.log('========================================');
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="nav-drafts"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="drafts-screen"]', { timeout: 10000 });
+    await sleep(1000);
+    console.log('✅ Top Navbar navigated to Expense Drafts Screen');
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '14-drafts-screen.png'), fullPage: true });
+    console.log('📸 [Proof] Saved screenshot: screenshots/14-drafts-screen.png');
+
+    console.log('\n========================================');
+    console.log(' STEP 6: Test Desktop Navbar Navigation to Categories & Budgets');
+    console.log('========================================');
     await page.evaluate(() => {
       document.querySelector('[data-testid="nav-categories"]')?.click();
     });
     await page.waitForSelector('[data-testid="categories-screen"]', { timeout: 10000 });
-    await sleep(1000);
     console.log('✅ Top Navbar navigated to Categories Screen');
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '03-categories-screen.png'), fullPage: true });
-    console.log('📸 [Proof] Saved screenshot: screenshots/03-categories-screen.png');
 
-    console.log('\n========================================');
-    console.log(' STEP 5: Test Desktop Navbar to Budgets');
-    console.log('========================================');
-    // Click Budgets in top navbar
     await page.evaluate(() => {
       document.querySelector('[data-testid="nav-budgets"]')?.click();
     });
     await page.waitForSelector('[data-testid="budgets-screen"]', { timeout: 10000 });
-    await sleep(1000);
     console.log('✅ Top Navbar navigated to Budgets Screen');
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '04-budgets-screen.png'), fullPage: true });
-    console.log('📸 [Proof] Saved screenshot: screenshots/04-budgets-screen.png');
 
     console.log('\n========================================');
-    console.log(' STEP 6: Test Desktop Navbar to New Expense');
+    console.log(' STEP 7: Test Desktop Navbar to New Expense');
     console.log('========================================');
-    // Click Add Expense in top navbar
     await page.evaluate(() => {
       document.querySelector('[data-testid="nav-expenses"]')?.click();
     });
     await page.waitForSelector('[data-testid="expense-form"]', { timeout: 10000 });
     await sleep(1000);
     console.log('✅ Top Navbar navigated to 3-Step New Expense Wizard');
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '05-new-expense-screen.png'), fullPage: true });
-    console.log('📸 [Proof] Saved screenshot: screenshots/05-new-expense-screen.png');
 
-    console.log('\n========================================');
-    console.log(' STEP 7: Enter New Transaction Flow');
-    console.log('========================================');
     // Step 1: Enter amount
     const amountInput = await page.waitForSelector('[data-testid="expense-amount-input"]', { timeout: 10000 });
     await amountInput.type('55.00', { delay: 20 });
@@ -255,9 +262,6 @@ async function runBrowserTests() {
 
     // Step 3: Save expense
     console.log('  Reviewing step 3 summary and submitting...');
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '06-expense-step3-review.png'), fullPage: true });
-    console.log('📸 [Proof] Saved screenshot: screenshots/06-expense-step3-review.png');
-
     await page.evaluate(() => {
       document.querySelector('[data-testid="expense-submit-btn"]')?.click();
     });
@@ -265,9 +269,6 @@ async function runBrowserTests() {
     await page.waitForSelector('[data-testid="month-navigator"]', { timeout: 10000 });
     await sleep(2000);
     console.log('✅ Expense saved and returned to Dashboard via Navbar layout!');
-
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '07-dashboard-updated.png'), fullPage: true });
-    console.log('📸 [Proof] Saved screenshot: screenshots/07-dashboard-updated.png');
 
     console.log('\n========================================');
     console.log(' STEP 8: Test Dedicated Profile Page & Edit Preferences (Desktop)');
@@ -309,9 +310,6 @@ async function runBrowserTests() {
     await sleep(1000);
     console.log('✅ Financial preferences updated and saved successfully!');
 
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '10-desktop-profile-screen.png'), fullPage: true });
-    console.log('📸 [Proof] Saved screenshot: screenshots/10-desktop-profile-screen.png');
-
     // Go back to Dashboard using Back Button
     await page.evaluate(() => {
       document.querySelector('[data-testid="back-to-dashboard-btn"]')?.click();
@@ -320,13 +318,31 @@ async function runBrowserTests() {
     await sleep(1000);
 
     console.log('\n========================================');
-    console.log(' STEP 9: Test Mobile Viewport, Bottom Nav & Profile Scrolling');
+    console.log(' STEP 9: Test Mobile Viewport, Bottom Nav & Savings/Drafts on Mobile');
     console.log('========================================');
     await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
     await sleep(1000);
     console.log('✅ Mobile Bottom Navigation Panel rendered successfully');
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '08-mobile-dashboard-bottom-nav.png') });
-    console.log('📸 [Proof] Saved screenshot: screenshots/08-mobile-dashboard-bottom-nav.png');
+
+    // Tap Savings on Mobile Bottom Nav
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="mobile-nav-savings"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="savings-screen"]', { timeout: 10000 });
+    await sleep(1000);
+    console.log('✅ Mobile Bottom Nav navigated to Savings');
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '15-mobile-savings-screen.png') });
+    console.log('📸 [Proof] Saved screenshot: screenshots/15-mobile-savings-screen.png');
+
+    // Tap Drafts on Mobile Bottom Nav
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="mobile-nav-drafts"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="drafts-screen"]', { timeout: 10000 });
+    await sleep(1000);
+    console.log('✅ Mobile Bottom Nav navigated to Drafts');
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '16-mobile-drafts-screen.png') });
+    console.log('📸 [Proof] Saved screenshot: screenshots/16-mobile-drafts-screen.png');
 
     // Tap Profile on Mobile Bottom Nav
     await page.evaluate(() => {
@@ -335,8 +351,6 @@ async function runBrowserTests() {
     await page.waitForSelector('[data-testid="profile-screen"]', { timeout: 10000 });
     await sleep(1000);
     console.log('✅ Mobile Bottom Nav navigated to Profile');
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '11-mobile-profile-screen.png') });
-    console.log('📸 [Proof] Saved screenshot: screenshots/11-mobile-profile-screen.png');
 
     // Test Scrolling Profile all the way to the bottom
     await page.evaluate(() => {
@@ -344,10 +358,8 @@ async function runBrowserTests() {
       scrollEl.scrollTo({ top: 800, behavior: 'smooth' });
     });
     await sleep(1000);
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '12-mobile-profile-scrolled.png') });
-    console.log('📸 [Proof] Saved screenshot: screenshots/12-mobile-profile-scrolled.png');
 
-    console.log('\n🎉 ALL REAL CHROME BROWSER FULL-CYCLE, EDIT PREFERENCES & SCROLLING TESTS PASSED WITH 100% SUCCESS!');
+    console.log('\n🎉 ALL REAL CHROME BROWSER FULL-CYCLE, SAVINGS & DRAFTS TESTS PASSED WITH 100% SUCCESS!');
   } catch (err) {
     console.error('❌ Browser Test Execution Failed:', err);
     await page.screenshot({ path: path.join(SCREENSHOTS_DIR, 'error-state.png'), fullPage: true }).catch(() => {});

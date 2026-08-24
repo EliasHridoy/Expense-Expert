@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import { formatCents } from '../../expenses/utils/currency.util';
 import { MonthSummary } from '../types/dashboard.types';
 import { SummaryCard } from './SummaryCard';
@@ -11,11 +11,6 @@ export interface SummaryCardsGridProps {
   testID?: string;
 }
 
-/**
- * Responsive financial summary card grid presenting key indicators:
- * Total Income, Total Expenses, Total Savings, Net Remaining, and Loans Taken.
- * Adapts across 1-col (mobile), 2-col (tablet), and 4-col (desktop).
- */
 export const SummaryCardsGrid: React.FC<SummaryCardsGridProps> = ({
   summary,
   onPressCard,
@@ -41,9 +36,9 @@ export const SummaryCardsGrid: React.FC<SummaryCardsGridProps> = ({
     : formatCents(summary.remainingInCents);
 
   return (
-    <View testID={testID} className={`w-full flex-row flex-wrap -mx-2 ${className}`}>
+    <View testID={testID} style={styles.grid} className={`w-full flex-row flex-wrap -mx-2 ${className}`}>
       {/* 1. Total Income */}
-      <View className="w-full sm:w-1/2 lg:w-1/4 p-2">
+      <View style={styles.col} className="w-full sm:w-1/2 lg:w-1/4 p-2">
         <SummaryCard
           title="Total Income"
           amountFormatted={formatCents(summary.totalIncomeInCents)}
@@ -56,7 +51,7 @@ export const SummaryCardsGrid: React.FC<SummaryCardsGridProps> = ({
       </View>
 
       {/* 2. Total Expenses */}
-      <View className="w-full sm:w-1/2 lg:w-1/4 p-2">
+      <View style={styles.col} className="w-full sm:w-1/2 lg:w-1/4 p-2">
         <SummaryCard
           title="Total Expenses"
           amountFormatted={formatCents(summary.totalExpensesInCents)}
@@ -69,7 +64,7 @@ export const SummaryCardsGrid: React.FC<SummaryCardsGridProps> = ({
       </View>
 
       {/* 3. Total Savings */}
-      <View className="w-full sm:w-1/2 lg:w-1/4 p-2">
+      <View style={styles.col} className="w-full sm:w-1/2 lg:w-1/4 p-2">
         <SummaryCard
           title="Total Savings"
           amountFormatted={formatCents(summary.totalSavingsInCents)}
@@ -82,7 +77,7 @@ export const SummaryCardsGrid: React.FC<SummaryCardsGridProps> = ({
       </View>
 
       {/* 4. Net Remaining */}
-      <View className="w-full sm:w-1/2 lg:w-1/4 p-2">
+      <View style={styles.col} className="w-full sm:w-1/2 lg:w-1/4 p-2">
         <SummaryCard
           title="Net Remaining"
           amountFormatted={remainingFormatted}
@@ -97,7 +92,7 @@ export const SummaryCardsGrid: React.FC<SummaryCardsGridProps> = ({
 
       {/* 5. Loans Taken (Conditional) */}
       {summary.loansTakenIncomeInCents > 0 && (
-        <View className="w-full sm:w-1/2 lg:w-1/4 p-2">
+        <View style={styles.col} className="w-full sm:w-1/2 lg:w-1/4 p-2">
           <SummaryCard
             title="Loans Taken"
             amountFormatted={formatCents(summary.loansTakenIncomeInCents)}
@@ -112,3 +107,20 @@ export const SummaryCardsGrid: React.FC<SummaryCardsGridProps> = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  grid: {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -8,
+    marginVertical: 4,
+  },
+  col: {
+    padding: 8,
+    flexBasis: Platform.OS === 'web' ? '25%' : '100%',
+    flexGrow: 1,
+    minWidth: Platform.OS === 'web' ? 220 : '100%',
+    maxWidth: Platform.OS === 'web' ? '50%' : '100%',
+  },
+});

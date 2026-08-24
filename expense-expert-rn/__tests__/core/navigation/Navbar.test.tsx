@@ -44,11 +44,15 @@ describe('Navbar (Web / Desktop Navigation Bar)', () => {
     expect(getByTestId('nav-dashboard')).toBeTruthy();
     expect(getByTestId('nav-expenses')).toBeTruthy();
     expect(getByTestId('nav-budgets')).toBeTruthy();
+    expect(getByTestId('nav-savings')).toBeTruthy();
+    expect(getByTestId('nav-drafts')).toBeTruthy();
     expect(getByTestId('nav-categories')).toBeTruthy();
     expect(getByTestId('nav-profile')).toBeTruthy();
     expect(getByText('Dashboard')).toBeTruthy();
     expect(getByText('Add Expense')).toBeTruthy();
     expect(getByText('Budgets')).toBeTruthy();
+    expect(getByText('Savings')).toBeTruthy();
+    expect(getByText('Drafts')).toBeTruthy();
     expect(getByText('Categories')).toBeTruthy();
     expect(getByText('Profile')).toBeTruthy();
   });
@@ -60,20 +64,23 @@ describe('Navbar (Web / Desktop Navigation Bar)', () => {
     fireEvent.press(getByTestId('nav-budgets'));
     expect(onNavigateMock).toHaveBeenCalledWith('/budgets');
 
+    fireEvent.press(getByTestId('nav-savings'));
+    expect(onNavigateMock).toHaveBeenCalledWith('/savings');
+
+    fireEvent.press(getByTestId('nav-drafts'));
+    expect(onNavigateMock).toHaveBeenCalledWith('/drafts');
+
     fireEvent.press(getByTestId('nav-categories'));
     expect(onNavigateMock).toHaveBeenCalledWith('/categories');
 
     fireEvent.press(getByTestId('nav-profile'));
     expect(onNavigateMock).toHaveBeenCalledWith('/profile');
-
-    fireEvent.press(getByTestId('nav-expenses'));
-    expect(onNavigateMock).toHaveBeenCalledWith('/expenses/new');
   });
 
   it('uses router.push when onNavigate is not provided', () => {
     const { getByTestId } = render(<Navbar showLinks={true} />);
-    fireEvent.press(getByTestId('nav-budgets'));
-    expect(mockPush).toHaveBeenCalledWith('/budgets');
+    fireEvent.press(getByTestId('nav-savings'));
+    expect(mockPush).toHaveBeenCalledWith('/savings');
   });
 
   it('navigates to /profile when user badge is pressed', () => {

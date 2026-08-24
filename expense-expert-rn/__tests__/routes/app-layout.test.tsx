@@ -57,6 +57,30 @@ jest.mock('../../src/features/dashboard/services/dashboard.service', () => ({
   },
 }));
 
+jest.mock('../../src/features/savings/services/saving.service', () => ({
+  SavingService: {
+    getBankAccounts: jest.fn().mockResolvedValue([]),
+    getGoals: jest.fn().mockResolvedValue([]),
+    getEntries: jest.fn().mockResolvedValue([]),
+    addBankAccount: jest.fn(),
+    deleteBankAccount: jest.fn(),
+    addGoal: jest.fn(),
+    deleteGoal: jest.fn(),
+    addEntry: jest.fn(),
+  },
+}));
+
+jest.mock('../../src/features/drafts/services/draft.service', () => ({
+  DraftService: {
+    getDrafts: jest.fn().mockResolvedValue([]),
+    getApplications: jest.fn().mockResolvedValue([]),
+    createDraft: jest.fn(),
+    deleteDraft: jest.fn(),
+    applyDraftToMonth: jest.fn(),
+    recordPayment: jest.fn(),
+  },
+}));
+
 jest.mock('../../src/features/expenses/services/offline-queue.service', () => ({
   OfflineQueueService: {
     getPendingCount: jest.fn(),
@@ -165,6 +189,8 @@ describe('AppLayoutGroup Integration (__tests__/routes/app-layout.test.tsx)', ()
       expect(getByTestId('screen-expenses/new')).toBeTruthy();
       expect(getByTestId('screen-expenses/[id]')).toBeTruthy();
       expect(getByTestId('screen-budgets/index')).toBeTruthy();
+      expect(getByTestId('screen-savings/index')).toBeTruthy();
+      expect(getByTestId('screen-drafts/index')).toBeTruthy();
       expect(getByTestId('screen-categories/index')).toBeTruthy();
     });
   });

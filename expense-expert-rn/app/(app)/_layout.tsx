@@ -4,6 +4,8 @@ import { ExpenseProvider } from '../../src/features/expenses/context/ExpenseProv
 import { CategoryProvider } from '../../src/features/categories/context/CategoryProvider';
 import { BudgetProvider } from '../../src/features/budgets/context/BudgetProvider';
 import { DashboardProvider } from '../../src/features/dashboard/context/DashboardProvider';
+import { SavingProvider } from '../../src/features/savings/context/SavingProvider';
+import { DraftProvider } from '../../src/features/drafts/context/DraftProvider';
 import { ErrorBoundary } from '../../src/core/components/ErrorBoundary';
 import { ConnectionStatusBanner } from '../../src/core/components/ConnectionStatusBanner';
 import { AppNavigationLayout } from '../../src/core/navigation';
@@ -25,6 +27,8 @@ function AppLayoutContent() {
           <Stack.Screen name="expenses/new" />
           <Stack.Screen name="expenses/[id]" />
           <Stack.Screen name="budgets/index" />
+          <Stack.Screen name="savings/index" />
+          <Stack.Screen name="drafts/index" />
           <Stack.Screen name="categories/index" />
           <Stack.Screen name="profile/index" />
         </Stack>
@@ -38,9 +42,13 @@ export default function AppLayoutGroup() {
     <ExpenseProvider>
       <CategoryProvider>
         <BudgetProvider>
-          <DashboardProvider>
-            <AppLayoutContent />
-          </DashboardProvider>
+          <SavingProvider>
+            <DraftProvider>
+              <DashboardProvider>
+                <AppLayoutContent />
+              </DashboardProvider>
+            </DraftProvider>
+          </SavingProvider>
         </BudgetProvider>
       </CategoryProvider>
     </ExpenseProvider>

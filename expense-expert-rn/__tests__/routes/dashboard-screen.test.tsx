@@ -269,9 +269,9 @@ describe('Dashboard Screen Integration (app/(app)/index.tsx)', () => {
     fireEvent.press(getByTestId('summary-card-expenses'));
     expect(mockPush).toHaveBeenCalledWith('/expenses/new');
 
-    // Tap Total Savings -> navigates to /budgets
+    // Tap Total Savings -> navigates to /savings
     fireEvent.press(getByTestId('summary-card-savings'));
-    expect(mockPush).toHaveBeenCalledWith('/budgets');
+    expect(mockPush).toHaveBeenCalledWith('/savings');
 
     // Tap Net Remaining -> navigates to /budgets
     fireEvent.press(getByTestId('summary-card-remaining'));

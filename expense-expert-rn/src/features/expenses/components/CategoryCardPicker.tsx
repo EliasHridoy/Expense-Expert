@@ -3,12 +3,15 @@ import {
   Pressable,
   Text,
   View,
+  StyleSheet,
+  Platform,
 } from 'react-native';
 import { CategoryContext } from '../../categories/context/CategoryContext';
 import {
   EXPENSE_CATEGORIES,
   CategoryItem,
 } from '../types/category.types';
+import { colors } from '../../../theme';
 
 export interface CategoryCardPickerProps {
   selectedValue?: string;
@@ -17,9 +20,6 @@ export interface CategoryCardPickerProps {
   testID?: string;
 }
 
-/**
- * Grid of emoji category cards with active selection indicators.
- */
 export const CategoryCardPicker: React.FC<CategoryCardPickerProps> = ({
   selectedValue,
   onSelect,
@@ -42,6 +42,7 @@ export const CategoryCardPicker: React.FC<CategoryCardPickerProps> = ({
   return (
     <View
       testID={testID}
+      style={styles.grid}
       className="flex-row flex-wrap justify-between gap-y-3"
     >
       {categories.map((item) => {
@@ -53,20 +54,23 @@ export const CategoryCardPicker: React.FC<CategoryCardPickerProps> = ({
             accessibilityRole="button"
             accessibilityState={{ selected: isSelected }}
             onPress={() => onSelect(item.value)}
+            style={[
+              styles.card,
+              isSelected ? styles.cardSelected : styles.cardUnselected,
+            ]}
             className={`w-[31%] aspect-square rounded-2xl items-center justify-center p-2 border-2 transition-all active:scale-95 ${
               isSelected
                 ? 'border-indigo-600 dark:border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 shadow-sm'
                 : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'
             }`}
           >
-            <Text className="text-2xl sm:text-3xl mb-1">{item.icon}</Text>
+            <Text style={styles.icon}>{item.icon}</Text>
             <Text
               numberOfLines={1}
-              className={`text-xs font-semibold text-center ${
-                isSelected
-                  ? 'text-indigo-600 dark:text-indigo-400 font-bold'
-                  : 'text-slate-700 dark:text-slate-300'
-              }`}
+              style={[
+                styles.label,
+                isSelected ? styles.labelSelected : styles.labelUnselected,
+              ]}
             >
               {item.label}
             </Text>
@@ -76,4 +80,58 @@ export const CategoryCardPicker: React.FC<CategoryCardPickerProps> = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 10,
+    width: '100%',
+  },
+  card: {
+    width: '30%',
+    minWidth: 90,
+    height: 90,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+    borderWidth: 2,
+    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
+  },
+  cardSelected: {
+    borderColor: colors.primary,
+    backgroundColor: '#eef2ff',
+    ...(Platform.OS === 'web'
+      ? { boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)' }
+      : {
+          shadowColor: colors.primary,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.2,
+          shadowRadius: 4,
+          elevation: 2,
+        }),
+  },
+  cardUnselected: {
+    borderColor: '#e2e8f0',
+    backgroundColor: '#ffffff',
+  },
+  icon: {
+    fontSize: 26,
+    marginBottom: 4,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  labelSelected: {
+    color: colors.primary,
+    fontWeight: '800',
+  },
+  labelUnselected: {
+    color: '#334155',
+  },
+});
 

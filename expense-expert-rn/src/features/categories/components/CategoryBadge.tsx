@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 import { useCategories } from '../hooks/useCategories';
 
 export interface CategoryBadgeProps {
@@ -10,9 +10,6 @@ export interface CategoryBadgeProps {
   testID?: string;
 }
 
-/**
- * Compact visual badge displaying category emoji icon and label with graceful fallback.
- */
 export const CategoryBadge: React.FC<CategoryBadgeProps> = ({
   category,
   showIcon = true,
@@ -25,42 +22,86 @@ export const CategoryBadge: React.FC<CategoryBadgeProps> = ({
   const icon = categoryItem?.icon || '📁';
   const label = categoryItem?.label || category || 'Other';
 
-  const sizeStyles = {
-    sm: {
-      badge: 'px-2 py-0.5',
-      icon: 'text-xs mr-1',
-      text: 'text-xs',
-    },
-    md: {
-      badge: 'px-2.5 py-1',
-      icon: 'text-sm mr-1.5',
-      text: 'text-sm',
-    },
-    lg: {
-      badge: 'px-3 py-1.5',
-      icon: 'text-base mr-2',
-      text: 'text-base',
-    },
-  }[size];
-
   return (
     <View
       testID={testID}
-      className={`flex-row items-center rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 ${sizeStyles.badge} ${className}`}
+      style={[
+        styles.badge,
+        size === 'sm' && styles.badgeSm,
+        size === 'lg' && styles.badgeLg,
+      ]}
+      className={`flex-row items-center rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 ${className}`}
     >
       {showIcon && (
-        <Text testID="category-badge-icon" className={sizeStyles.icon}>
+        <Text
+          testID="category-badge-icon"
+          style={[
+            styles.icon,
+            size === 'sm' && styles.iconSm,
+            size === 'lg' && styles.iconLg,
+          ]}
+        >
           {icon}
         </Text>
       )}
       <Text
         testID="category-badge-label"
         numberOfLines={1}
-        className={`font-medium text-slate-800 dark:text-slate-200 ${sizeStyles.text}`}
+        style={[
+          styles.text,
+          size === 'sm' && styles.textSm,
+          size === 'lg' && styles.textLg,
+        ]}
+        className="font-medium text-slate-800 dark:text-slate-200"
       >
         {label}
       </Text>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 9999,
+    backgroundColor: '#f1f5f9',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    alignSelf: 'flex-start',
+  },
+  badgeSm: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  badgeLg: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
+  icon: {
+    fontSize: 14,
+    marginRight: 6,
+  },
+  iconSm: {
+    fontSize: 12,
+    marginRight: 4,
+  },
+  iconLg: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  text: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1e293b',
+  },
+  textSm: {
+    fontSize: 11,
+  },
+  textLg: {
+    fontSize: 15,
+  },
+});
 

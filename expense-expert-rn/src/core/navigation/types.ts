@@ -29,6 +29,20 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
     exact: false,
   },
   {
+    id: 'nav-savings',
+    label: 'Savings',
+    icon: '🏦',
+    route: '/savings',
+    exact: false,
+  },
+  {
+    id: 'nav-drafts',
+    label: 'Drafts',
+    icon: '📋',
+    route: '/drafts',
+    exact: false,
+  },
+  {
     id: 'nav-categories',
     label: 'Categories',
     icon: '🏷️',

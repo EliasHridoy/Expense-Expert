@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'jest-expo',
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo.*|@expo.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|nativewind|@react-native-async-storage/async-storage|firebase|@firebase)/)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo.*|@expo.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|nativewind|react-native-css-interop|@react-native-async-storage/async-storage|firebase|@firebase)/)',
   ],
   transform: {
     '\\.[jt]sx?$': 'babel-jest',

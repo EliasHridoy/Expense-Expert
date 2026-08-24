@@ -1,4 +1,5 @@
 import '../global.css';
+import 'react-native-css-interop/dist/runtime/components';
 import React, { useEffect } from 'react';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
