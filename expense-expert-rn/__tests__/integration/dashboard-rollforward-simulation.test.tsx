@@ -774,13 +774,11 @@ describe('Dashboard & Financial Roll-forward Module - Simulation Test Suite', ()
     it('renders full dashboard, loads initial active month data, and displays cards and charts', async () => {
       const { getByTestId, getByText } = renderIntegratedDashboard('2026-08');
 
-      // Wait for user & data resolution
+      // Wait for data resolution
       await waitFor(() => {
-        expect(getByText('Welcome, Finance Master!')).toBeTruthy();
+        expect(getByTestId('month-navigator')).toBeTruthy();
+        expect(getByText('August 2026')).toBeTruthy();
       });
-
-      expect(getByTestId('month-navigator')).toBeTruthy();
-      expect(getByText('August 2026')).toBeTruthy();
 
       // Summary Cards Grid - wait for asynchronous DashboardProvider data load
       await waitFor(() => {

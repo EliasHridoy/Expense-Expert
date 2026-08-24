@@ -6,6 +6,7 @@ import { BudgetProvider } from '../../src/features/budgets/context/BudgetProvide
 import { DashboardProvider } from '../../src/features/dashboard/context/DashboardProvider';
 import { ErrorBoundary } from '../../src/core/components/ErrorBoundary';
 import { ConnectionStatusBanner } from '../../src/core/components/ConnectionStatusBanner';
+import { AppNavigationLayout } from '../../src/core/navigation';
 import { useExpenses } from '../../src/features/expenses/hooks/useExpenses';
 
 function AppLayoutContent() {
@@ -18,13 +19,16 @@ function AppLayoutContent() {
         isSyncing={isSyncing}
         onSyncNow={syncQueue}
       />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="expenses/new" />
-        <Stack.Screen name="expenses/[id]" />
-        <Stack.Screen name="budgets/index" />
-        <Stack.Screen name="categories/index" />
-      </Stack>
+      <AppNavigationLayout>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="expenses/new" />
+          <Stack.Screen name="expenses/[id]" />
+          <Stack.Screen name="budgets/index" />
+          <Stack.Screen name="categories/index" />
+          <Stack.Screen name="profile/index" />
+        </Stack>
+      </AppNavigationLayout>
     </ErrorBoundary>
   );
 }

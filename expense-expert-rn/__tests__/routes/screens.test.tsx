@@ -125,24 +125,41 @@ describe('Screen Routes', () => {
   });
 
   describe('AppDashboardScreen (app/(app)/index.tsx)', () => {
-    it('renders user details and responds to logout', async () => {
-      const mockLogout = jest.fn().mockResolvedValue(undefined);
+    it('renders dashboard screen without raw UID', () => {
       (useAuth as jest.Mock).mockReturnValue({
         user: { uid: 'uid-456', email: 'elias@example.com', displayName: 'Elias Hridoy' },
         profile: { uid: 'uid-456', email: 'elias@example.com', displayName: 'Elias Hridoy' },
+        logout: jest.fn(),
+        isLoading: false,
+        isAuthenticated: true,
+      });
+
+      const { getByTestId, queryByTestId } = render(<AppDashboardScreen />);
+      expect(getByTestId('app-dashboard-screen')).toBeTruthy();
+      expect(queryByTestId('user-uid-text')).toBeNull();
+    });
+  });
+
+  describe('ProfileScreen (app/(app)/profile/index.tsx)', () => {
+    it('renders profile details and responds to logout without exposing UID', async () => {
+      const mockLogout = jest.fn().mockResolvedValue(undefined);
+      (useAuth as jest.Mock).mockReturnValue({
+        user: { uid: 'super-secret-uid', email: 'elias@example.com', displayName: 'Elias Hridoy' },
+        profile: { uid: 'super-secret-uid', email: 'elias@example.com', displayName: 'Elias Hridoy' },
         logout: mockLogout,
         isLoading: false,
         isAuthenticated: true,
       });
 
-      const { getByText, getByTestId } = render(<AppDashboardScreen />);
+      const ProfileScreenComponent = require('../../app/(app)/profile/index').default;
+      const { getByText, getByTestId, queryByText } = render(<ProfileScreenComponent />);
 
       expect(getByText('Welcome, Elias Hridoy!')).toBeTruthy();
-      expect(getByTestId('user-email-text').props.children).toBe('elias@example.com');
-      expect(getByTestId('user-name-text').props.children).toBe('Elias Hridoy');
-      expect(getByTestId('user-uid-text').props.children).toBe('uid-456');
+      expect(getByTestId('profile-user-name')).toHaveTextContent('Elias Hridoy');
+      expect(getByTestId('profile-detail-email')).toHaveTextContent('elias@example.com');
+      expect(queryByText('super-secret-uid')).toBeNull();
 
-      const logoutButton = getByTestId('logout-button');
+      const logoutButton = getByTestId('profile-logout-button');
       await act(async () => {
         fireEvent.press(logoutButton);
       });
@@ -150,19 +167,6 @@ describe('Screen Routes', () => {
       await waitFor(() => {
         expect(mockLogout).toHaveBeenCalled();
       });
-    });
-
-    it('falls back to email username if displayName is not present', () => {
-      (useAuth as jest.Mock).mockReturnValue({
-        user: { uid: 'uid-789', email: 'testuser@example.com', displayName: null },
-        profile: null,
-        logout: jest.fn(),
-        isLoading: false,
-        isAuthenticated: true,
-      });
-
-      const { getByText } = render(<AppDashboardScreen />);
-      expect(getByText('Welcome, testuser!')).toBeTruthy();
     });
   });
 });
