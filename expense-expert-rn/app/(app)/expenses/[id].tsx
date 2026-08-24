@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View, ScrollView, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useExpenses } from '../../../src/features/expenses/hooks/useExpenses';
@@ -98,16 +98,22 @@ export default function EditExpenseScreen() {
   }
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, minHeight: '100%' }}
+    <ScrollView
+      style={{ flex: 1, backgroundColor: '#f8fafc' }}
+      contentContainerStyle={{
+        paddingHorizontal: 16,
+        paddingTop: 24,
+        paddingBottom: 180,
+        alignItems: 'center',
+      }}
+      showsVerticalScrollIndicator={true}
       testID="edit-expense-screen"
-      className="flex-1 bg-slate-50 dark:bg-slate-900 p-4 sm:p-6"
     >
       <ExpenseForm
         initialData={expense}
         onSuccess={() => router.replace('/(app)')}
         onCancel={() => router.back()}
       />
-    </SafeAreaView>
+    </ScrollView>
   );
 }

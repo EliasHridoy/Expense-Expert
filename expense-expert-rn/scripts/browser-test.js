@@ -292,23 +292,47 @@ async function runBrowserTests() {
       throw new Error('Raw UID found rendered on Profile screen! UID must remain hidden.');
     }
 
-    // Test Editing Financial Preferences
-    console.log('  Testing Edit Financial Preferences...');
+    // Test Editing Financial Preferences (Currency & Salary)
+    console.log('  Testing Edit Financial Preferences with Default Currency Selection (BDT / USD)...');
     await page.evaluate(() => {
       document.querySelector('[data-testid="edit-preferences-btn"]')?.click();
     });
     await page.waitForSelector('[data-testid="preferences-edit-form"]', { timeout: 5000 });
 
+    // Select BDT Currency Option
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="currency-option-bdt"]')?.click();
+    });
+
     const salaryInput = await page.waitForSelector('[data-testid="profile-salary-input"]');
     await page.$eval('[data-testid="profile-salary-input"]', (el) => { el.value = ''; });
-    await salaryInput.type('6500.00', { delay: 20 });
+    await salaryInput.type('65000.00', { delay: 20 });
 
     await page.evaluate(() => {
       document.querySelector('[data-testid="save-preferences-btn"]')?.click();
     });
     await page.waitForSelector('[data-testid="profile-salary-text"]', { timeout: 10000 });
     await sleep(1000);
-    console.log('✅ Financial preferences updated and saved successfully!');
+    console.log('✅ Financial preferences updated with BDT currency and saved successfully!');
+
+    // Test Editing Name under Account Information
+    console.log('  Testing Edit Display Name in Account Information...');
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="edit-name-btn"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="name-edit-form"]', { timeout: 5000 });
+    const nameInput = await page.waitForSelector('[data-testid="profile-display-name-input"]');
+    await page.$eval('[data-testid="profile-display-name-input"]', (el) => { el.value = ''; });
+    await nameInput.type('Test User 7 (Pro)', { delay: 20 });
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="save-name-btn"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="profile-user-name"]', { timeout: 10000 });
+    await sleep(1000);
+    console.log('✅ Display name updated successfully in Account Information!');
+
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '10-desktop-profile-screen.png'), fullPage: true });
+    console.log('📸 [Proof] Saved screenshot: screenshots/10-desktop-profile-screen.png');
 
     // Go back to Dashboard using Back Button
     await page.evaluate(() => {
@@ -325,9 +349,8 @@ async function runBrowserTests() {
     console.log('✅ Mobile Bottom Navigation Panel rendered successfully');
 
     // Tap Savings on Mobile Bottom Nav
-    await page.evaluate(() => {
-      document.querySelector('[data-testid="mobile-nav-savings"]')?.click();
-    });
+    await page.waitForSelector('[data-testid="mobile-nav-savings"]', { timeout: 10000 });
+    await page.click('[data-testid="mobile-nav-savings"]');
     await page.waitForSelector('[data-testid="savings-screen"]', { timeout: 10000 });
     await sleep(1000);
     console.log('✅ Mobile Bottom Nav navigated to Savings');
@@ -335,9 +358,8 @@ async function runBrowserTests() {
     console.log('📸 [Proof] Saved screenshot: screenshots/15-mobile-savings-screen.png');
 
     // Tap Drafts on Mobile Bottom Nav
-    await page.evaluate(() => {
-      document.querySelector('[data-testid="mobile-nav-drafts"]')?.click();
-    });
+    await page.waitForSelector('[data-testid="mobile-nav-drafts"]', { timeout: 10000 });
+    await page.click('[data-testid="mobile-nav-drafts"]');
     await page.waitForSelector('[data-testid="drafts-screen"]', { timeout: 10000 });
     await sleep(1000);
     console.log('✅ Mobile Bottom Nav navigated to Drafts');
@@ -345,9 +367,8 @@ async function runBrowserTests() {
     console.log('📸 [Proof] Saved screenshot: screenshots/16-mobile-drafts-screen.png');
 
     // Tap Profile on Mobile Bottom Nav
-    await page.evaluate(() => {
-      document.querySelector('[data-testid="mobile-nav-profile"]')?.click();
-    });
+    await page.waitForSelector('[data-testid="mobile-nav-profile"]', { timeout: 10000 });
+    await page.click('[data-testid="mobile-nav-profile"]');
     await page.waitForSelector('[data-testid="profile-screen"]', { timeout: 10000 });
     await sleep(1000);
     console.log('✅ Mobile Bottom Nav navigated to Profile');

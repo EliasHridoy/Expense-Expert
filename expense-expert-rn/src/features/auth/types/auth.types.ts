@@ -8,6 +8,8 @@ export interface UserProfile {
   createdAt?: any;
   updatedAt?: any;
   monthlySalary?: number;
+  currency?: 'BDT' | 'USD' | string;
+  currencySymbol?: string;
   salaries?: Record<string, number>;
   [key: string]: any;
 }

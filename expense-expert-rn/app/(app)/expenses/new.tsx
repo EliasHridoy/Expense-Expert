@@ -1,21 +1,35 @@
 import React from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExpenseForm } from '../../../src/features/expenses/components/ExpenseForm';
 
 export default function NewExpenseScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, minHeight: '100%' }}
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={true}
       testID="new-expense-screen"
-      className="flex-1 bg-slate-50 dark:bg-slate-900 p-4 sm:p-6"
     >
       <ExpenseForm
         onSuccess={() => router.replace('/(app)')}
         onCancel={() => router.back()}
       />
-    </SafeAreaView>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    paddingBottom: 180, // Comfortable spacing above bottom navigation bar
+    alignItems: 'center',
+  },
+});

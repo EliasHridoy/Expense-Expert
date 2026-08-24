@@ -11,6 +11,12 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../../src/features/auth/hooks/useAuth';
+import {
+  SupportedCurrency,
+  SUPPORTED_CURRENCIES,
+  getCurrencySymbol,
+  formatCurrencyAmount,
+} from '../../../src/features/expenses/utils/currency.util';
 import { colors } from '../../../src/theme';
 
 export default function ProfileScreen() {
@@ -18,13 +24,20 @@ export default function ProfileScreen() {
   const { user, profile, logout, updateProfile } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+  // Account Information Edit State (Display Name)
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editingDisplayName, setEditingDisplayName] = useState<string>(
+    profile?.displayName || user?.displayName || ''
+  );
+  const [isSavingName, setIsSavingName] = useState(false);
+
   // Financial Preferences Edit State
   const [isEditingPreferences, setIsEditingPreferences] = useState(false);
   const [editingSalary, setEditingSalary] = useState<string>(
     profile?.monthlySalary != null ? String(profile.monthlySalary) : ''
   );
-  const [editingDisplayName, setEditingDisplayName] = useState<string>(
-    profile?.displayName || user?.displayName || ''
+  const [editingCurrency, setEditingCurrency] = useState<SupportedCurrency>(
+    (profile?.currency as SupportedCurrency) || 'BDT'
   );
   const [isSavingPreferences, setIsSavingPreferences] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{
@@ -41,6 +54,11 @@ export default function ProfileScreen() {
   const email = user?.email || 'N/A';
   const initial = displayName.charAt(0).toUpperCase();
 
+  // Active currency
+  const currentCurrency: SupportedCurrency = (profile?.currency as SupportedCurrency) || 'BDT';
+  const currentCurrencyConfig = SUPPORTED_CURRENCIES[currentCurrency] || SUPPORTED_CURRENCIES.BDT;
+  const editingCurrencyConfig = SUPPORTED_CURRENCIES[editingCurrency] || SUPPORTED_CURRENCIES.BDT;
+
   // Format member since date
   const getMemberSince = () => {
     if (profile?.createdAt) {
@@ -54,16 +72,53 @@ export default function ProfileScreen() {
     return 'Active Member';
   };
 
-  const handleStartEdit = () => {
+  const handleStartEditName = () => {
+    setEditingDisplayName(displayName);
+    setStatusMessage(null);
+    setIsEditingName(true);
+  };
+
+  const handleCancelEditName = () => {
+    setIsEditingName(false);
+    setStatusMessage(null);
+  };
+
+  const handleSaveName = async () => {
+    setIsSavingName(true);
+    setStatusMessage(null);
+    try {
+      const cleanDisplayName = editingDisplayName.trim() || displayName;
+      if (updateProfile) {
+        await updateProfile({
+          displayName: cleanDisplayName,
+        });
+      }
+      setStatusMessage({
+        type: 'success',
+        text: 'Display name updated successfully!',
+      });
+      setIsEditingName(false);
+    } catch (error: any) {
+      console.error('Failed to update name:', error);
+      setStatusMessage({
+        type: 'error',
+        text: error?.message || 'Failed to update name. Please try again.',
+      });
+    } finally {
+      setIsSavingName(false);
+    }
+  };
+
+  const handleStartEditPreferences = () => {
     setEditingSalary(
       profile?.monthlySalary != null ? String(profile.monthlySalary) : ''
     );
-    setEditingDisplayName(displayName);
+    setEditingCurrency(currentCurrency);
     setStatusMessage(null);
     setIsEditingPreferences(true);
   };
 
-  const handleCancelEdit = () => {
+  const handleCancelEditPreferences = () => {
     setIsEditingPreferences(false);
     setStatusMessage(null);
   };
@@ -75,12 +130,12 @@ export default function ProfileScreen() {
     try {
       const cleanSalary = editingSalary.replace(/[^0-9.]/g, '');
       const parsedSalary = parseFloat(cleanSalary) || 0;
-      const cleanDisplayName = editingDisplayName.trim() || displayName;
 
       if (updateProfile) {
         await updateProfile({
           monthlySalary: parsedSalary,
-          displayName: cleanDisplayName,
+          currency: editingCurrency,
+          currencySymbol: getCurrencySymbol(editingCurrency),
         });
       }
 
@@ -188,40 +243,98 @@ export default function ProfileScreen() {
 
         {/* Account Details Card (UID is hidden) */}
         <View style={styles.detailsCard} testID="profile-account-details">
-          <Text style={styles.sectionHeading}>Account Information</Text>
-          <Text style={styles.sectionSubheading}>Your personal credentials and status</Text>
-
-          <View style={styles.infoList}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Full Name</Text>
-              <Text style={styles.infoValue} testID="profile-user-name">
-                {displayName}
-              </Text>
+          <View style={styles.sectionHeaderRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.sectionHeading}>Account Information</Text>
+              <Text style={styles.sectionSubheading}>Your personal credentials and identity</Text>
             </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Email Address</Text>
-              <Text style={styles.infoValue} testID="profile-detail-email">
-                {email}
-              </Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Member Since</Text>
-              <Text style={styles.infoValue} testID="profile-member-since">
-                {getMemberSince()}
-              </Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Sign-in Provider</Text>
-              <Text style={styles.infoValue}>
-                {user?.providerData?.[0]?.providerId === 'google.com'
-                  ? 'Google Account'
-                  : 'Email & Password'}
-              </Text>
-            </View>
+            {!isEditingName ? (
+              <TouchableOpacity
+                testID="edit-name-btn"
+                onPress={handleStartEditName}
+                activeOpacity={0.7}
+                style={styles.editBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Edit display name"
+              >
+                <Text style={styles.editBtnText}>✏️ Edit Name</Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
+
+          {!isEditingName ? (
+            <View style={styles.infoList}>
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Full Name</Text>
+                <Text style={styles.infoValue} testID="profile-user-name">
+                  {displayName}
+                </Text>
+              </View>
+
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Email Address</Text>
+                <Text style={styles.infoValue} testID="profile-detail-email">
+                  {email}
+                </Text>
+              </View>
+
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Member Since</Text>
+                <Text style={styles.infoValue} testID="profile-member-since">
+                  {getMemberSince()}
+                </Text>
+              </View>
+
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Sign-in Provider</Text>
+                <Text style={styles.infoValue}>
+                  {user?.providerData?.[0]?.providerId === 'google.com'
+                    ? 'Google Account'
+                    : 'Email & Password'}
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.editFormContainer} testID="name-edit-form">
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Display Name</Text>
+                <TextInput
+                  testID="profile-display-name-input"
+                  value={editingDisplayName}
+                  onChangeText={setEditingDisplayName}
+                  placeholder="e.g. John Doe"
+                  placeholderTextColor="#94a3b8"
+                  style={styles.textInput}
+                />
+              </View>
+
+              <View style={styles.formActionRow}>
+                <TouchableOpacity
+                  testID="cancel-name-btn"
+                  onPress={handleCancelEditName}
+                  disabled={isSavingName}
+                  activeOpacity={0.7}
+                  style={styles.cancelBtn}
+                >
+                  <Text style={styles.cancelBtnText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  testID="save-name-btn"
+                  onPress={handleSaveName}
+                  disabled={isSavingName}
+                  activeOpacity={0.85}
+                  style={styles.saveBtn}
+                >
+                  {isSavingName ? (
+                    <ActivityIndicator size="small" color="#ffffff" testID="save-name-loading" />
+                  ) : (
+                    <Text style={styles.saveBtnText}>Save Name</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
 
         {/* Financial Preferences Card (Editable) */}
@@ -230,13 +343,13 @@ export default function ProfileScreen() {
             <View style={{ flex: 1 }}>
               <Text style={styles.sectionHeading}>Financial Preferences</Text>
               <Text style={styles.sectionSubheading}>
-                Monthly baseline salary and currency settings
+                Monthly baseline salary and default currency settings
               </Text>
             </View>
             {!isEditingPreferences ? (
               <TouchableOpacity
                 testID="edit-preferences-btn"
-                onPress={handleStartEdit}
+                onPress={handleStartEditPreferences}
                 activeOpacity={0.7}
                 style={styles.editBtn}
                 accessibilityRole="button"
@@ -252,47 +365,103 @@ export default function ProfileScreen() {
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Monthly Baseline Salary</Text>
                 <Text style={styles.infoValue} testID="profile-salary-text">
-                  {monthlySalary > 0 ? `$${monthlySalary.toLocaleString()}` : 'Not Set'}
+                  {monthlySalary > 0
+                    ? formatCurrencyAmount(monthlySalary, currentCurrency)
+                    : 'Not Set'}
                 </Text>
               </View>
 
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Default Currency</Text>
-                <Text style={styles.infoValue}>USD ($)</Text>
+                <Text style={styles.infoValue} testID="profile-currency-text">
+                  {currentCurrencyConfig.label}
+                </Text>
               </View>
             </View>
           ) : (
             <View style={styles.editFormContainer} testID="preferences-edit-form">
-              {/* Display Name Input */}
+              {/* Default Currency Selector */}
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Display Name</Text>
-                <TextInput
-                  testID="profile-display-name-input"
-                  value={editingDisplayName}
-                  onChangeText={setEditingDisplayName}
-                  placeholder="e.g. John Doe"
-                  placeholderTextColor="#94a3b8"
-                  style={styles.textInput}
-                />
+                <Text style={styles.inputLabel}>Default Currency</Text>
+                <View style={styles.currencySelectRow}>
+                  {/* BDT (Default) */}
+                  <TouchableOpacity
+                    testID="currency-option-bdt"
+                    onPress={() => setEditingCurrency('BDT')}
+                    style={[
+                      styles.currencyChip,
+                      editingCurrency === 'BDT' && styles.currencyChipActive,
+                    ]}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.currencyChipFlag}>🇧🇩</Text>
+                    <View style={styles.currencyChipCol}>
+                      <Text
+                        style={[
+                          styles.currencyChipCode,
+                          editingCurrency === 'BDT' && styles.currencyChipCodeActive,
+                        ]}
+                      >
+                        BDT (৳) • Default
+                      </Text>
+                      <Text style={styles.currencyChipName}>Bangladeshi Taka</Text>
+                    </View>
+                    {editingCurrency === 'BDT' ? (
+                      <Text style={styles.currencyCheckmark}>✓</Text>
+                    ) : null}
+                  </TouchableOpacity>
+
+                  {/* USD (Secondary) */}
+                  <TouchableOpacity
+                    testID="currency-option-usd"
+                    onPress={() => setEditingCurrency('USD')}
+                    style={[
+                      styles.currencyChip,
+                      editingCurrency === 'USD' && styles.currencyChipActive,
+                    ]}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.currencyChipFlag}>🇺🇸</Text>
+                    <View style={styles.currencyChipCol}>
+                      <Text
+                        style={[
+                          styles.currencyChipCode,
+                          editingCurrency === 'USD' && styles.currencyChipCodeActive,
+                        ]}
+                      >
+                        USD ($) • Secondary
+                      </Text>
+                      <Text style={styles.currencyChipName}>US Dollar</Text>
+                    </View>
+                    {editingCurrency === 'USD' ? (
+                      <Text style={styles.currencyCheckmark}>✓</Text>
+                    ) : null}
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.inputHint}>
+                  Selected currency ({editingCurrencyConfig.symbol}) will be used for your salary calculations and balances.
+                </Text>
               </View>
 
               {/* Monthly Salary Input */}
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Monthly Baseline Salary ($)</Text>
+                <Text style={styles.inputLabel}>
+                  Monthly Baseline Salary ({editingCurrencyConfig.symbol})
+                </Text>
                 <View style={styles.salaryInputRow}>
-                  <Text style={styles.salaryPrefix}>$</Text>
+                  <Text style={styles.salaryPrefix}>{editingCurrencyConfig.symbol}</Text>
                   <TextInput
                     testID="profile-salary-input"
                     value={editingSalary}
                     onChangeText={setEditingSalary}
                     keyboardType="decimal-pad"
-                    placeholder="5000.00"
+                    placeholder="50000.00"
                     placeholderTextColor="#94a3b8"
                     style={[styles.textInput, { flex: 1, borderWidth: 0 }]}
                   />
                 </View>
                 <Text style={styles.inputHint}>
-                  This baseline is used to automatically compute your monthly income roll-forward.
+                  This baseline is used to automatically compute your monthly income roll-forward in {editingCurrencyConfig.code}.
                 </Text>
               </View>
 
@@ -300,7 +469,7 @@ export default function ProfileScreen() {
               <View style={styles.formActionRow}>
                 <TouchableOpacity
                   testID="cancel-preferences-btn"
-                  onPress={handleCancelEdit}
+                  onPress={handleCancelEditPreferences}
                   disabled={isSavingPreferences}
                   activeOpacity={0.7}
                   style={styles.cancelBtn}
@@ -505,6 +674,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: 8,
   },
   sectionHeading: {
     fontSize: 16,
@@ -515,7 +685,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#64748b',
     marginTop: 2,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   editBtn: {
     paddingHorizontal: 12,
@@ -557,7 +727,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#f1f5f9',
     paddingTop: 16,
-    gap: 14,
+    gap: 16,
   },
   inputGroup: {
     gap: 6,
@@ -571,6 +741,55 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#94a3b8',
     marginTop: 2,
+  },
+  currencySelectRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  currencyChip: {
+    flex: 1,
+    minWidth: 160,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    ...(Platform.OS === 'web' ? { cursor: 'pointer' } : {}),
+  },
+  currencyChipActive: {
+    backgroundColor: '#eff6ff',
+    borderColor: colors.primary,
+    ...(Platform.OS === 'web'
+      ? { boxShadow: '0 2px 8px rgba(79, 70, 229, 0.15)' }
+      : { elevation: 1 }),
+  },
+  currencyChipFlag: {
+    fontSize: 24,
+  },
+  currencyChipCol: {
+    flex: 1,
+  },
+  currencyChipCode: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#334155',
+  },
+  currencyChipCodeActive: {
+    color: colors.primary,
+  },
+  currencyChipName: {
+    fontSize: 11,
+    color: '#64748b',
+    marginTop: 2,
+  },
+  currencyCheckmark: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: colors.primary,
   },
   textInput: {
     borderRadius: 14,

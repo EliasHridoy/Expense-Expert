@@ -101,15 +101,67 @@ export function divideCents(cents: number, divisor: number): number {
   return Math.round(safeCents / divisor);
 }
 
+export type SupportedCurrency = 'BDT' | 'USD';
+
+export interface CurrencyConfig {
+  code: SupportedCurrency;
+  symbol: string;
+  label: string;
+  name: string;
+}
+
+export const SUPPORTED_CURRENCIES: Record<SupportedCurrency, CurrencyConfig> = {
+  BDT: {
+    code: 'BDT',
+    symbol: '৳',
+    label: 'BDT (৳) - Bangladeshi Taka',
+    name: 'Bangladeshi Taka',
+  },
+  USD: {
+    code: 'USD',
+    symbol: '$',
+    label: 'USD ($) - US Dollar',
+    name: 'US Dollar',
+  },
+};
+
+export const DEFAULT_CURRENCY: SupportedCurrency = 'BDT';
+
+export function getCurrencySymbol(currency?: string | null): string {
+  if (!currency) return SUPPORTED_CURRENCIES.BDT.symbol;
+  const upper = currency.toUpperCase();
+  if (upper === 'USD') return SUPPORTED_CURRENCIES.USD.symbol;
+  return SUPPORTED_CURRENCIES.BDT.symbol;
+}
+
+export function formatCurrencyAmount(amount: number, currency?: string | null): string {
+  const symbol = getCurrencySymbol(currency);
+  const formattedNumber = Math.abs(amount).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  const sign = amount < 0 ? '-' : '';
+  return `${sign}${symbol}${formattedNumber}`;
+}
+
 /**
  * Formats integer cents to a localized currency string.
  */
 export function formatCents(cents: number, currency: string = 'USD', locale: string = 'en-US'): string {
   const dollars = fromCents(cents);
+  const upper = (currency || 'USD').toUpperCase();
+  if (upper === 'BDT') {
+    const formatted = Math.abs(dollars).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    return dollars < 0 ? `-৳${formatted}` : `৳${formatted}`;
+  }
   return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency,
+    currency: upper,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(dollars);
 }
+

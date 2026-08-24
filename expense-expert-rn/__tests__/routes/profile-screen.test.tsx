@@ -25,6 +25,8 @@ jest.mock('@/features/auth/hooks/useAuth', () => ({
     profile: {
       displayName: 'Alex Rivers',
       monthlySalary: 6500,
+      currency: 'BDT',
+      currencySymbol: '৳',
       createdAt: '2025-06-01T00:00:00.000Z',
     },
     logout: mockLogout,
@@ -66,43 +68,75 @@ describe('ProfileScreen (/profile)', () => {
     expect(queryByTestId('user-uid-text')).toBeNull();
   });
 
-  it('displays financial baseline settings and allows entering edit mode', () => {
+  it('displays financial baseline settings and currency preferences', () => {
     const { getByTestId, getByText } = render(<ProfileScreen />);
-    expect(getByTestId('profile-salary-text')).toHaveTextContent('$6,500');
-    expect(getByText('USD ($)')).toBeTruthy();
+    expect(getByTestId('profile-salary-text')).toHaveTextContent('৳6,500.00');
+    expect(getByTestId('profile-currency-text')).toHaveTextContent('BDT (৳) - Bangladeshi Taka');
     expect(getByTestId('edit-preferences-btn')).toBeTruthy();
   });
 
-  it('allows editing and saving financial preferences', async () => {
+  it('allows editing and saving financial preferences with currency selection', async () => {
     mockUpdateProfile.mockResolvedValueOnce({
       uid: 'super_secret_uid_12345',
-      displayName: 'Alexander Rivers',
-      monthlySalary: 7500,
+      monthlySalary: 75000,
+      currency: 'USD',
+      currencySymbol: '$',
     });
 
     const { getByTestId, queryByTestId, getByText } = render(<ProfileScreen />);
 
-    // Click Edit
+    // Click Edit Preferences
     fireEvent.press(getByTestId('edit-preferences-btn'));
     expect(getByTestId('preferences-edit-form')).toBeTruthy();
 
-    // Edit Salary and Display Name
-    fireEvent.changeText(getByTestId('profile-salary-input'), '7500.00');
-    fireEvent.changeText(getByTestId('profile-display-name-input'), 'Alexander Rivers');
+    // Select USD Option
+    fireEvent.press(getByTestId('currency-option-usd'));
+
+    // Edit Salary
+    fireEvent.changeText(getByTestId('profile-salary-input'), '75000.00');
 
     // Click Save
     fireEvent.press(getByTestId('save-preferences-btn'));
 
     await waitFor(() => {
       expect(mockUpdateProfile).toHaveBeenCalledWith({
-        monthlySalary: 7500,
-        displayName: 'Alexander Rivers',
+        monthlySalary: 75000,
+        currency: 'USD',
+        currencySymbol: '$',
       });
     });
 
     await waitFor(() => {
       expect(getByText('Financial preferences updated successfully!')).toBeTruthy();
       expect(queryByTestId('preferences-edit-form')).toBeNull();
+    });
+  });
+
+  it('allows editing display name under account information', async () => {
+    mockUpdateProfile.mockResolvedValueOnce({
+      uid: 'super_secret_uid_12345',
+      displayName: 'Alexander Rivers',
+    });
+
+    const { getByTestId, queryByTestId, getByText } = render(<ProfileScreen />);
+
+    // Click Edit Name
+    fireEvent.press(getByTestId('edit-name-btn'));
+    expect(getByTestId('name-edit-form')).toBeTruthy();
+
+    // Change name
+    fireEvent.changeText(getByTestId('profile-display-name-input'), 'Alexander Rivers');
+    fireEvent.press(getByTestId('save-name-btn'));
+
+    await waitFor(() => {
+      expect(mockUpdateProfile).toHaveBeenCalledWith({
+        displayName: 'Alexander Rivers',
+      });
+    });
+
+    await waitFor(() => {
+      expect(getByText('Display name updated successfully!')).toBeTruthy();
+      expect(queryByTestId('name-edit-form')).toBeNull();
     });
   });
 
