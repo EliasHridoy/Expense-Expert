@@ -133,72 +133,89 @@ async function runBrowserTests() {
     console.log('📸 [Proof] Saved screenshot: screenshots/02-dashboard-screen.png');
 
     console.log('\n========================================');
-    console.log(' STEP 3: Verify Dashboard & Financials');
+    console.log(' STEP 3: Verify Dashboard & UID Hiding');
     console.log('========================================');
     const dashboardStats = await page.evaluate(() => {
-      const email = document.querySelector('[data-testid="user-email-text"]')?.textContent;
-      const name = document.querySelector('[data-testid="user-name-text"]')?.textContent;
-      const uid = document.querySelector('[data-testid="user-uid-text"]')?.textContent;
+      const isUidVisible = document.querySelector('[data-testid="user-uid-text"]') !== null;
       const hasIncomeCard = document.querySelector('[data-testid="summary-card-income"]') !== null;
       const hasExpensesCard = document.querySelector('[data-testid="summary-card-expenses"]') !== null;
       const hasSavingsCard = document.querySelector('[data-testid="summary-card-savings"]') !== null;
       const hasRemainingCard = document.querySelector('[data-testid="summary-card-remaining"]') !== null;
-      const hasShortcuts = document.querySelector('[data-testid="action-shortcuts"]') !== null;
-      return { email, name, uid, hasIncomeCard, hasExpensesCard, hasSavingsCard, hasRemainingCard, hasShortcuts };
+      const hasMonthNavigator = document.querySelector('[data-testid="month-navigator"]') !== null;
+      return { isUidVisible, hasIncomeCard, hasExpensesCard, hasSavingsCard, hasRemainingCard, hasMonthNavigator };
     });
-    console.log('  Dashboard Account & Cards Verification:', dashboardStats);
+    console.log('  Dashboard & UID Verification:', dashboardStats);
+    if (dashboardStats.isUidVisible) {
+      throw new Error('Raw UID is visible on Dashboard! UID must be hidden.');
+    }
 
     console.log('\n========================================');
-    console.log(' STEP 4: Navigate to Categories Manager');
+    console.log(' STEP 3b: Test Summary Card Click Navigation');
     console.log('========================================');
+    // 1. Click Total Income Card -> should navigate to /profile
     await page.evaluate(() => {
-      document.querySelector('[data-testid="nav-categories-btn"]')?.scrollIntoView();
-      document.querySelector('[data-testid="nav-categories-btn"]')?.click();
+      document.querySelector('[data-testid="summary-card-income"]')?.click();
     });
+    await page.waitForSelector('[data-testid="profile-screen"]', { timeout: 10000 });
+    console.log('✅ Total Income card navigated to /profile');
 
-    await page.waitForSelector('[data-testid="categories-screen"]', { timeout: 8000 });
+    // Go back to Dashboard
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="back-to-dashboard-btn"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="summary-cards-grid"]', { timeout: 10000 });
     await sleep(1000);
-    console.log('✅ Reached Categories Screen');
+
+    // 2. Click Total Savings Card -> should navigate to /budgets
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="summary-card-savings"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="budgets-screen"]', { timeout: 10000 });
+    console.log('✅ Total Savings card navigated to /budgets');
+
+    // Go back to Dashboard via Navbar
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="nav-dashboard"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="summary-cards-grid"]', { timeout: 10000 });
+    await sleep(1000);
+
+    console.log('\n========================================');
+    console.log(' STEP 4: Test Desktop Navbar Navigation');
+    console.log('========================================');
+    // Click Categories in top navbar
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="nav-categories"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="categories-screen"]', { timeout: 10000 });
+    await sleep(1000);
+    console.log('✅ Top Navbar navigated to Categories Screen');
     await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '03-categories-screen.png'), fullPage: true });
     console.log('📸 [Proof] Saved screenshot: screenshots/03-categories-screen.png');
 
-    await page.evaluate(() => {
-      document.querySelector('[data-testid="back-to-dashboard-btn"]')?.click();
-    });
-    await page.waitForSelector('[data-testid="app-brand-badge"]', { timeout: 8000 });
-    await sleep(1000);
-
     console.log('\n========================================');
-    console.log(' STEP 5: Navigate to Budgets Manager');
+    console.log(' STEP 5: Test Desktop Navbar to Budgets');
     console.log('========================================');
+    // Click Budgets in top navbar
     await page.evaluate(() => {
-      document.querySelector('[data-testid="nav-budgets-btn"]')?.scrollIntoView();
-      document.querySelector('[data-testid="nav-budgets-btn"]')?.click();
+      document.querySelector('[data-testid="nav-budgets"]')?.click();
     });
-
-    await page.waitForSelector('[data-testid="budgets-screen"]', { timeout: 8000 });
+    await page.waitForSelector('[data-testid="budgets-screen"]', { timeout: 10000 });
     await sleep(1000);
-    console.log('✅ Reached Budgets Screen');
+    console.log('✅ Top Navbar navigated to Budgets Screen');
     await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '04-budgets-screen.png'), fullPage: true });
     console.log('📸 [Proof] Saved screenshot: screenshots/04-budgets-screen.png');
 
-    await page.evaluate(() => {
-      document.querySelector('[data-testid="back-to-dashboard-btn"]')?.click();
-    });
-    await page.waitForSelector('[data-testid="app-brand-badge"]', { timeout: 8000 });
-    await sleep(1000);
-
     console.log('\n========================================');
-    console.log(' STEP 6: Navigate to New Expense Wizard');
+    console.log(' STEP 6: Test Desktop Navbar to New Expense');
     console.log('========================================');
+    // Click Add Expense in top navbar
     await page.evaluate(() => {
-      document.querySelector('[data-testid="quick-add-expense-btn"]')?.scrollIntoView();
-      document.querySelector('[data-testid="quick-add-expense-btn"]')?.click();
+      document.querySelector('[data-testid="nav-expenses"]')?.click();
     });
-
-    await page.waitForSelector('[data-testid="expense-form"]', { timeout: 8000 });
+    await page.waitForSelector('[data-testid="expense-form"]', { timeout: 10000 });
     await sleep(1000);
-    console.log('✅ Reached 3-Step New Expense Wizard');
+    console.log('✅ Top Navbar navigated to 3-Step New Expense Wizard');
     await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '05-new-expense-screen.png'), fullPage: true });
     console.log('📸 [Proof] Saved screenshot: screenshots/05-new-expense-screen.png');
 
@@ -206,26 +223,31 @@ async function runBrowserTests() {
     console.log(' STEP 7: Enter New Transaction Flow');
     console.log('========================================');
     // Step 1: Enter amount
-    const amountInput = await page.waitForSelector('[data-testid="expense-amount-input"]');
+    const amountInput = await page.waitForSelector('[data-testid="expense-amount-input"]', { timeout: 10000 });
     await amountInput.type('55.00', { delay: 20 });
     console.log('  Entered amount: $55.00');
+    await sleep(500);
 
     // Click Category: Food
     await page.evaluate(() => {
       document.querySelector('[data-testid="category-card-food"]')?.click();
     });
     console.log('  Selected category: Food');
+    await sleep(500);
 
+    // Click Continue to step 2
     await page.evaluate(() => {
       document.querySelector('[data-testid="expense-continue-btn"]')?.click();
     });
     await sleep(1000);
 
     // Step 2: Enter title
-    const titleInput = await page.waitForSelector('[data-testid="expense-title-input"]');
+    const titleInput = await page.waitForSelector('[data-testid="expense-title-input"]', { timeout: 10000 });
     await titleInput.type('Organic Groceries & Coffee', { delay: 20 });
     console.log('  Entered title: Organic Groceries & Coffee');
+    await sleep(500);
 
+    // Click Continue to step 3
     await page.evaluate(() => {
       document.querySelector('[data-testid="expense-continue-btn"]')?.click();
     });
@@ -240,14 +262,65 @@ async function runBrowserTests() {
       document.querySelector('[data-testid="expense-submit-btn"]')?.click();
     });
 
-    await page.waitForSelector('[data-testid="app-brand-badge"]', { timeout: 10000 });
+    await page.waitForSelector('[data-testid="month-navigator"]', { timeout: 10000 });
     await sleep(2000);
-    console.log('✅ Expense saved and returned to Dashboard!');
+    console.log('✅ Expense saved and returned to Dashboard via Navbar layout!');
 
     await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '07-dashboard-updated.png'), fullPage: true });
     console.log('📸 [Proof] Saved screenshot: screenshots/07-dashboard-updated.png');
 
-    console.log('\n🎉 ALL REAL CHROME BROWSER FULL-CYCLE TESTS PASSED WITH 100% SUCCESS!');
+    console.log('\n========================================');
+    console.log(' STEP 8: Test Dedicated Profile Page (Desktop)');
+    console.log('========================================');
+    // Click User badge in Navbar to go to Profile
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="navbar-user-badge"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="profile-screen"]', { timeout: 10000 });
+    await sleep(1000);
+    console.log('✅ Reached Dedicated User Profile Screen');
+
+    const profileCheck = await page.evaluate(() => {
+      const welcomeText = document.querySelector('[data-testid="profile-welcome-text"]')?.textContent;
+      const email = document.querySelector('[data-testid="profile-user-email"]')?.textContent;
+      const isUidRendered = document.body.innerText.includes('CjoJJ8H6uuV3fJlIGinwrA17so13');
+      return { welcomeText, email, isUidRendered };
+    });
+    console.log('  Profile Screen Data Verification:', profileCheck);
+    if (profileCheck.isUidRendered) {
+      throw new Error('Raw UID found rendered on Profile screen! UID must remain hidden.');
+    }
+
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '10-desktop-profile-screen.png'), fullPage: true });
+    console.log('📸 [Proof] Saved screenshot: screenshots/10-desktop-profile-screen.png');
+
+    console.log('\n========================================');
+    console.log(' STEP 9: Test Mobile Viewport & Bottom Nav Profile');
+    console.log('========================================');
+    await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
+    await sleep(1000);
+
+    // Tap Dashboard on Mobile Bottom Nav
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="mobile-nav-dashboard"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="month-navigator"]', { timeout: 10000 });
+    await sleep(1000);
+    console.log('✅ Mobile Bottom Navigation Panel rendered successfully');
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '08-mobile-dashboard-bottom-nav.png') });
+    console.log('📸 [Proof] Saved screenshot: screenshots/08-mobile-dashboard-bottom-nav.png');
+
+    // Tap Profile on Mobile Bottom Nav
+    await page.evaluate(() => {
+      document.querySelector('[data-testid="mobile-nav-profile"]')?.click();
+    });
+    await page.waitForSelector('[data-testid="profile-screen"]', { timeout: 10000 });
+    await sleep(1000);
+    console.log('✅ Mobile Bottom Nav navigated to Profile');
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '11-mobile-profile-screen.png') });
+    console.log('📸 [Proof] Saved screenshot: screenshots/11-mobile-profile-screen.png');
+
+    console.log('\n🎉 ALL REAL CHROME BROWSER FULL-CYCLE & DEDICATED PROFILE TESTS PASSED WITH 100% SUCCESS!');
   } catch (err) {
     console.error('❌ Browser Test Execution Failed:', err);
     await page.screenshot({ path: path.join(SCREENSHOTS_DIR, 'error-state.png'), fullPage: true }).catch(() => {});

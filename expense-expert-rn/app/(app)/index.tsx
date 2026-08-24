@@ -1,8 +1,10 @@
 import React, { useContext, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -136,95 +138,40 @@ export default function AppDashboardScreen() {
     }
   };
 
+  const handleSummaryCardPress = (cardKey: string) => {
+    switch (cardKey) {
+      case 'income':
+        router.push('/profile');
+        break;
+      case 'expenses':
+        router.push('/expenses/new');
+        break;
+      case 'savings':
+      case 'remaining':
+        router.push('/budgets');
+        break;
+      case 'loans':
+        router.push('/profile');
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <SafeAreaView
-      style={{ flex: 1, minHeight: '100%' }}
+      style={styles.screen}
       className="flex-1 bg-slate-50 dark:bg-slate-900"
+      testID="app-dashboard-screen"
     >
       <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 16, alignItems: 'center', minHeight: '100%', flexGrow: 1 }}
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
         className="flex-1"
         showsVerticalScrollIndicator={false}
       >
-        <View className="w-full max-w-6xl gap-y-6">
-          {/* Section 1: Header & User Details */}
-          <View className="w-full bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
-            <View className="flex-row items-center justify-between mb-4">
-              <View className="flex-row items-center gap-3">
-                <View
-                  testID="app-brand-badge"
-                  className="items-center justify-center h-12 w-12 rounded-xl bg-indigo-600 shadow-md"
-                >
-                  <Text className="text-white font-bold text-lg">EE</Text>
-                </View>
-                <View>
-                  <Text className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                    Welcome, {displayName}!
-                  </Text>
-                  <Text className="text-xs text-slate-500 dark:text-slate-400">
-                    Expense Expert Dashboard
-                  </Text>
-                </View>
-              </View>
-
-              <TouchableOpacity
-                testID="logout-button"
-                onPress={handleLogout}
-                disabled={isLoggingOut}
-                activeOpacity={0.8}
-                className="rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 px-3 py-1.5"
-                accessibilityRole="button"
-                accessibilityLabel="Sign out"
-              >
-                {isLoggingOut ? (
-                  <ActivityIndicator size="small" color="#dc2626" testID="logout-loading" />
-                ) : (
-                  <Text className="text-xs font-semibold text-red-600 dark:text-red-400">
-                    Sign out
-                  </Text>
-                )}
-              </TouchableOpacity>
-            </View>
-
-            {/* User Info Details Badge */}
-            <View className="w-full bg-slate-50 dark:bg-slate-700/50 rounded-xl p-3.5 border border-slate-200 dark:border-slate-600">
-              <Text className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                Account Details
-              </Text>
-              <View className="flex-row justify-between items-center py-0.5">
-                <Text className="text-xs text-slate-500 dark:text-slate-400">Email:</Text>
-                <Text
-                  testID="user-email-text"
-                  className="text-xs font-medium text-slate-900 dark:text-slate-100"
-                >
-                  {user?.email || 'N/A'}
-                </Text>
-              </View>
-              <View className="flex-row justify-between items-center py-0.5">
-                <Text className="text-xs text-slate-500 dark:text-slate-400">Name:</Text>
-                <Text
-                  testID="user-name-text"
-                  className="text-xs font-medium text-slate-900 dark:text-slate-100"
-                >
-                  {displayName}
-                </Text>
-              </View>
-              <View className="flex-row justify-between items-center py-0.5">
-                <Text className="text-xs text-slate-500 dark:text-slate-400">UID:</Text>
-                <Text
-                  testID="user-uid-text"
-                  className="text-[11px] font-mono text-slate-600 dark:text-slate-300 max-w-[200px]"
-                  numberOfLines={1}
-                  ellipsizeMode="middle"
-                >
-                  {user?.uid || 'N/A'}
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Section 1b: Month Switcher */}
+        <View style={styles.container} className="w-full max-w-6xl gap-y-6">
+          {/* Month Switcher */}
           <MonthNavigator
             activeMonth={activeMonth}
             onChangeMonth={setActiveMonth}
@@ -240,9 +187,7 @@ export default function AppDashboardScreen() {
           {/* Section 3: Summary Metrics Grid */}
           <SummaryCardsGrid
             summary={currentSummary}
-            onPressCard={(_cardKey) => {
-              // Quick jump to relevant views
-            }}
+            onPressCard={handleSummaryCardPress}
           />
 
           {/* Section 4: Visualizations Grid (Desktop 2-Col / Mobile Stack) */}
@@ -610,3 +555,84 @@ export default function AppDashboardScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    minHeight: '100%',
+    backgroundColor: '#f8fafc',
+  },
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 16,
+    alignItems: 'center',
+    minHeight: '100%',
+    flexGrow: 1,
+  },
+  container: {
+    width: '100%',
+    maxWidth: 1100,
+    gap: 20,
+  },
+  userCard: {
+    width: '100%',
+    backgroundColor: '#ffffff',
+    borderRadius: 24,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    ...(Platform.OS === 'web'
+      ? { boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)' }
+      : {
+          shadowColor: '#0f172a',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.05,
+          shadowRadius: 10,
+          elevation: 2,
+        }),
+  },
+  userHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  userHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  brandBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: '#4f46e5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...(Platform.OS === 'web'
+      ? { boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)' }
+      : {
+          shadowColor: '#4f46e5',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 6,
+          elevation: 3,
+        }),
+  },
+  brandBadgeText: {
+    color: '#ffffff',
+    fontWeight: '800',
+    fontSize: 18,
+  },
+  welcomeText: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#0f172a',
+  },
+  welcomeSubtext: {
+    fontSize: 12,
+    color: '#64748b',
+  },
+});

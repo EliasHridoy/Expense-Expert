@@ -210,18 +210,16 @@ describe('Dashboard Screen Integration (app/(app)/index.tsx)', () => {
     );
   };
 
-  it('renders welcome header, user account details, and sign out button', async () => {
-    const { getByText, getByTestId } = renderDashboardScreen();
+  it('renders dashboard screen, month navigator, and hides raw UID', async () => {
+    const { getByTestId, queryByTestId } = renderDashboardScreen();
 
     await waitFor(() => {
-      expect(getByText('Welcome, Alex Rivers!')).toBeTruthy();
+      expect(getByTestId('app-dashboard-screen')).toBeTruthy();
+      expect(getByTestId('month-navigator')).toBeTruthy();
     });
 
-    expect(getByTestId('app-brand-badge')).toBeTruthy();
-    expect(getByTestId('logout-button')).toBeTruthy();
-    expect(getByTestId('user-email-text').props.children).toBe('alex@example.com');
-    expect(getByTestId('user-name-text').props.children).toBe('Alex Rivers');
-    expect(getByTestId('user-uid-text').props.children).toBe('dash_user_999');
+    // Ensure raw internal UID is not rendered on the dashboard
+    expect(queryByTestId('user-uid-text')).toBeNull();
   });
 
   it('renders MonthNavigator with localized active month string', async () => {
@@ -254,6 +252,30 @@ describe('Dashboard Screen Integration (app/(app)/index.tsx)', () => {
 
     const remainingCard = getByTestId('summary-card-remaining');
     expect(within(remainingCard).getByText('$2,750.00')).toBeTruthy();
+  });
+
+  it('navigates when summary metric cards (income, expenses, savings, remaining) are pressed', async () => {
+    const { getByTestId } = renderDashboardScreen();
+
+    await waitFor(() => {
+      expect(getByTestId('summary-cards-grid')).toBeTruthy();
+    });
+
+    // Tap Total Income -> navigates to /profile
+    fireEvent.press(getByTestId('summary-card-income'));
+    expect(mockPush).toHaveBeenCalledWith('/profile');
+
+    // Tap Total Expenses -> navigates to /expenses/new
+    fireEvent.press(getByTestId('summary-card-expenses'));
+    expect(mockPush).toHaveBeenCalledWith('/expenses/new');
+
+    // Tap Total Savings -> navigates to /budgets
+    fireEvent.press(getByTestId('summary-card-savings'));
+    expect(mockPush).toHaveBeenCalledWith('/budgets');
+
+    // Tap Net Remaining -> navigates to /budgets
+    fireEvent.press(getByTestId('summary-card-remaining'));
+    expect(mockPush).toHaveBeenCalledWith('/budgets');
   });
 
   it('renders CategoryDonutChart and MonthlyTrendBarChart', async () => {
