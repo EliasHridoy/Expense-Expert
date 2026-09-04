@@ -9,7 +9,7 @@ import { ToastService } from '../../core/services/toast.service';
   selector: 'app-navbar',
   standalone: true,
   template: `
-    <header class="flex items-center justify-between h-16 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors">
+    <header class="flex items-center justify-between h-16 px-4 sm:px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors">
       <div class="flex items-center gap-3">
         <!-- Logo for mobile (visible only on mobile where sidebar is hidden) -->
         <div class="flex items-center gap-2 lg:hidden">

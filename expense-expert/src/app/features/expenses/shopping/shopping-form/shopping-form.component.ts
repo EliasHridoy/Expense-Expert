@@ -25,7 +25,7 @@ import { CategoryService } from '../../../../core/services/category.service';
     SubcategoryComboboxComponent,
   ],
   template: `
-    <div class="max-w-2xl mx-auto pb-32">
+    <div class="max-w-2xl mx-auto pb-12">
       <!-- Top Navigation / Header -->
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
@@ -214,28 +214,31 @@ import { CategoryService } from '../../../../core/services/category.service';
                     />
                   </div>
 
-                  <!-- Quantity -->
-                  <div class="w-full sm:col-span-2">
-                    <input
-                      formControlName="quantity"
-                      type="text"
-                      placeholder="Qty (e.g. 2 kg)"
-                      class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-2.5 py-1.5 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
-                    />
-                  </div>
+                  <!-- Quantity & Price Side-by-Side on Mobile -->
+                  <div class="grid grid-cols-2 gap-2 w-full sm:contents">
+                    <!-- Quantity -->
+                    <div class="w-full sm:col-span-2">
+                      <input
+                        formControlName="quantity"
+                        type="text"
+                        placeholder="Qty (e.g. 2 kg)"
+                        class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-2.5 py-1.5 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
+                      />
+                    </div>
 
-                  <!-- Price -->
-                  <div class="w-full sm:col-span-2 relative">
-                    <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400">$</span>
-                    <input
-                      formControlName="price"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="0.00"
-                      (keydown.enter)="onPriceEnter($event, $index)"
-                      class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 pl-6 pr-2.5 py-1.5 text-sm font-semibold focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
-                    />
+                    <!-- Price -->
+                    <div class="w-full sm:col-span-2 relative">
+                      <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400">$</span>
+                      <input
+                        formControlName="price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        (keydown.enter)="onPriceEnter($event, $index)"
+                        class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 pl-6 pr-2.5 py-1.5 text-sm font-semibold focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
+                      />
+                    </div>
                   </div>
 
                   <!-- Desktop Delete Button -->
@@ -286,16 +289,16 @@ import { CategoryService } from '../../../../core/services/category.service';
             </div>
           </div>
 
-          <!-- Sticky Bottom Actions Bar -->
-          <div class="fixed bottom-[72px] left-0 right-0 p-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-20 md:static md:bg-transparent md:p-0 md:border-t-0 md:backdrop-blur-none">
-            <div class="max-w-2xl mx-auto flex flex-col sm:flex-row gap-3">
+          <!-- Bottom Actions Bar -->
+          <div class="sticky bottom-16 sm:static p-3 sm:p-0 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t sm:border-t-0 border-gray-200 dark:border-gray-800 z-20 mt-6 rounded-2xl shadow-lg sm:shadow-none">
+            <div class="max-w-2xl mx-auto flex flex-col sm:flex-row gap-2.5 sm:gap-3">
               <!-- Save as Plan (always available unless already completed) -->
               @if (!isCompleted()) {
                 <button
                   type="button"
                   (click)="saveAsPlan()"
                   [disabled]="isSaving() || form.invalid"
-                  class="flex-1 rounded-xl bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 px-4 py-3.5 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all disabled:opacity-50"
+                  class="flex-1 rounded-xl bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 px-4 py-3 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all disabled:opacity-50"
                 >
                   {{ isSaving() ? 'Saving...' : 'Save as Plan' }}
                 </button>
@@ -306,7 +309,7 @@ import { CategoryService } from '../../../../core/services/category.service';
                 type="button"
                 (click)="saveAsExpense()"
                 [disabled]="isSaving() || form.invalid || computedTotal() <= 0"
-                class="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all active:scale-[0.98] disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2"
+                class="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all active:scale-[0.98] disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />

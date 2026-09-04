@@ -35,17 +35,17 @@ interface LoanPersonRow<T> {
     <app-page-header title="Loans" />
 
     <!-- Tab Switcher -->
-    <div id="loan-tabs" class="flex gap-1 mb-6 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl w-fit">
+    <div id="loan-tabs" class="flex gap-1 mb-6 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl w-full sm:w-fit">
       <button (click)="activeTab.set('taken')"
         [class]="activeTab() === 'taken'
-          ? 'px-5 py-2 rounded-lg text-sm font-semibold bg-white dark:bg-gray-700 text-red-600 dark:text-red-400 shadow-sm transition-all'
-          : 'px-5 py-2 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all'">
+          ? 'flex-1 sm:flex-none text-center px-4 sm:px-5 py-2 rounded-lg text-sm font-semibold bg-white dark:bg-gray-700 text-red-600 dark:text-red-400 shadow-sm transition-all'
+          : 'flex-1 sm:flex-none text-center px-4 sm:px-5 py-2 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all'">
         💸 Loan Taken
       </button>
       <button (click)="activeTab.set('given')"
         [class]="activeTab() === 'given'
-          ? 'px-5 py-2 rounded-lg text-sm font-semibold bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 shadow-sm transition-all'
-          : 'px-5 py-2 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all'">
+          ? 'flex-1 sm:flex-none text-center px-4 sm:px-5 py-2 rounded-lg text-sm font-semibold bg-white dark:bg-gray-700 text-green-600 dark:text-green-400 shadow-sm transition-all'
+          : 'flex-1 sm:flex-none text-center px-4 sm:px-5 py-2 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all'">
         🤝 Loan Given
       </button>
     </div>
@@ -178,19 +178,18 @@ interface LoanPersonRow<T> {
                   <div class="border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-4">
                     
                     @if (row.outstanding > 0) {
-                      <div class="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-3 mb-5 pb-5 border-b border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center gap-2">
-                          <div>
+                      <div class="mb-5 pb-5 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex flex-wrap items-end justify-end gap-2.5">
+                          <div class="flex-1 min-w-[130px]">
                             <label class="block text-[10px] font-medium text-gray-500 uppercase mb-1">Date</label>
-                            <input type="date" [(ngModel)]="personRepayDates[row.person.id]" class="w-32 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm focus:ring-1 focus:ring-red-500" />
+                            <input type="date" [(ngModel)]="personRepayDates[row.person.id]" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm focus:ring-1 focus:ring-red-500" />
                           </div>
-                          <div>
+                          <div class="flex-1 min-w-[110px]">
                             <label class="block text-[10px] font-medium text-gray-500 uppercase mb-1">Pay Amount</label>
-                            <input type="number" [(ngModel)]="personRepayAmounts[row.person.id]" [max]="row.outstanding" min="1" placeholder="0" class="w-24 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-right focus:ring-1 focus:ring-red-500 font-bold" />
+                            <input type="number" [(ngModel)]="personRepayAmounts[row.person.id]" [max]="row.outstanding" min="1" placeholder="0" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-right focus:ring-1 focus:ring-red-500 font-bold" />
                           </div>
-                          <div class="pb-[1px]">
-                            <label class="block text-[10px] font-medium text-transparent mb-1">-</label>
-                            <button (click)="recordPersonRepayment(row)" [disabled]="!personRepayAmounts[row.person.id] || !personRepayDates[row.person.id]" class="rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 disabled:opacity-50 transition-colors shadow-sm">Pay</button>
+                          <div class="w-full sm:w-auto">
+                            <button (click)="recordPersonRepayment(row)" [disabled]="!personRepayAmounts[row.person.id] || !personRepayDates[row.person.id]" class="w-full sm:w-auto rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 disabled:opacity-50 transition-colors shadow-sm">Pay</button>
                           </div>
                         </div>
                       </div>
@@ -348,17 +347,16 @@ interface LoanPersonRow<T> {
                   <div class="border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-4">
                     
                     @if (row.outstanding > 0) {
-                      <div class="flex flex-col sm:flex-row items-end sm:items-center justify-end gap-3 mb-5 pb-5 border-b border-gray-200 dark:border-gray-700">
-                        <button (click)="selectedGivenRow = row; showClearConfirm.set(true)" class="text-xs font-medium text-red-500 hover:text-red-700 px-3 py-2 border border-red-200 dark:border-red-800 rounded-lg bg-white dark:bg-gray-800 shadow-sm transition-colors sm:mr-auto">Clear All Outstanding</button>
+                      <div class="flex flex-col sm:flex-row items-stretch sm:items-end justify-between gap-3 mb-5 pb-5 border-b border-gray-200 dark:border-gray-700">
+                        <button (click)="selectedGivenRow = row; showClearConfirm.set(true)" class="text-xs font-medium text-red-500 hover:text-red-700 px-3 py-2 border border-red-200 dark:border-red-800 rounded-lg bg-white dark:bg-gray-800 shadow-sm transition-colors text-center">Clear All Outstanding</button>
 
-                        <div class="flex items-center gap-2">
-                          <div>
+                        <div class="flex flex-wrap items-end gap-2 justify-end">
+                          <div class="flex-1 min-w-[110px]">
                             <label class="block text-[10px] font-medium text-gray-500 uppercase mb-1">Pay Amount</label>
-                            <input type="number" [(ngModel)]="personGivenRepayAmounts[row.person.id]" [max]="row.outstanding" min="1" placeholder="0" class="w-24 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-right focus:ring-1 focus:ring-blue-500 font-bold" />
+                            <input type="number" [(ngModel)]="personGivenRepayAmounts[row.person.id]" [max]="row.outstanding" min="1" placeholder="0" class="w-full sm:w-28 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-right focus:ring-1 focus:ring-blue-500 font-bold" />
                           </div>
-                          <div class="pb-[1px]">
-                            <label class="block text-[10px] font-medium text-transparent mb-1">-</label>
-                            <button (click)="recordPersonGivenRepayment(row)" [disabled]="!personGivenRepayAmounts[row.person.id]" class="rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 disabled:opacity-50 transition-colors shadow-sm">Receive Pay</button>
+                          <div class="w-full sm:w-auto">
+                            <button (click)="recordPersonGivenRepayment(row)" [disabled]="!personGivenRepayAmounts[row.person.id]" class="w-full sm:w-auto rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 disabled:opacity-50 transition-colors shadow-sm">Receive Pay</button>
                           </div>
                         </div>
                       </div>

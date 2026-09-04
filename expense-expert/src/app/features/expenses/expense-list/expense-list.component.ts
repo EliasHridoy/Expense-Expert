@@ -35,7 +35,7 @@ import { FormsModule } from '@angular/forms';
     />
 
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2">
         <app-month-picker [currentMonth]="currentMonth()" (monthChanged)="onMonthChange($event)" />
         <button
           id="expense-drafts-btn"
@@ -69,13 +69,13 @@ import { FormsModule } from '@angular/forms';
     </div>
 
     @if (expenses().length > 0) {
-      <div class="flex flex-wrap items-center gap-3 mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
-        <div class="flex-1 min-w-[200px]">
+      <div class="flex flex-wrap items-center gap-3 mb-6 p-3 sm:p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
+        <div class="w-full sm:flex-1 min-w-[180px]">
           <div class="relative">
             <input
               type="text"
               [(ngModel)]="searchQuery"
-              placeholder="Search by title, category or subcategory..."
+              placeholder="Search by title, category..."
               class="w-full pl-9 pr-4 py-1.5 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-1 focus:ring-primary-500 outline-none"
             />
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -83,46 +83,48 @@ import { FormsModule } from '@angular/forms';
             </svg>
           </div>
         </div>
-        <div class="flex items-center gap-2">
-          <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Group By:</label>
-          <select [(ngModel)]="groupBy" class="text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500">
-            <option value="none">None</option>
-            <option value="category">Category</option>
-          </select>
-        </div>
-        <div class="flex items-center gap-2">
-          <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Sort By:</label>
-          <select [(ngModel)]="sortBy" class="text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500">
-            <option value="date">Date (Newest)</option>
-            <option value="amount">Amount (Highest)</option>
-            <option value="alpha">Alphabetical</option>
-          </select>
-        </div>
-        <div class="flex items-center gap-1 ml-auto">
-          <button
-            (click)="viewMode.set('list')"
-            [class.bg-white]="viewMode() === 'list'"
-            [class.dark:bg-gray-700]="viewMode() === 'list'"
-            [class.shadow-sm]="viewMode() === 'list'"
-            class="p-2 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
-            title="List View"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
-            </svg>
-          </button>
-          <button
-            (click)="viewMode.set('grid')"
-            [class.bg-white]="viewMode() === 'grid'"
-            [class.dark:bg-gray-700]="viewMode() === 'grid'"
-            [class.shadow-sm]="viewMode() === 'grid'"
-            class="p-2 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
-            title="Grid View"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-            </svg>
-          </button>
+        <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+          <div class="flex items-center gap-1.5">
+            <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Group:</label>
+            <select [(ngModel)]="groupBy" class="text-xs rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white py-1.5 pl-2 pr-6 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+              <option value="none">None</option>
+              <option value="category">Category</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Sort:</label>
+            <select [(ngModel)]="sortBy" class="text-xs rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white py-1.5 pl-2 pr-6 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+              <option value="date">Date</option>
+              <option value="amount">Amount</option>
+              <option value="alpha">Name</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-1 ml-auto sm:ml-0">
+            <button
+              (click)="viewMode.set('list')"
+              [class.bg-white]="viewMode() === 'list'"
+              [class.dark:bg-gray-700]="viewMode() === 'list'"
+              [class.shadow-sm]="viewMode() === 'list'"
+              class="p-2 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+              title="List View"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <button
+              (click)="viewMode.set('grid')"
+              [class.bg-white]="viewMode() === 'grid'"
+              [class.dark:bg-gray-700]="viewMode() === 'grid'"
+              [class.shadow-sm]="viewMode() === 'grid'"
+              class="p-2 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+              title="Grid View"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     }
@@ -152,17 +154,17 @@ import { FormsModule } from '@angular/forms';
               @for (expense of group.items; track expense.id) {
                 <div
                   (click)="router.navigate(['/expenses', expense.id])"
-                  [class]="viewMode() === 'grid' ? 'flex flex-col justify-between h-full gap-4' : 'flex items-center justify-between'"
+                  [class]="viewMode() === 'grid' ? 'flex flex-col justify-between h-full gap-4' : 'flex items-center justify-between gap-3'"
                   class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 cursor-pointer hover:shadow-md transition-shadow"
                 >
                   <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 mb-1">
-                      <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ expense.title }}</h3>
+                    <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                      <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 break-words">{{ expense.title }}</h3>
                       @if (groupBy() !== 'category') {
                         <app-category-badge [category]="expense.category" [subcategory]="expense.subcategory" />
                       }
                       @if (expense.isLoan) {
-                        <span class="text-xs bg-amber-100 text-amber-800 rounded-full px-2 py-0.5 shrink-0">Loan</span>
+                        <span class="text-xs bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 rounded-full px-2 py-0.5 shrink-0">Loan</span>
                       }
                       @if (expense.shoppingListId) {
                         <span class="inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 rounded-full px-2 py-0.5 shrink-0">
@@ -173,7 +175,7 @@ import { FormsModule } from '@angular/forms';
                     <p class="text-xs text-gray-400">{{ expense.date | relativeDate }}</p>
                   </div>
 
-                  <div [class]="viewMode() === 'grid' ? 'flex justify-end mt-auto' : ''">
+                  <div [class]="viewMode() === 'grid' ? 'flex justify-end mt-auto' : 'shrink-0'">
                     <app-amount-display [amount]="expense.amount" type="expense" />
                   </div>
                 </div>

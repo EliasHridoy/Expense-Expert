@@ -64,13 +64,13 @@ import { ToastService } from '../../../../core/services/toast.service';
       </div>
 
       <!-- Filters & Tabs -->
-      <div class="flex items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-700 pb-2">
-        <div class="flex gap-2">
+      <div class="flex items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-700 pb-2 overflow-x-auto">
+        <div class="flex gap-2 shrink-0">
           <button
             type="button"
             (click)="activeTab.set('all')"
             [ngClass]="activeTab() === 'all' ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400' : 'text-gray-600 dark:text-gray-400'"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 shrink-0"
           >
             All
             <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
@@ -82,7 +82,7 @@ import { ToastService } from '../../../../core/services/toast.service';
             type="button"
             (click)="activeTab.set('planned')"
             [ngClass]="activeTab() === 'planned' ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'text-gray-600 dark:text-gray-400'"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 shrink-0"
           >
             Planned
             <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
@@ -94,9 +94,9 @@ import { ToastService } from '../../../../core/services/toast.service';
             type="button"
             (click)="activeTab.set('completed')"
             [ngClass]="activeTab() === 'completed' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'text-gray-600 dark:text-gray-400'"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 shrink-0"
           >
-            Completed &amp; In Expenses
+            Completed <span class="hidden sm:inline">&amp; In Expenses</span>
             <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">
               {{ completedCount() }}
             </span>
@@ -121,7 +121,7 @@ import { ToastService } from '../../../../core/services/toast.service';
               class="group bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700/80 p-5 cursor-pointer hover:shadow-md hover:border-primary-300 dark:hover:border-primary-600/50 transition-all flex flex-col justify-between"
             >
               <div>
-                <div class="flex items-start justify-between gap-2 mb-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 mb-2">
                   <h3 class="text-base font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">
                     {{ list.name }}
                   </h3>

@@ -52,7 +52,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
             <span class="active-pill absolute top-0.5 w-8 h-1 rounded-full bg-primary-600 dark:bg-primary-400 opacity-0 scale-x-0 transition-all duration-300"></span>
             <span class="icon-wrapper flex items-center justify-center w-10 h-7 rounded-xl transition-all duration-200">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
               </svg>
             </span>
             <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400 transition-colors duration-200 leading-tight">Savings</span>

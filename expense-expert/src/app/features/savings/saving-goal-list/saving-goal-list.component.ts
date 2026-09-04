@@ -23,31 +23,35 @@ import { SavingGoal } from '../../../core/models/saving.model';
                 </p>
               }
             </div>
-            <div class="flex flex-wrap items-center gap-3 mt-auto pt-2 border-t border-gray-100 dark:border-gray-700/50">
+            <div class="flex flex-wrap items-center gap-1.5 mt-auto pt-2 border-t border-gray-100 dark:border-gray-700/50">
               <button
+                type="button"
                 (click)="addEntry.emit(goal)"
-                class="whitespace-nowrap text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium transition-colors"
+                class="whitespace-nowrap text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-semibold px-2 py-1 rounded-md hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-colors"
               >
                 + Save
               </button>
               @if (goal.savedAmount > 0) {
                 <button
+                  type="button"
                   (click)="withdraw.emit(goal)"
-                  class="whitespace-nowrap text-xs text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 font-medium transition-colors"
+                  class="whitespace-nowrap text-xs text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 font-semibold px-2 py-1 rounded-md hover:bg-amber-50 dark:hover:bg-amber-900/30 transition-colors"
                 >
                   - Withdraw
                 </button>
               }
               <div class="flex-1"></div>
               <button
+                type="button"
                 (click)="edit.emit(goal)"
-                class="whitespace-nowrap text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                class="whitespace-nowrap text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 px-2 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
               >
                 Edit
               </button>
               <button
+                type="button"
                 (click)="delete.emit(goal)"
-                class="whitespace-nowrap text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                class="whitespace-nowrap text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 px-2 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
               >
                 Delete
               </button>

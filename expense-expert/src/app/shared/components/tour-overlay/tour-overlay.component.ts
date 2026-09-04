@@ -134,7 +134,7 @@ import { TourService } from '../../../core/services/tour.service';
 
     .tour-tooltip {
       position: fixed;
-      width: 340px;
+      width: 320px;
       max-width: calc(100vw - 32px);
       z-index: 10000;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -391,11 +391,11 @@ export class TourOverlayComponent implements OnDestroy {
   }
 
   private computeTooltipPosition(rect: DOMRect, preferred: string): void {
-    const tooltipWidth = 340;
-    const tooltipHeight = 200;
-    const gap = 16;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
+    const tooltipWidth = Math.min(320, Math.max(280, vw - 32));
+    const tooltipHeight = 200;
+    const gap = 16;
 
     let x = 0;
     let y = 0;

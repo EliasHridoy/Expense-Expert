@@ -24,7 +24,7 @@ import { SubcategoryComboboxComponent } from '../../../shared/components/subcate
     SubcategoryComboboxComponent,
   ],
   template: `
-    <div class="max-w-lg mx-auto pb-36">
+    <div class="max-w-lg mx-auto pb-12">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
           @if (currentStep() > 1) {
@@ -213,15 +213,15 @@ import { SubcategoryComboboxComponent } from '../../../shared/components/subcate
             </div>
           }
 
-          <!-- Fixed Bottom Action Bar -->
-          <div class="fixed bottom-[72px] left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-10 md:static md:bg-transparent md:p-0 md:border-t-0 md:backdrop-blur-none md:mt-8 md:pt-4">
+          <!-- Bottom Action Bar -->
+          <div class="mt-8 pt-4">
             <div class="max-w-lg mx-auto flex gap-3">
               @if (currentStep() < totalSteps) {
                 <button
                   type="button"
                   (click)="nextStep()"
                   [disabled]="!canProceed()"
-                  class="w-full rounded-2xl bg-primary-600 px-4 py-4 text-base font-bold text-white shadow-lg shadow-primary-500/30 hover:bg-primary-700 hover:shadow-primary-500/40 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
+                  class="w-full rounded-2xl bg-primary-600 px-4 py-3.5 text-base font-bold text-white shadow-md shadow-primary-500/20 hover:bg-primary-700 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
                 >
                   Continue
                 </button>
@@ -229,7 +229,7 @@ import { SubcategoryComboboxComponent } from '../../../shared/components/subcate
                 <button
                   type="submit"
                   [disabled]="form.invalid || isSaving()"
-                  class="w-full rounded-2xl bg-green-600 px-4 py-4 text-base font-bold text-white shadow-lg shadow-green-500/30 hover:bg-green-700 hover:shadow-green-500/40 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
+                  class="w-full rounded-2xl bg-green-600 px-4 py-3.5 text-base font-bold text-white shadow-md shadow-green-500/20 hover:bg-green-700 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
                 >
                   {{ isSaving() ? 'Saving...' : (isEditMode() ? 'Update Expense' : 'Save Expense') }}
                 </button>
