@@ -10,6 +10,7 @@ import { Person } from '../../../core/models/person.model';
 import { PersonSelectComponent } from '../../../shared/components/person-select/person-select.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { CategoryCardPickerComponent } from '../../../shared/components/category-card-picker/category-card-picker.component';
+import { SubcategoryComboboxComponent } from '../../../shared/components/subcategory-combobox/subcategory-combobox.component';
 
 @Component({
   selector: 'app-expense-form',
@@ -20,6 +21,7 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
     PersonSelectComponent,
     LoadingSpinnerComponent,
     CategoryCardPickerComponent,
+    SubcategoryComboboxComponent,
   ],
   template: `
     <div class="max-w-lg mx-auto pb-36">
@@ -76,6 +78,25 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Enter the amount and pick a category.</p>
               </div>
 
+              @if (!isEditMode()) {
+                <div class="bg-primary-50/70 dark:bg-primary-950/40 border border-primary-100 dark:border-primary-800/60 rounded-2xl p-3.5 flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-xl">🛒</span>
+                    <div>
+                      <p class="text-xs font-bold text-gray-900 dark:text-white">Shopping or Grocery trip?</p>
+                      <p class="text-[11px] text-gray-500 dark:text-gray-400">List multiple items with quantities and prices.</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    (click)="router.navigate(['/expenses/shopping/new'])"
+                    class="px-3 py-1.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold shadow-sm transition-colors shrink-0"
+                  >
+                    Use Shopping List →
+                  </button>
+                </div>
+              }
+
               <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700/50">
                 <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 text-center">Amount</label>
                 <div class="relative">
@@ -96,6 +117,13 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
                 <app-category-card-picker
                   [selectedValue]="form.get('category')?.value"
                   (selected)="form.patchValue({ category: $event })"
+                />
+              </div>
+
+              <div>
+                <app-subcategory-combobox
+                  [value]="form.get('subcategory')?.value"
+                  (valueChange)="form.patchValue({ subcategory: $event })"
                 />
               </div>
             </div>
@@ -172,7 +200,12 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
                     <span class="text-sm font-bold text-gray-900 dark:text-white">{{ form.get('amount')?.value | currency }}</span>
                   </div>
                   <div class="flex justify-between text-xs text-gray-500">
-                    <span>{{ form.get('category')?.value }}</span>
+                    <span class="capitalize">
+                      {{ form.get('category')?.value }}
+                      @if (form.get('subcategory')?.value) {
+                        • {{ form.get('subcategory')?.value }}
+                      }
+                    </span>
                     <span>{{ form.get('date')?.value }}</span>
                   </div>
                 </div>
@@ -234,6 +267,7 @@ export class ExpenseFormComponent implements OnInit {
     description: [''],
     amount: [null, [Validators.required, Validators.min(0.01)]],
     category: [ExpenseCategory.Other, Validators.required],
+    subcategory: [''],
     date: [new Date().toISOString().split('T')[0], Validators.required],
     isLoan: [false],
     loanPersonId: [null],
@@ -253,6 +287,7 @@ export class ExpenseFormComponent implements OnInit {
             description: expense.description,
             amount: expense.amount,
             category: expense.category,
+            subcategory: expense.subcategory || '',
             date: this.toDateString(expense.date),
             isLoan: expense.isLoan,
             loanPersonId: expense.loanPersonId,
@@ -299,6 +334,7 @@ export class ExpenseFormComponent implements OnInit {
         description: values.description || '',
         amount: Number(values.amount),
         category: values.category,
+        subcategory: values.subcategory?.trim() || null,
         date: new Date(values.date),
         isLoan: values.isLoan || false,
         loanPersonId: values.isLoan ? values.loanPersonId : null,

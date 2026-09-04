@@ -99,6 +99,7 @@ export class ExpenseDraftService {
       description: `Payment for ${draft.title}`,
       amount,
       category: draft.category as ExpenseCategory,
+      subcategory: draft.subcategory ?? null,
       date: new Date(),
       isLoan: draft.isLoan,
       loanPersonId: draft.loanPersonId,

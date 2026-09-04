@@ -45,6 +45,14 @@ import { FormsModule } from '@angular/forms';
         >
           Drafts
         </button>
+        <button
+          id="expense-shopping-btn"
+          (click)="router.navigate(['/expenses/shopping'])"
+          class="px-3 py-1.5 text-sm font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-1.5"
+          title="Shopping & Grocery Lists"
+        >
+          <span>🛒</span> Shopping
+        </button>
       </div>
       <div class="flex flex-wrap items-center gap-4">
         <p class="text-sm text-gray-500 dark:text-gray-400">
@@ -61,7 +69,20 @@ import { FormsModule } from '@angular/forms';
     </div>
 
     @if (expenses().length > 0) {
-      <div class="flex flex-wrap items-center gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
+      <div class="flex flex-wrap items-center gap-3 mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
+        <div class="flex-1 min-w-[200px]">
+          <div class="relative">
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              placeholder="Search by title, category or subcategory..."
+              class="w-full pl-9 pr-4 py-1.5 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-1 focus:ring-primary-500 outline-none"
+            />
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
         <div class="flex items-center gap-2">
           <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Group By:</label>
           <select [(ngModel)]="groupBy" class="text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500">
@@ -138,10 +159,15 @@ import { FormsModule } from '@angular/forms';
                     <div class="flex items-center gap-2 mb-1">
                       <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ expense.title }}</h3>
                       @if (groupBy() !== 'category') {
-                        <app-category-badge [category]="expense.category" />
+                        <app-category-badge [category]="expense.category" [subcategory]="expense.subcategory" />
                       }
                       @if (expense.isLoan) {
                         <span class="text-xs bg-amber-100 text-amber-800 rounded-full px-2 py-0.5 shrink-0">Loan</span>
+                      }
+                      @if (expense.shoppingListId) {
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 rounded-full px-2 py-0.5 shrink-0">
+                          <span>🛒</span> {{ expense.shoppingListName || 'Shopping' }}
+                        </span>
                       }
                     </div>
                     <p class="text-xs text-gray-400">{{ expense.date | relativeDate }}</p>
@@ -174,9 +200,20 @@ export class ExpenseListComponent implements OnInit {
   viewMode = signal<'list' | 'grid'>('list');
   groupBy = signal<'none' | 'category'>('none');
   sortBy = signal<'date' | 'amount' | 'alpha'>('date');
+  searchQuery = signal<string>('');
 
   processedExpenses = computed(() => {
     let sorted = [...this.expenses()];
+
+    const query = this.searchQuery().trim().toLowerCase();
+    if (query) {
+      sorted = sorted.filter((e) =>
+        e.title.toLowerCase().includes(query) ||
+        e.category.toLowerCase().includes(query) ||
+        (e.subcategory && e.subcategory.toLowerCase().includes(query)) ||
+        (e.shoppingListName && e.shoppingListName.toLowerCase().includes(query))
+      );
+    }
 
     // Sorting
     const sort = this.sortBy();

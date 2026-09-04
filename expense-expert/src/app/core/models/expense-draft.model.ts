@@ -3,6 +3,7 @@ export interface ExpenseDraft {
   title: string;
   description: string;
   category: string;
+  subcategory?: string | null;
   targetAmount: number;
   isLoan: boolean;
   loanPersonId: string | null;
@@ -16,6 +17,7 @@ export interface CreateDraftDto {
   title: string;
   description: string;
   category: string;
+  subcategory?: string | null;
   targetAmount: number;
   isLoan: boolean;
   loanPersonId: string | null;
@@ -26,6 +28,7 @@ export interface UpdateDraftDto {
   title?: string;
   description?: string;
   category?: string;
+  subcategory?: string | null;
   targetAmount?: number;
   isLoan?: boolean;
   loanPersonId?: string | null;

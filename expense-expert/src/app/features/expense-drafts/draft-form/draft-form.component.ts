@@ -10,6 +10,7 @@ import { Person } from '../../../core/models/person.model';
 import { PersonSelectComponent } from '../../../shared/components/person-select/person-select.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { CategoryCardPickerComponent } from '../../../shared/components/category-card-picker/category-card-picker.component';
+import { SubcategoryComboboxComponent } from '../../../shared/components/subcategory-combobox/subcategory-combobox.component';
 
 @Component({
   selector: 'app-draft-form',
@@ -19,7 +20,8 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
     ReactiveFormsModule,
     PersonSelectComponent,
     LoadingSpinnerComponent,
-    CategoryCardPickerComponent
+    CategoryCardPickerComponent,
+    SubcategoryComboboxComponent,
   ],
   template: `
     <div class="max-w-lg mx-auto pb-36">
@@ -130,6 +132,12 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
                 [selectedValue]="form.get('category')?.value"
                 (selected)="form.patchValue({ category: $event })"
               />
+              <div class="mt-4">
+                <app-subcategory-combobox
+                  [value]="form.get('subcategory')?.value"
+                  (valueChange)="form.patchValue({ subcategory: $event })"
+                />
+              </div>
             </div>
           }
 
@@ -265,6 +273,7 @@ export class DraftFormComponent implements OnInit {
     title: ['', Validators.required],
     description: [''],
     category: [ExpenseCategory.Other, Validators.required],
+    subcategory: [''],
     targetAmount: [null, [Validators.required, Validators.min(1)]],
     installmentCount: [1, [Validators.required, Validators.min(1)]],
     isLoan: [false],
@@ -284,6 +293,7 @@ export class DraftFormComponent implements OnInit {
             title: draft.title,
             description: draft.description,
             category: draft.category,
+            subcategory: draft.subcategory || '',
             targetAmount: draft.targetAmount,
             installmentCount: draft.installmentCount,
             isLoan: draft.isLoan,
@@ -333,6 +343,7 @@ export class DraftFormComponent implements OnInit {
         title: values.title,
         description: values.description || '',
         category: values.category,
+        subcategory: values.subcategory?.trim() || null,
         targetAmount: Number(values.targetAmount),
         installmentCount: Number(values.installmentCount),
         isLoan: values.isLoan || false,
