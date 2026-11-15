@@ -9,7 +9,8 @@ import { Expense, ExpenseCategory } from '../models/expense.model';
 import { SavingEntry } from '../models/saving.model';
 import { IncomeEntry } from '../models/income.model';
 import { LoanTaken } from '../models/loan.model';
-import { MonthSummary, MonthlyTrend, CategoryBreakdown } from '../models/dashboard.model';
+import { ShoppingList } from '../models/shopping-list.model';
+import { MonthSummary, MonthlyTrend, CategoryBreakdown, SubcategoryBreakdown } from '../models/dashboard.model';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
@@ -163,32 +164,85 @@ export class DashboardService {
   }
 
   getCategoryBreakdown(month: string): Observable<CategoryBreakdown[]> {
-    return this.firestoreService
-      .getCollection<Expense>(
-        this.firestoreService.userPath(this.uid, 'expenses'),
-        where('month', '==', month)
-      )
-      .pipe(
-        map((expenses) => {
-          const categoryMap = new Map<string, { total: number; count: number }>();
-          let grandTotal = 0;
+    const expenses$ = this.firestoreService.getCollection<Expense>(
+      this.firestoreService.userPath(this.uid, 'expenses'),
+      where('month', '==', month)
+    );
 
-          for (const expense of expenses) {
-            const existing = categoryMap.get(expense.category) || { total: 0, count: 0 };
-            existing.total += expense.amount;
-            existing.count += 1;
-            categoryMap.set(expense.category, existing);
-            grandTotal += expense.amount;
+    const shoppingLists$ = this.firestoreService.getCollection<ShoppingList>(
+      this.firestoreService.userPath(this.uid, 'shopping_lists')
+    );
+
+    return combineLatest([expenses$, shoppingLists$]).pipe(
+      map(([expenses, shoppingLists]) => {
+        const shoppingMap = new Map<string, ShoppingList>();
+        for (const list of shoppingLists) {
+          shoppingMap.set(list.id, list);
+        }
+
+        const categoryMap = new Map<
+          string,
+          {
+            total: number;
+            count: number;
+            subMap: Map<string, { total: number; count: number }>;
           }
+        >();
+        let grandTotal = 0;
 
-          return Array.from(categoryMap.entries()).map(([category, data]) => ({
-            category,
-            total: data.total,
-            count: data.count,
-            percentage: grandTotal > 0 ? (data.total / grandTotal) * 100 : 0,
-          }));
-        })
-      );
+        for (const expense of expenses) {
+          if (!categoryMap.has(expense.category)) {
+            categoryMap.set(expense.category, { total: 0, count: 0, subMap: new Map() });
+          }
+          const catData = categoryMap.get(expense.category)!;
+          catData.total += expense.amount;
+          catData.count += 1;
+          grandTotal += expense.amount;
+
+          // Check if this expense is linked to a detailed shopping list
+          const linkedList = expense.shoppingListId ? shoppingMap.get(expense.shoppingListId) : null;
+          if (linkedList && linkedList.items && linkedList.items.length > 0) {
+            for (const item of linkedList.items) {
+              const itemPrice = Number(item.price) || 0;
+              if (itemPrice > 0) {
+                const subName = item.subcategory?.trim() || expense.subcategory?.trim() || 'General';
+                const subData = catData.subMap.get(subName) || { total: 0, count: 0 };
+                subData.total += itemPrice;
+                subData.count += 1;
+                catData.subMap.set(subName, subData);
+              }
+            }
+          } else {
+            const subName = expense.subcategory?.trim() || 'General';
+            const subData = catData.subMap.get(subName) || { total: 0, count: 0 };
+            subData.total += expense.amount;
+            subData.count += 1;
+            catData.subMap.set(subName, subData);
+          }
+        }
+
+        return Array.from(categoryMap.entries())
+          .map(([category, data]) => {
+            const subcategories: SubcategoryBreakdown[] = Array.from(data.subMap.entries())
+              .map(([subcategory, subData]) => ({
+                subcategory,
+                total: Math.round(subData.total * 100) / 100,
+                count: subData.count,
+                percentage: data.total > 0 ? (subData.total / data.total) * 100 : 0,
+              }))
+              .sort((a, b) => b.total - a.total);
+
+            return {
+              category,
+              total: Math.round(data.total * 100) / 100,
+              count: data.count,
+              percentage: grandTotal > 0 ? (data.total / grandTotal) * 100 : 0,
+              subcategories,
+            };
+          })
+          .sort((a, b) => b.total - a.total);
+      })
+    );
   }
 
   private getPastMonths(count: number): string[] {

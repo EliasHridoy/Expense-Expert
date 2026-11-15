@@ -7,6 +7,7 @@ import { MonthPickerComponent } from '../../../shared/components/month-picker/mo
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AmountDisplayComponent } from '../../../shared/components/amount-display/amount-display.component';
+import { CalculatableNumberDirective } from '../../../shared/directives/calculatable-number.directive';
 import { ProfileService } from '../../../core/services/profile.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -25,6 +26,7 @@ import { IncomeEntry, UserProfile, IncomeDraft } from '../../../core/models/inco
     EmptyStateComponent,
     ConfirmDialogComponent,
     AmountDisplayComponent,
+    CalculatableNumberDirective,
   ],
   template: `
     <app-page-header title="Profile" />
@@ -97,7 +99,9 @@ import { IncomeEntry, UserProfile, IncomeDraft } from '../../../core/models/inco
             <div>
               <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Amount</label>
               <input
-                type="number"
+                type="text"
+                inputmode="decimal"
+                appCalculatableNumber
                 [(ngModel)]="newDraft.amount"
                 min="0"
                 class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -202,7 +206,9 @@ import { IncomeEntry, UserProfile, IncomeDraft } from '../../../core/models/inco
             <div>
               <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Amount</label>
               <input
-                type="number"
+                type="text"
+                inputmode="decimal"
+                appCalculatableNumber
                 [(ngModel)]="newEntry.amount"
                 min="0"
                 class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-transparent"

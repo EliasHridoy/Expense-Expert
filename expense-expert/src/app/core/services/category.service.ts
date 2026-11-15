@@ -34,6 +34,29 @@ const BUILTIN_ICONS: Record<string, string> = {
   other: '📁',
 };
 
+export const DEFAULT_SUBCATEGORIES: string[] = [
+  'Groceries',
+  'Food',
+  'Dining Out',
+  'Snacks & Beverages',
+  'Fuel & Gas',
+  'Public Transit',
+  'Taxi / Rideshare',
+  'Vehicle Maintenance',
+  'Rent',
+  'Electricity',
+  'Water',
+  'Internet & Phone',
+  'Streaming & Entertainment',
+  'Cleaning & Laundry',
+  'Personal Care & Toiletries',
+  'Clothing & Apparel',
+  'Healthcare & Medicine',
+  'Home Maintenance',
+  'Office & Education',
+  'Gifts & Donations',
+];
+
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
   private firestoreService = inject(FirestoreService);
@@ -46,6 +69,8 @@ export class CategoryService {
       isCustom: false,
     }))
   );
+
+  allSubcategories = signal<string[]>(DEFAULT_SUBCATEGORIES);
 
   private get categoriesPath(): string {
     return this.firestoreService.userPath(this.authService.currentUser()!.uid, 'categories');
@@ -79,5 +104,39 @@ export class CategoryService {
   async deleteCategory(id: string): Promise<void> {
     if (!id) return;
     await this.firestoreService.deleteDocument(`${this.categoriesPath}/${id}`);
+  }
+
+  loadSubcategories(): void {
+    const user = this.authService.currentUser();
+    if (!user) return;
+    try {
+      const stored = localStorage.getItem(`ee_subcats_${user.uid}`);
+      if (stored) {
+        const parsed = JSON.parse(stored) as string[];
+        const combined = Array.from(new Set([...DEFAULT_SUBCATEGORIES, ...parsed]));
+        this.allSubcategories.set(combined);
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  registerSubcategory(name: string): void {
+    const trimmed = name?.trim();
+    if (!trimmed) return;
+    const current = this.allSubcategories();
+    const exists = current.some((s) => s.toLowerCase() === trimmed.toLowerCase());
+    const updated = exists ? current : [...current, trimmed];
+    this.allSubcategories.set(updated);
+
+    const user = this.authService.currentUser();
+    if (user) {
+      try {
+        const customOnly = updated.filter((s) => !DEFAULT_SUBCATEGORIES.includes(s));
+        localStorage.setItem(`ee_subcats_${user.uid}`, JSON.stringify(customOnly));
+      } catch {
+        // ignore
+      }
+    }
   }
 }

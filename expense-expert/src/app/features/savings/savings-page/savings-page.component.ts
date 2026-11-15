@@ -15,6 +15,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { BankAccountListComponent, BankAccountWithTotal } from '../bank-account-list/bank-account-list.component';
 import { SavingGoalListComponent } from '../saving-goal-list/saving-goal-list.component';
+import { CalculatableNumberDirective } from '../../../shared/directives/calculatable-number.directive';
 
 @Component({
   selector: 'app-savings-page',
@@ -28,6 +29,7 @@ import { SavingGoalListComponent } from '../saving-goal-list/saving-goal-list.co
     ConfirmDialogComponent,
     BankAccountListComponent,
     SavingGoalListComponent,
+    CalculatableNumberDirective,
   ],
   template: `
     <app-page-header title="Savings" />
@@ -93,8 +95,9 @@ import { SavingGoalListComponent } from '../saving-goal-list/saving-goal-list.co
           </h3>
           <input
             [(ngModel)]="saveAmount"
-            type="number"
-            min="1"
+            type="text"
+            inputmode="decimal"
+            appCalculatableNumber
             placeholder="Amount"
             class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 px-4 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none mb-3"
           />
@@ -143,8 +146,9 @@ import { SavingGoalListComponent } from '../saving-goal-list/saving-goal-list.co
           </p>
           <input
             [(ngModel)]="withdrawAmount"
-            type="number"
-            min="1"
+            type="text"
+            inputmode="decimal"
+            appCalculatableNumber
             [max]="withdrawGoal?.savedAmount ?? 0"
             placeholder="Amount"
             class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 px-4 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none mb-3"

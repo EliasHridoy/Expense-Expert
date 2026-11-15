@@ -54,4 +54,9 @@ android/.gradle/
 
 # Agents
 *.agents/
+!.agents/skills/browser-testing/
+!.agents/subagents/
+
+# Test results
+test-results/
 

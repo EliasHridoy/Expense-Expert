@@ -6,7 +6,11 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:browser": "node scripts/browser-test-runner.js --mode=all",
+    "test:browser:mobile": "node scripts/browser-test-runner.js --mode=mobile",
+    "test:browser:web": "node scripts/browser-test-runner.js --mode=desktop",
+    "test:browser:quick": "node scripts/browser-test-runner.js --mode=quick"
   },
   "private": true,
   "dependencies": {

@@ -11,7 +11,7 @@ declare interface Env {
 
 // 1. Use import.meta.env.YOUR_ENV_VAR in your code. (conventional)
 declare interface ImportMeta {
-  readonly env: Env;
+  readonly env?: Env;
 }
 
 // 2. Use _NGX_ENV_.YOUR_ENV_VAR in your code. (customizable)

@@ -19,7 +19,7 @@ import { ToastContainerComponent } from '../../../shared/components/toast-contai
         </div>
 
         <!-- Content card -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 transition-colors">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-5 sm:p-8 transition-colors">
           <router-outlet />
         </div>
       </div>

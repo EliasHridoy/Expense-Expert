@@ -1,8 +1,9 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { DashboardService } from '../../../core/services/dashboard.service';
-import { MonthSummary, MonthlyTrend } from '../../../core/models/dashboard.model';
+import { MonthSummary, MonthlyTrend, CategoryBreakdown } from '../../../core/models/dashboard.model';
 import { SummaryCardsComponent } from '../summary-cards/summary-cards.component';
 import { MonthlyChartComponent } from '../monthly-chart/monthly-chart.component';
+import { CategoryBreakdownComponent } from '../category-breakdown/category-breakdown.component';
 import { MonthPickerComponent } from '../../../shared/components/month-picker/month-picker.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -14,6 +15,7 @@ import { TourService } from '../../../core/services/tour.service';
   imports: [
     SummaryCardsComponent,
     MonthlyChartComponent,
+    CategoryBreakdownComponent,
     MonthPickerComponent,
     LoadingSpinnerComponent,
     PageHeaderComponent,
@@ -32,11 +34,17 @@ import { TourService } from '../../../core/services/tour.service';
         <app-summary-cards [summary]="summary()!" class="block mb-6" />
       }
 
-      @if (trend().length > 0) {
-        <div id="monthly-chart">
-          <app-monthly-chart [data]="trend()" />
-        </div>
-      }
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        @if (categories().length > 0) {
+          <app-category-breakdown [data]="categories()" />
+        }
+
+        @if (trend().length > 0) {
+          <div id="monthly-chart">
+            <app-monthly-chart [data]="trend()" />
+          </div>
+        }
+      </div>
     }
   `,
 })
@@ -47,6 +55,7 @@ export class DashboardPageComponent implements OnInit {
   currentMonth = signal(this.getCurrentMonth());
   summary = signal<MonthSummary | null>(null);
   trend = signal<MonthlyTrend[]>([]);
+  categories = signal<CategoryBreakdown[]>([]);
   isLoading = signal(true);
 
   ngOnInit(): void {
@@ -73,6 +82,10 @@ export class DashboardPageComponent implements OnInit {
 
     this.dashboardService.getMonthlyTrend(6).subscribe((trend) => {
       this.trend.set(trend);
+    });
+
+    this.dashboardService.getCategoryBreakdown(this.currentMonth()).subscribe((cats) => {
+      this.categories.set(cats);
     });
   }
 

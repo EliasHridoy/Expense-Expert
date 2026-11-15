@@ -36,6 +36,9 @@ export class ExpenseService {
       loanTakenId: dto.loanTakenId ?? null,
       draftId: dto.draftId ?? null,
       installmentIndex: dto.installmentIndex ?? null,
+      shoppingListId: dto.shoppingListId ?? null,
+      shoppingListName: dto.shoppingListName ?? null,
+      subcategory: dto.subcategory ?? null,
     });
   }
 
@@ -47,7 +50,11 @@ export class ExpenseService {
     return this.firestoreService.updateDocument(`${this.expensesPath}/${id}`, data);
   }
 
-  async deleteExpense(id: string): Promise<void> {
+  async deleteExpense(id: string, shoppingListId?: string | null): Promise<void> {
+    if (shoppingListId) {
+      const shoppingPath = this.firestoreService.userPath(this.authService.currentUser()!.uid, 'shopping_lists');
+      await this.firestoreService.deleteDocument(`${shoppingPath}/${shoppingListId}`);
+    }
     return this.firestoreService.deleteDocument(`${this.expensesPath}/${id}`);
   }
 

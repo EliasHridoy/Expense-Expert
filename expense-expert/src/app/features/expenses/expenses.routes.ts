@@ -12,6 +12,11 @@ export const EXPENSES_ROUTES: Routes = [
       import('./expense-form/expense-form.component').then((m) => m.ExpenseFormComponent),
   },
   {
+    path: 'shopping',
+    loadChildren: () =>
+      import('./shopping/shopping.routes').then((m) => m.SHOPPING_ROUTES),
+  },
+  {
     path: ':id',
     loadComponent: () =>
       import('./expense-detail/expense-detail.component').then((m) => m.ExpenseDetailComponent),

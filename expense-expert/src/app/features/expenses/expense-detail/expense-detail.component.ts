@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExpenseService } from '../../../core/services/expense.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -29,9 +29,14 @@ import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
             <div>
               <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">{{ expense()!.title }}</h1>
               <div class="flex items-center gap-2 mt-1">
-                <app-category-badge [category]="expense()!.category" />
+                <app-category-badge [category]="expense()!.category" [subcategory]="expense()!.subcategory" />
                 @if (expense()!.isLoan) {
                   <span class="text-xs bg-amber-100 text-amber-800 rounded-full px-2 py-0.5">Loan</span>
+                }
+                @if (expense()!.shoppingListId) {
+                  <span class="inline-flex items-center gap-1 text-xs bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 rounded-full px-2.5 py-0.5 font-medium">
+                    <span>🛒</span> {{ expense()!.shoppingListName || 'Shopping List' }}
+                  </span>
                 }
               </div>
             </div>
@@ -43,6 +48,28 @@ import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
           }
 
           <p class="text-xs text-gray-400">{{ expense()!.date | relativeDate }}</p>
+
+          @if (expense()!.shoppingListId) {
+            <div class="mt-5 p-4 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-800/60 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">🛒</span>
+                <div>
+                  <h4 class="text-xs font-bold text-gray-900 dark:text-white">Itemized Shopping List</h4>
+                  <p class="text-[11px] text-gray-500 dark:text-gray-400">View and edit individual items, quantities, and prices.</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                (click)="router.navigate(['/expenses/shopping', expense()!.shoppingListId])"
+                class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition-colors shrink-0 flex items-center gap-1"
+              >
+                <span>View List</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          }
 
           <div class="flex gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
@@ -70,7 +97,7 @@ import { RelativeDatePipe } from '../../../shared/pipes/relative-date.pipe';
       <app-confirm-dialog
         [isOpen]="showDeleteConfirm()"
         title="Delete Expense"
-        message="Are you sure you want to delete this expense? This cannot be undone."
+        [message]="deleteDialogMessage()"
         confirmLabel="Delete"
         (confirmed)="deleteExpense()"
         (cancelled)="showDeleteConfirm.set(false)"
@@ -88,6 +115,13 @@ export class ExpenseDetailComponent implements OnInit {
   isLoading = signal(true);
   showDeleteConfirm = signal(false);
 
+  deleteDialogMessage = computed(() => {
+    if (this.expense()?.shoppingListId) {
+      return 'Are you sure you want to delete this expense? This expense is linked to a shopping list, so the associated shopping list will also be deleted.';
+    }
+    return 'Are you sure you want to delete this expense? This cannot be undone.';
+  });
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id')!;
     this.expenseService.getExpenseById(id).subscribe((expense) => {
@@ -98,7 +132,7 @@ export class ExpenseDetailComponent implements OnInit {
 
   async deleteExpense(): Promise<void> {
     try {
-      await this.expenseService.deleteExpense(this.expense()!.id);
+      await this.expenseService.deleteExpense(this.expense()!.id, this.expense()!.shoppingListId);
       this.toastService.success('Expense deleted');
       this.router.navigate(['/expenses']);
     } catch {

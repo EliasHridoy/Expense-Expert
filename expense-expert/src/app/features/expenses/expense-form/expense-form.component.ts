@@ -10,6 +10,8 @@ import { Person } from '../../../core/models/person.model';
 import { PersonSelectComponent } from '../../../shared/components/person-select/person-select.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { CategoryCardPickerComponent } from '../../../shared/components/category-card-picker/category-card-picker.component';
+import { SubcategoryComboboxComponent } from '../../../shared/components/subcategory-combobox/subcategory-combobox.component';
+import { CalculatableNumberDirective } from '../../../shared/directives/calculatable-number.directive';
 
 @Component({
   selector: 'app-expense-form',
@@ -20,9 +22,11 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
     PersonSelectComponent,
     LoadingSpinnerComponent,
     CategoryCardPickerComponent,
+    SubcategoryComboboxComponent,
+    CalculatableNumberDirective,
   ],
   template: `
-    <div class="max-w-lg mx-auto pb-36">
+    <div class="max-w-lg mx-auto pb-12">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
           @if (currentStep() > 1) {
@@ -76,15 +80,34 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Enter the amount and pick a category.</p>
               </div>
 
+              @if (!isEditMode()) {
+                <div class="bg-primary-50/70 dark:bg-primary-950/40 border border-primary-100 dark:border-primary-800/60 rounded-2xl p-3.5 flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-xl">🛒</span>
+                    <div>
+                      <p class="text-xs font-bold text-gray-900 dark:text-white">Shopping or Grocery trip?</p>
+                      <p class="text-[11px] text-gray-500 dark:text-gray-400">List multiple items with quantities and prices.</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    (click)="router.navigate(['/expenses/shopping/new'])"
+                    class="px-3 py-1.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold shadow-sm transition-colors shrink-0"
+                  >
+                    Use Shopping List →
+                  </button>
+                </div>
+              }
+
               <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700/50">
                 <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 text-center">Amount</label>
                 <div class="relative">
                   <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl text-gray-400">$</span>
                   <input
                     formControlName="amount"
-                    type="number"
-                    min="0.01"
-                    step="0.01"
+                    type="text"
+                    inputmode="decimal"
+                    appCalculatableNumber
                     class="w-full rounded-2xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 pl-10 pr-4 py-4 text-3xl font-bold text-center focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                     placeholder="0.00"
                   />
@@ -96,6 +119,13 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
                 <app-category-card-picker
                   [selectedValue]="form.get('category')?.value"
                   (selected)="form.patchValue({ category: $event })"
+                />
+              </div>
+
+              <div>
+                <app-subcategory-combobox
+                  [value]="form.get('subcategory')?.value"
+                  (valueChange)="form.patchValue({ subcategory: $event })"
                 />
               </div>
             </div>
@@ -172,7 +202,12 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
                     <span class="text-sm font-bold text-gray-900 dark:text-white">{{ form.get('amount')?.value | currency }}</span>
                   </div>
                   <div class="flex justify-between text-xs text-gray-500">
-                    <span>{{ form.get('category')?.value }}</span>
+                    <span class="capitalize">
+                      {{ form.get('category')?.value }}
+                      @if (form.get('subcategory')?.value) {
+                        • {{ form.get('subcategory')?.value }}
+                      }
+                    </span>
                     <span>{{ form.get('date')?.value }}</span>
                   </div>
                 </div>
@@ -180,15 +215,15 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
             </div>
           }
 
-          <!-- Fixed Bottom Action Bar -->
-          <div class="fixed bottom-[72px] left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-10 md:static md:bg-transparent md:p-0 md:border-t-0 md:backdrop-blur-none md:mt-8 md:pt-4">
+          <!-- Bottom Action Bar -->
+          <div class="mt-8 pt-4">
             <div class="max-w-lg mx-auto flex gap-3">
               @if (currentStep() < totalSteps) {
                 <button
                   type="button"
                   (click)="nextStep()"
                   [disabled]="!canProceed()"
-                  class="w-full rounded-2xl bg-primary-600 px-4 py-4 text-base font-bold text-white shadow-lg shadow-primary-500/30 hover:bg-primary-700 hover:shadow-primary-500/40 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
+                  class="w-full rounded-2xl bg-primary-600 px-4 py-3.5 text-base font-bold text-white shadow-md shadow-primary-500/20 hover:bg-primary-700 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
                 >
                   Continue
                 </button>
@@ -196,7 +231,7 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
                 <button
                   type="submit"
                   [disabled]="form.invalid || isSaving()"
-                  class="w-full rounded-2xl bg-green-600 px-4 py-4 text-base font-bold text-white shadow-lg shadow-green-500/30 hover:bg-green-700 hover:shadow-green-500/40 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
+                  class="w-full rounded-2xl bg-green-600 px-4 py-3.5 text-base font-bold text-white shadow-md shadow-green-500/20 hover:bg-green-700 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
                 >
                   {{ isSaving() ? 'Saving...' : (isEditMode() ? 'Update Expense' : 'Save Expense') }}
                 </button>
@@ -234,6 +269,7 @@ export class ExpenseFormComponent implements OnInit {
     description: [''],
     amount: [null, [Validators.required, Validators.min(0.01)]],
     category: [ExpenseCategory.Other, Validators.required],
+    subcategory: [''],
     date: [new Date().toISOString().split('T')[0], Validators.required],
     isLoan: [false],
     loanPersonId: [null],
@@ -253,6 +289,7 @@ export class ExpenseFormComponent implements OnInit {
             description: expense.description,
             amount: expense.amount,
             category: expense.category,
+            subcategory: expense.subcategory || '',
             date: this.toDateString(expense.date),
             isLoan: expense.isLoan,
             loanPersonId: expense.loanPersonId,
@@ -299,6 +336,7 @@ export class ExpenseFormComponent implements OnInit {
         description: values.description || '',
         amount: Number(values.amount),
         category: values.category,
+        subcategory: values.subcategory?.trim() || null,
         date: new Date(values.date),
         isLoan: values.isLoan || false,
         loanPersonId: values.isLoan ? values.loanPersonId : null,

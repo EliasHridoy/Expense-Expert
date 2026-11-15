@@ -5,6 +5,7 @@ import { SavingService } from '../../../core/services/saving.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { BankAccount, DurationUnit } from '../../../core/models/saving.model';
 import { CommonModule } from '@angular/common';
+import { CalculatableNumberDirective } from '../../../shared/directives/calculatable-number.directive';
 
 const DURATION_PRESETS: { label: string; value: number; unit: DurationUnit }[] = [
   { label: '1 Month', value: 1, unit: 'months' },
@@ -18,9 +19,9 @@ const DURATION_PRESETS: { label: string; value: number; unit: DurationUnit }[] =
 @Component({
   selector: 'app-saving-goal-form',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, CalculatableNumberDirective],
   template: `
-    <div class="max-w-lg mx-auto pb-36">
+    <div class="max-w-lg mx-auto pb-12">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
           @if (currentStep() > 1) {
@@ -87,8 +88,9 @@ const DURATION_PRESETS: { label: string; value: number; unit: DurationUnit }[] =
                   <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl text-gray-400">$</span>
                   <input
                     formControlName="targetAmount"
-                    type="number"
-                    min="1"
+                    type="text"
+                    inputmode="decimal"
+                    appCalculatableNumber
                     class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 pl-10 pr-4 py-4 text-2xl font-bold text-center focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                     placeholder="0"
                   />
@@ -184,15 +186,15 @@ const DURATION_PRESETS: { label: string; value: number; unit: DurationUnit }[] =
           </div>
         }
 
-        <!-- Fixed Bottom Action Bar -->
-        <div class="fixed bottom-[72px] left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-10 md:static md:bg-transparent md:p-0 md:border-t-0 md:backdrop-blur-none md:mt-8 md:pt-4">
+        <!-- Bottom Action Bar -->
+        <div class="mt-8 pt-4">
           <div class="max-w-lg mx-auto flex gap-3">
             @if (currentStep() < totalSteps) {
               <button
                 type="button"
                 (click)="nextStep()"
                 [disabled]="!canProceed()"
-                class="w-full rounded-2xl bg-primary-600 px-4 py-4 text-base font-bold text-white shadow-lg shadow-primary-500/30 hover:bg-primary-700 hover:shadow-primary-500/40 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
+                class="w-full rounded-2xl bg-primary-600 px-4 py-3.5 text-base font-bold text-white shadow-md shadow-primary-500/20 hover:bg-primary-700 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
               >
                 Continue
               </button>
@@ -200,7 +202,7 @@ const DURATION_PRESETS: { label: string; value: number; unit: DurationUnit }[] =
               <button
                 type="submit"
                 [disabled]="form.invalid || isSaving()"
-                class="w-full rounded-2xl bg-green-600 px-4 py-4 text-base font-bold text-white shadow-lg shadow-green-500/30 hover:bg-green-700 hover:shadow-green-500/40 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
+                class="w-full rounded-2xl bg-green-600 px-4 py-3.5 text-base font-bold text-white shadow-md shadow-green-500/20 hover:bg-green-700 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
               >
                 {{ isSaving() ? 'Saving...' : (isEditMode() ? 'Update Goal' : 'Create Goal') }}
               </button>

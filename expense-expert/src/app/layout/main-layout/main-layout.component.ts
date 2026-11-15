@@ -20,7 +20,7 @@ import { TourOverlayComponent } from '../../shared/components/tour-overlay/tour-
       <!-- Main content -->
       <div class="flex-1 flex flex-col min-w-0">
         <app-navbar (menuToggle)="sidebarOpen.set(!sidebarOpen())" />
-        <main class="flex-1 overflow-y-auto p-6 pb-24 lg:pb-6 flex flex-col">
+        <main class="flex-1 overflow-y-auto p-3.5 sm:p-6 pb-28 lg:pb-6 flex flex-col">
           <div class="flex-1">
             <router-outlet />
           </div>

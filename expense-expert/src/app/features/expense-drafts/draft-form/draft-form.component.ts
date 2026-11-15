@@ -10,6 +10,8 @@ import { Person } from '../../../core/models/person.model';
 import { PersonSelectComponent } from '../../../shared/components/person-select/person-select.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { CategoryCardPickerComponent } from '../../../shared/components/category-card-picker/category-card-picker.component';
+import { SubcategoryComboboxComponent } from '../../../shared/components/subcategory-combobox/subcategory-combobox.component';
+import { CalculatableNumberDirective } from '../../../shared/directives/calculatable-number.directive';
 
 @Component({
   selector: 'app-draft-form',
@@ -19,10 +21,12 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
     ReactiveFormsModule,
     PersonSelectComponent,
     LoadingSpinnerComponent,
-    CategoryCardPickerComponent
+    CategoryCardPickerComponent,
+    SubcategoryComboboxComponent,
+    CalculatableNumberDirective,
   ],
   template: `
-    <div class="max-w-lg mx-auto pb-36">
+    <div class="max-w-lg mx-auto pb-12">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
           @if (currentStep() > 1) {
@@ -82,9 +86,9 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
                   <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl text-gray-400">$</span>
                   <input
                     formControlName="targetAmount"
-                    type="number"
-                    min="1"
-                    step="1"
+                    type="text"
+                    inputmode="decimal"
+                    appCalculatableNumber
                     class="w-full rounded-2xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 pl-10 pr-4 py-4 text-3xl font-bold text-center focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                     placeholder="0"
                   />
@@ -130,6 +134,12 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
                 [selectedValue]="form.get('category')?.value"
                 (selected)="form.patchValue({ category: $event })"
               />
+              <div class="mt-4">
+                <app-subcategory-combobox
+                  [value]="form.get('subcategory')?.value"
+                  (valueChange)="form.patchValue({ subcategory: $event })"
+                />
+              </div>
             </div>
           }
 
@@ -214,15 +224,15 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
             </div>
           }
 
-          <!-- Fixed Bottom Action Bar -->
-          <div class="fixed bottom-[72px] left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-10 md:static md:bg-transparent md:p-0 md:border-t-0 md:backdrop-blur-none md:mt-8 md:pt-4">
+          <!-- Bottom Action Bar -->
+          <div class="mt-8 pt-4">
             <div class="max-w-lg mx-auto flex gap-3">
               @if (currentStep() < totalSteps) {
                 <button
                   type="button"
                   (click)="nextStep()"
                   [disabled]="!canProceed()"
-                  class="w-full rounded-2xl bg-primary-600 px-4 py-4 text-base font-bold text-white shadow-lg shadow-primary-500/30 hover:bg-primary-700 hover:shadow-primary-500/40 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
+                  class="w-full rounded-2xl bg-primary-600 px-4 py-3.5 text-base font-bold text-white shadow-md shadow-primary-500/20 hover:bg-primary-700 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
                 >
                   Continue
                 </button>
@@ -230,7 +240,7 @@ import { CategoryCardPickerComponent } from '../../../shared/components/category
                 <button
                   type="submit"
                   [disabled]="form.invalid || isSaving()"
-                  class="w-full rounded-2xl bg-green-600 px-4 py-4 text-base font-bold text-white shadow-lg shadow-green-500/30 hover:bg-green-700 hover:shadow-green-500/40 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
+                  class="w-full rounded-2xl bg-green-600 px-4 py-3.5 text-base font-bold text-white shadow-md shadow-green-500/20 hover:bg-green-700 disabled:opacity-50 disabled:shadow-none transition-all active:scale-[0.98]"
                 >
                   {{ isSaving() ? 'Saving...' : (isEditMode() ? 'Update Draft' : 'Save Draft') }}
                 </button>
@@ -265,6 +275,7 @@ export class DraftFormComponent implements OnInit {
     title: ['', Validators.required],
     description: [''],
     category: [ExpenseCategory.Other, Validators.required],
+    subcategory: [''],
     targetAmount: [null, [Validators.required, Validators.min(1)]],
     installmentCount: [1, [Validators.required, Validators.min(1)]],
     isLoan: [false],
@@ -284,6 +295,7 @@ export class DraftFormComponent implements OnInit {
             title: draft.title,
             description: draft.description,
             category: draft.category,
+            subcategory: draft.subcategory || '',
             targetAmount: draft.targetAmount,
             installmentCount: draft.installmentCount,
             isLoan: draft.isLoan,
@@ -333,6 +345,7 @@ export class DraftFormComponent implements OnInit {
         title: values.title,
         description: values.description || '',
         category: values.category,
+        subcategory: values.subcategory?.trim() || null,
         targetAmount: Number(values.targetAmount),
         installmentCount: Number(values.installmentCount),
         isLoan: values.isLoan || false,

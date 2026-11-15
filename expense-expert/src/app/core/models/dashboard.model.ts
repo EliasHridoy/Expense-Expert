@@ -15,9 +15,17 @@ export interface MonthlyTrend {
   totalSavings: number;
 }
 
+export interface SubcategoryBreakdown {
+  subcategory: string;
+  total: number;
+  count: number;
+  percentage: number;
+}
+
 export interface CategoryBreakdown {
   category: string;
   total: number;
   count: number;
   percentage: number;
+  subcategories?: SubcategoryBreakdown[];
 }

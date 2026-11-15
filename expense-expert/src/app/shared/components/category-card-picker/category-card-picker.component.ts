@@ -75,36 +75,38 @@ import { ToastService } from '../../../core/services/toast.service';
       <!-- Add Form with Icon Picker -->
       @if (showAddForm()) {
         <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl space-y-3">
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
             <input
               [(ngModel)]="customIcon"
               placeholder="😀"
               maxlength="5"
-              class="w-12 text-center rounded-lg border-0 bg-white dark:bg-gray-900 px-2 py-2 text-xl text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 outline-none"
+              class="w-12 shrink-0 text-center rounded-lg border-0 bg-white dark:bg-gray-900 px-2 py-2 text-xl text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 outline-none"
             />
             <input
               [(ngModel)]="newCategoryName"
               placeholder="New Category Name"
-              class="flex-1 rounded-lg border-0 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 outline-none"
+              class="flex-1 min-w-[140px] rounded-lg border-0 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 outline-none"
               (keyup.enter)="addCategory()"
             />
-            <button
-              type="button"
-              (click)="addCategory()"
-              [disabled]="!newCategoryName.trim() || !customIcon.trim()"
-              class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              (click)="showAddForm.set(false); newCategoryName = ''; customIcon = ''"
-              class="rounded-lg p-2 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </button>
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+              <button
+                type="button"
+                (click)="addCategory()"
+                [disabled]="!newCategoryName.trim() || !customIcon.trim()"
+                class="flex-1 sm:flex-none rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-center"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                (click)="showAddForm.set(false); newCategoryName = ''; customIcon = ''"
+                class="rounded-lg p-2 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors shrink-0"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       }
