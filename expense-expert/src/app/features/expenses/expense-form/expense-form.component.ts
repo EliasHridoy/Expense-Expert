@@ -11,6 +11,7 @@ import { PersonSelectComponent } from '../../../shared/components/person-select/
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { CategoryCardPickerComponent } from '../../../shared/components/category-card-picker/category-card-picker.component';
 import { SubcategoryComboboxComponent } from '../../../shared/components/subcategory-combobox/subcategory-combobox.component';
+import { CalculatableNumberDirective } from '../../../shared/directives/calculatable-number.directive';
 
 @Component({
   selector: 'app-expense-form',
@@ -22,6 +23,7 @@ import { SubcategoryComboboxComponent } from '../../../shared/components/subcate
     LoadingSpinnerComponent,
     CategoryCardPickerComponent,
     SubcategoryComboboxComponent,
+    CalculatableNumberDirective,
   ],
   template: `
     <div class="max-w-lg mx-auto pb-12">
@@ -103,9 +105,9 @@ import { SubcategoryComboboxComponent } from '../../../shared/components/subcate
                   <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl text-gray-400">$</span>
                   <input
                     formControlName="amount"
-                    type="number"
-                    min="0.01"
-                    step="0.01"
+                    type="text"
+                    inputmode="decimal"
+                    appCalculatableNumber
                     class="w-full rounded-2xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 pl-10 pr-4 py-4 text-3xl font-bold text-center focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                     placeholder="0.00"
                   />

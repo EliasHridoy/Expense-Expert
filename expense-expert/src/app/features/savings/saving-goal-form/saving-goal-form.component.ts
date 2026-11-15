@@ -5,6 +5,7 @@ import { SavingService } from '../../../core/services/saving.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { BankAccount, DurationUnit } from '../../../core/models/saving.model';
 import { CommonModule } from '@angular/common';
+import { CalculatableNumberDirective } from '../../../shared/directives/calculatable-number.directive';
 
 const DURATION_PRESETS: { label: string; value: number; unit: DurationUnit }[] = [
   { label: '1 Month', value: 1, unit: 'months' },
@@ -18,7 +19,7 @@ const DURATION_PRESETS: { label: string; value: number; unit: DurationUnit }[] =
 @Component({
   selector: 'app-saving-goal-form',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, CalculatableNumberDirective],
   template: `
     <div class="max-w-lg mx-auto pb-12">
       <div class="flex items-center justify-between mb-6">
@@ -87,8 +88,9 @@ const DURATION_PRESETS: { label: string; value: number; unit: DurationUnit }[] =
                   <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl text-gray-400">$</span>
                   <input
                     formControlName="targetAmount"
-                    type="number"
-                    min="1"
+                    type="text"
+                    inputmode="decimal"
+                    appCalculatableNumber
                     class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 pl-10 pr-4 py-4 text-2xl font-bold text-center focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                     placeholder="0"
                   />

@@ -11,6 +11,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 import { CategoryCardPickerComponent } from '../../../../shared/components/category-card-picker/category-card-picker.component';
 import { SubcategoryComboboxComponent } from '../../../../shared/components/subcategory-combobox/subcategory-combobox.component';
 import { CategoryService } from '../../../../core/services/category.service';
+import { CalculatableNumberDirective } from '../../../../shared/directives/calculatable-number.directive';
 
 @Component({
   selector: 'app-shopping-form',
@@ -23,6 +24,7 @@ import { CategoryService } from '../../../../core/services/category.service';
     ConfirmDialogComponent,
     CategoryCardPickerComponent,
     SubcategoryComboboxComponent,
+    CalculatableNumberDirective,
   ],
   template: `
     <div class="max-w-2xl mx-auto pb-12">
@@ -231,9 +233,9 @@ import { CategoryService } from '../../../../core/services/category.service';
                       <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400">$</span>
                       <input
                         formControlName="price"
-                        type="number"
-                        step="0.01"
-                        min="0"
+                        type="text"
+                        inputmode="decimal"
+                        appCalculatableNumber
                         placeholder="0.00"
                         (keydown.enter)="onPriceEnter($event, $index)"
                         class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 pl-6 pr-2.5 py-1.5 text-sm font-semibold focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"

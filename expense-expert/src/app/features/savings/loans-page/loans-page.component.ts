@@ -15,6 +15,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { CalculatableNumberDirective } from '../../../shared/directives/calculatable-number.directive';
 
 type Tab = 'taken' | 'given';
 
@@ -30,7 +31,7 @@ interface LoanPersonRow<T> {
 @Component({
   selector: 'app-loans-page',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, DatePipe, PageHeaderComponent, ConfirmDialogComponent, LoadingSpinnerComponent, EmptyStateComponent],
+  imports: [FormsModule, DecimalPipe, DatePipe, PageHeaderComponent, ConfirmDialogComponent, LoadingSpinnerComponent, EmptyStateComponent, CalculatableNumberDirective],
   template: `
     <app-page-header title="Loans" />
 
@@ -106,7 +107,7 @@ interface LoanPersonRow<T> {
                   <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Amount</label>
                   <div class="relative">
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
-                    <input type="number" [(ngModel)]="newTaken.amount" min="1" placeholder="0.00" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 pl-8 pr-3 py-2 text-lg font-bold focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all" />
+                    <input type="text" inputmode="decimal" appCalculatableNumber [(ngModel)]="newTaken.amount" placeholder="0.00" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 pl-8 pr-3 py-2 text-lg font-bold focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all" />
                   </div>
                 </div>
                 <div>
@@ -186,7 +187,7 @@ interface LoanPersonRow<T> {
                           </div>
                           <div class="flex-1 min-w-[110px]">
                             <label class="block text-[10px] font-medium text-gray-500 uppercase mb-1">Pay Amount</label>
-                            <input type="number" [(ngModel)]="personRepayAmounts[row.person.id]" [max]="row.outstanding" min="1" placeholder="0" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-right focus:ring-1 focus:ring-red-500 font-bold" />
+                            <input type="text" inputmode="decimal" appCalculatableNumber [(ngModel)]="personRepayAmounts[row.person.id]" [max]="row.outstanding" placeholder="0" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-right focus:ring-1 focus:ring-red-500 font-bold" />
                           </div>
                           <div class="w-full sm:w-auto">
                             <button (click)="recordPersonRepayment(row)" [disabled]="!personRepayAmounts[row.person.id] || !personRepayDates[row.person.id]" class="w-full sm:w-auto rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 disabled:opacity-50 transition-colors shadow-sm">Pay</button>
@@ -277,7 +278,7 @@ interface LoanPersonRow<T> {
                   <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Amount</label>
                   <div class="relative">
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
-                    <input type="number" [(ngModel)]="newGiven.amount" min="1" placeholder="0.00" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 pl-8 pr-3 py-2 text-lg font-bold focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" />
+                    <input type="text" inputmode="decimal" appCalculatableNumber [(ngModel)]="newGiven.amount" placeholder="0.00" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-gray-100 pl-8 pr-3 py-2 text-lg font-bold focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" />
                   </div>
                 </div>
                 <div>
@@ -353,7 +354,7 @@ interface LoanPersonRow<T> {
                         <div class="flex flex-wrap items-end gap-2 justify-end">
                           <div class="flex-1 min-w-[110px]">
                             <label class="block text-[10px] font-medium text-gray-500 uppercase mb-1">Pay Amount</label>
-                            <input type="number" [(ngModel)]="personGivenRepayAmounts[row.person.id]" [max]="row.outstanding" min="1" placeholder="0" class="w-full sm:w-28 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-right focus:ring-1 focus:ring-blue-500 font-bold" />
+                            <input type="text" inputmode="decimal" appCalculatableNumber [(ngModel)]="personGivenRepayAmounts[row.person.id]" [max]="row.outstanding" placeholder="0" class="w-full sm:w-28 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-right focus:ring-1 focus:ring-blue-500 font-bold" />
                           </div>
                           <div class="w-full sm:w-auto">
                             <button (click)="recordPersonGivenRepayment(row)" [disabled]="!personGivenRepayAmounts[row.person.id]" class="w-full sm:w-auto rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 disabled:opacity-50 transition-colors shadow-sm">Receive Pay</button>
